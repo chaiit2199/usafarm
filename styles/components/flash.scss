@@ -1,0 +1,77 @@
+.core_flash_group {
+  @apply fixed top-2 right-2 flex flex-col gap-4 z-[100];
+}
+
+.core_flash {
+  @apply w-80 sm:w-96 rounded-2xl p-4 cursor-pointer;
+  @apply bg-white border border-theme-primary-border relative overflow-hidden;
+
+  &--info {
+    @apply text-sky-800 fill-sky-900;
+  }
+
+  &--success {
+    @apply text-emerald-800 fill-emerald-900;
+  }
+
+  &--error {
+    @apply text-rose-900 fill-rose-900;
+  }
+
+  &__title {
+    @apply flex items-center gap-1.5 text-base font-semibold;
+  }
+
+  &__content {
+    @apply mt-2 text-sm text-theme-base-content;
+  }
+
+  &__close {
+    @apply absolute top-4 right-4 cursor-pointer p-3 opacity-20 -m-3 hover:opacity-70;
+
+    svg {
+      @apply h-5 w-5 stroke-current;
+    }
+  }
+
+  &__progress {
+    @apply absolute bottom-0 left-0 h-1 bg-theme-muted origin-left;
+    width: 100%;
+    animation-name: flash-progress;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
+
+  &:hover &__progress {
+    animation-play-state: paused;
+  }
+}
+
+.flash-slide-right {
+  @apply transition-all transform duration-300 ease-out;
+}
+
+.flash-slide-right-start {
+  @apply opacity-0 translate-x-full;
+}
+
+.flash-slide-right-end {
+  @apply opacity-100 translate-x-0;
+}
+
+.flash-slide-out {
+  @apply transition-all transform duration-300 ease-in;
+}
+
+.flash-slide-out-end {
+  @apply opacity-0 translate-x-full;
+}
+
+@keyframes flash-progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}

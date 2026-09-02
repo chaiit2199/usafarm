@@ -1,0 +1,94 @@
+.core_dropdown {
+  position: relative;
+  z-index: 1;
+}
+
+.core_dropdown .core_dropdown__title {
+  cursor: pointer;
+}
+
+.core_dropdown.core_dropdown--active {
+  z-index: 10;
+}
+
+.core_dropdown.core_dropdown--active .core_dropdown__list {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+}
+
+.core_dropdown .core_dropdown__list {
+  max-height: 380px;
+  min-width: fit-content;
+  overflow-y: auto;
+  border-radius: 0.75rem;
+  position: absolute;
+  opacity: 0;
+  visibility: hidden;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.35rem 0;
+  list-style: none;
+  transition: all 0.15s ease;
+  transform: scale(0.9);
+  transform-origin: top left;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  background-color: var(--theme-base-100, #fff);
+  font-weight: 500;
+}
+
+.core_dropdown .core_dropdown__list[data-placement="bottom-right"] {
+  right: 0;
+  top: 100%;
+  transform-origin: top right;
+}
+
+.core_dropdown .core_dropdown__list[data-placement="bottom-left"] {
+  left: 0;
+  top: 100%;
+}
+
+.core_dropdown .core_dropdown__list[data-placement="top-right"] {
+  right: 0;
+  bottom: 100%;
+  transform-origin: bottom right;
+}
+
+.core_dropdown .core_dropdown__list[data-placement="center-right"] {
+  right: 100%;
+  bottom: -40%;
+}
+
+.core_dropdown .core_dropdown__list[data-placement="top-left"] {
+  left: 0;
+  bottom: 100%;
+  transform-origin: bottom left;
+}
+
+.core_dropdown .core_dropdown__list[data-placement="top-center"] {
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%) scale(0.9);
+  transform-origin: bottom center;
+}
+
+.core_dropdown.core_dropdown--active .core_dropdown__list[data-placement="top-center"] {
+  transform: translateX(-50%) scale(1);
+}
+
+.core_dropdown .core_dropdown__list .item {
+  display: block;
+  width: 100%;
+  padding: 0.55rem 0.9rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.core_dropdown .core_dropdown__list .item:hover {
+  background: #f3f5f4;
+}

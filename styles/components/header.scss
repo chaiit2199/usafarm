@@ -1,0 +1,128 @@
+/* App header — breadcrumb, title, action bar */
+
+.header {
+  @apply flex items-center justify-between gap-4 flex-shrink-0 p-10 bg-transparent max-h-30;
+}
+
+.header__left {
+  min-width: 0;
+} 
+
+.header__actions {
+  @apply flex items-center gap-3;
+}
+
+.header__search {
+  @apply flex items-center gap-2 w-32 min-w-32 w-auto h-[42px] pl-3 pr-1.5 py-1 rounded-xl bg-white text-theme-primary-content drop-shadow-sm;
+}
+
+.header__search-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+.header__search-input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #2b3674;
+  font-size: 16px;
+}
+
+.header__search-input::placeholder {
+  @apply text-theme-primary-content;
+}
+
+.header__search-input::-webkit-search-cancel-button,
+.header__search-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+.header__search-clear {
+  @apply flex items-center justify-center size-6 shrink-0 rounded-full border-0 bg-white rounded-xl text-theme-primary-content cursor-pointer transition-colors;
+}
+
+.header__search-clear:hover {
+  @apply bg-black/5 text-theme-base-content;
+}
+
+.header__search-submit {
+  @apply inline-flex items-center gap-1.5 shrink-0 h-8 w-[32px] max-w-[32px] px-2 rounded-lg bg-theme-primary text-white text-sm font-medium border-0 cursor-pointer;
+}
+
+.header__search-submit:hover {
+  background: var(--theme-primary-hover);
+}
+
+.header__icon-btn {
+  @apply p-1;    
+} 
+
+.header__avatar {
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  font-size: 0.7rem !important;
+  flex-shrink: 0;
+}
+
+.header__user-menu .core_dropdown__list {
+  @apply min-w-[16.5rem] p-0 overflow-hidden rounded-lg bg-white;
+}
+
+.header-menu {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-menu__profile {
+  padding: 0.9rem 1rem 0.85rem;
+}
+
+.header-menu__greeting {
+  @apply flex items-center gap-4 text-sm font-medium;
+}
+
+.header-menu__greeting-icon {
+  @apply size-4;
+}
+
+.header-menu__email {
+  @apply mt-1.5 ml-8 text-sm font-normal;
+}
+
+.header-menu__divider {
+  @apply h-px bg-theme-primary-border;
+}
+
+.header-menu__section {
+  display: flex;
+  flex-direction: column;
+  padding: 0.35rem 0;
+  margin: 0;
+}
+
+.header-menu__item {
+  @apply flex items-center gap-5 p-3 text-sm font-medium w-full border-0 bg-transparent text-left;
+}
+
+.header-menu__item:hover {
+  background: rgb(0 0 0 / 0.04);
+} 
+
+.header-menu__icon {
+  @apply size-4;
+}
+
+.header-menu__item--danger {
+  @apply text-red-500;
+}
+
+.header-menu__item--danger .header-menu__icon {
+  @apply text-red-500;
+}
+ 

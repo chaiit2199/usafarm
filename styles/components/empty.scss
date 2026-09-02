@@ -1,0 +1,29 @@
+.empty-data { 
+  @apply text-center flex flex-col items-center justify-center gap-2 min-h-16 px-6 py-20;
+}
+
+.empty-data__icon {
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin-bottom: 0.35rem;
+  border-radius: 1rem;
+  background: #f4f6f8;
+  color: var(--color-theme-muted, #9197b3);
+}
+
+.empty-data__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: var(--color-theme-base-content, #0f0f0f);
+}
+
+.empty-data__desc {
+  margin: 0;
+  max-width: 22rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--color-theme-muted, #9197b3);
+}

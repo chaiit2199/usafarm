@@ -1,0 +1,109 @@
+@use "sass:meta";
+@import "tailwindcss";
+
+@source "../app";
+@source "../components";
+@source ".";
+
+/* Theme: light/dark via data-theme */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  --theme-base: #fafbff;
+  --theme-base-content: #0f0f0f;
+  --theme-primary: #3b7a57;
+  --theme-primary-hover: #224426;
+  --theme-muted: #64748B;
+  --theme-primary-content: #b5b7c0;
+  --theme-primary-border: #F5F5F5;
+  --theme-base-100: oklch(98% 0 0);
+  --theme-base-200: oklch(96% 0.001 286.375);
+  --theme-base-300: oklch(92% 0.004 286.32);
+  --theme-secondary: oklch(55% 0.027 264.364);
+  --theme-secondary-content: oklch(98% 0.002 247.839);
+  --theme-accent: oklch(0% 0 0);
+  --theme-accent-content: oklch(100% 0 0);
+  --theme-neutral: oklch(44% 0.017 285.786);
+  --theme-neutral-content: oklch(98% 0 0);
+  --theme-info: oklch(62% 0.214 259.815);
+  --theme-info-content: oklch(97% 0.014 254.604);
+  --theme-success: oklch(70% 0.14 182.503);
+  --theme-success-content: oklch(98% 0.014 180.72);
+  --theme-warning: oklch(66% 0.179 58.318);
+  --theme-warning-content: oklch(98% 0.022 95.277);
+  --theme-error: oklch(58% 0.253 17.585);
+  --theme-error-content: oklch(96% 0.015 12.422);
+  --theme-background-main: #ffffff;
+  --theme-title: #f5f5f5;
+  --theme-icon-muted: #6b6b6b;
+
+  --modal-bg: #fff;
+  --modal-surface: #141820;
+  --modal-surface-2: #1a2030;
+  --modal-border: #262c3a;
+  --modal-muted: #9ca3af;
+  --modal-backdrop: rgb(0 0 0 / 0.65);
+
+  --dash-bg: var(--theme-base);
+  --dash-fg: var(--theme-base-content);
+  --dash-muted: var(--theme-muted);
+  --dash-border: var(--theme-primary-border);
+  --dash-card: #ffffff;
+  --dash-primary: var(--theme-primary);
+  --dash-primary-fg: #ffffff;
+  --dash-input: #f5f7fa;
+  --dash-radius: 1.25rem;
+  --dash-radius-sm: 0.65rem;
+}
+
+@theme {
+  --color-theme-base: var(--theme-base);
+  --color-theme-primary-hover: var(--theme-primary-hover);
+  --color-theme-base-content: var(--theme-base-content);
+  --color-theme-primary: var(--theme-primary);
+  --color-theme-muted: var(--theme-muted);
+  --color-theme-primary-content: var(--theme-primary-content);
+  --color-theme-primary-border: var(--theme-primary-border);
+  --color-base-100: var(--theme-base-100);
+  --color-base-200: var(--theme-base-200);
+  --color-base-300: var(--theme-base-300);
+  --color-primary: var(--theme-primary);
+  --color-secondary: var(--theme-secondary);
+  --color-secondary-content: var(--theme-secondary-content);
+  --color-accent: var(--theme-accent);
+  --color-accent-content: var(--theme-accent-content);
+  --color-neutral: var(--theme-neutral);
+  --color-neutral-content: var(--theme-neutral-content);
+  --color-info: var(--theme-info);
+  --color-info-content: var(--theme-info-content);
+  --color-success: var(--theme-success);
+  --color-success-content: var(--theme-success-content);
+  --color-warning: var(--theme-warning);
+  --color-warning-content: var(--theme-warning-content);
+  --color-error: var(--theme-error);
+  --color-error-content: var(--theme-error-content);
+  --color-background-main: var(--theme-background-main);
+  --color-title: var(--theme-title);
+}
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+html {
+  scrollbar-gutter: stable;
+}
+
+body {
+  background-color: var(--theme-base);
+  @apply text-sm text-theme-base-content;
+  font-family: "Inter", sans-serif;
+}
+
+body.overflow-hidden {
+  overflow: hidden;
+}
+
+h1 {
+  @apply text-2xl font-medium;
+}
+
+@include meta.load-css("./components/index.scss");  

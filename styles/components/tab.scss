@@ -1,0 +1,18 @@
+.core_tab {
+    @apply mb-6;
+    .menu_tab {
+        @apply flex gap-6 relative;
+        &::before {
+            @apply content-[''] absolute left-0 bottom-0 w-full h-px bg-theme-primary-border;
+            z-index: -1;
+        }
+        li {
+            @apply text-base font-medium text-theme-muted py-2 border-b-[2px] border-transparent transition-all cursor-pointer;
+
+            &:hover,
+            &.active {
+                @apply text-theme-primary border-theme-primary;
+            }
+        }
+    }
+}   

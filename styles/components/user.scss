@@ -1,0 +1,75 @@
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.user-avatar {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--avatar-bg, #3b7a57);
+  color: #fff;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.profile__meta {
+  display: flex;
+  min-width: 0;
+  max-width: 12rem;
+  flex: 1;
+  flex-direction: column;
+  line-height: 1.25;
+  text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.profile__name {
+  overflow: hidden;
+  color: #111;
+  font-size: 14px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile__role {
+  overflow: hidden;
+  color: #757575;
+  font-size: 12px;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile__chevron {
+  width: 0.875rem;
+  height: 0.875rem;
+  max-width: 0.875rem;
+  color: #9aa3ab;
+  flex-shrink: 0;
+} 
+.user-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+}
+
+.profile .user-avatar,
+.profile__avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  font-size: 0.8rem;
+}

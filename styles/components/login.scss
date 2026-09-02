@@ -1,0 +1,257 @@
+/* Login — iOS light glass card on photo */
+
+.login-page {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 2.5rem 1rem;
+  background: #0f1a12;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: url("/images/banners/bg-login.jpg") no-repeat center center;
+    background-size: cover;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse at 50% 42%, rgba(0, 0, 0, 0.16) 0%, rgba(0, 0, 0, 0.5) 72%),
+      linear-gradient(180deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.46));
+  }
+}
+
+.login-page * {
+  box-sizing: border-box;
+}
+
+.login-shell {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 26rem;
+  padding: 2rem 1.75rem 1.75rem;
+}
+
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.login-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 2rem;
+  color: rgba(26, 46, 34, 0.72);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.login-back:hover {
+  color: #1a2e22;
+}
+
+.login-header {
+  margin-bottom: 1.85rem;
+}
+
+.login-header__title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0;
+}
+
+.login-header__logo {
+  width: 7.5rem;
+  max-width: 7.5rem;
+  height: auto;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.18));
+}
+
+.login-header__subtitle {
+  font-size: 0.875rem;
+  color: rgba(26, 46, 34, 0.62);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.login-field--password {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-field--password .core_field {
+  margin-bottom: 0;
+}
+
+.login-field__control {
+  position: relative;
+}
+
+.login-field__control .core_field > label {
+  display: block;
+}
+
+.login-field__trailing-btn {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--color-theme-muted);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.login-field__trailing-btn:hover {
+  color: #1a2e22;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.login-form__meta {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.1rem;
+}
+
+.login-link {
+  color: #2f6b4a;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    color 0.15s ease,
+    text-decoration-color 0.15s ease;
+}
+
+.login-link:hover {
+  color: #224426;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.login-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 2.85rem;
+  margin-top: 0.35rem;
+  border: 0;
+  border-radius: 14px;
+  background: var(--theme-primary);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(34, 68, 38, 0.28);
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.login-submit:hover {
+  background: var(--theme-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(34, 68, 38, 0.34);
+}
+
+.login-submit:active {
+  transform: translateY(1px);
+  box-shadow: 0 4px 12px rgba(34, 68, 38, 0.22);
+}
+
+.ios-glass-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 28px;
+  color: #1a2e22;
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.82) 0%,
+    rgba(255, 255, 255, 0.62) 100%
+  );
+  backdrop-filter: blur(40px) saturate(140%);
+  -webkit-backdrop-filter: blur(40px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 24px 64px rgba(0, 0, 0, 0.3);
+}
+
+.ios-glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 18% -10%, rgba(255, 255, 255, 0.78), transparent 42%);
+}
+
+.ios-glass-card::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow: inset 0 0 28px rgba(59, 122, 87, 0.05);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .ios-glass-card {
+    background: rgba(255, 255, 255, 0.94);
+  }
+}
+
+.login-shell .core_label {
+  margin-bottom: 0.45rem;
+  color: rgba(26, 46, 34, 0.9);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.login-shell .core_input {
+  min-height: 2.75rem;
+  padding: 0.7rem 1rem;
+  border-radius: 14px;
+  border: 1px solid var(--theme-primary-border);
+  background: rgba(255, 255, 255, 0.78);
+  color: #1a1a1a;
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.95),
+    0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.login-shell .core_input::placeholder {
+  color: #8a93a6;
+}

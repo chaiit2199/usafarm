@@ -1,0 +1,52 @@
+.core_paginator {
+  @apply flex flex-wrap items-center justify-between gap-3 border-t border-theme-primary-border pt-6; 
+}
+
+.core_paginator__size {
+  @apply flex items-center gap-2 text-sm font-medium ml-auto;
+}
+
+.core_paginator__select {
+  @apply appearance-none h-8 py-1 pl-3 pr-6 border border-theme-primary-border rounded-lg bg-white font-medium text-sm;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2364748b' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.45rem center;
+} 
+
+.core_paginator__nav {
+  display: inline-flex;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.55rem;
+  background: #fff;
+}
+
+.core_paginator__btn,
+.core_paginator__page {
+  @apply inline-flex items-center justify-center min-h-8 px-3 border-0 bg-transparent text-sm font-medium whitespace-nowrap;
+}
+
+.core_paginator__btn {
+  cursor: pointer;
+}
+
+.core_paginator__btn:hover:not(:disabled) {
+  background: #f8fafc;
+}
+
+.core_paginator__btn:disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.core_paginator__page {
+  min-width: 2.75rem;
+  border-left: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+  font-weight: 600;
+}
+
+.core_paginator__btn:last-child {
+  border-left: 0;
+}

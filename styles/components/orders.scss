@@ -1,0 +1,376 @@
+/* Orders management */
+
+.orders-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.orders-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.orders-summary__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.orders-summary__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.order-pie {
+  display: flex;
+  justify-content: center;
+}
+
+.order-pie__canvas {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+}
+
+.order-pie-chart {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  width: 100%;
+}
+
+.order-pie-chart__plot {
+  position: relative;
+  width: 220px;
+  height: 220px;
+}
+
+.order-pie-chart svg {
+  display: block;
+  width: 220px;
+  height: 220px;
+}
+
+.order-pie-chart__slice {
+  cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    filter 0.2s ease;
+  transform-origin: 110px 110px;
+}
+
+.order-pie-chart__slice:hover,
+.order-pie-chart__slice.is-hover {
+  filter: brightness(0.94);
+}
+
+.order-pie-chart__slice.is-active {
+  filter: brightness(0.92);
+}
+
+.order-pie-chart__slice.is-dimmed {
+  opacity: 0.35;
+}
+
+.order-pie-chart__slice.is-dimmed.is-hover {
+  opacity: 1;
+}
+
+.order-pie-chart__center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  gap: 0.15rem;
+}
+
+.order-pie-chart__center strong {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.order-pie-chart__center span {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.order-pie-chart__labels {
+  width: 100%;
+  max-width: 320px;
+}
+
+.order-pie-chart__label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0.45rem 0.55rem;
+  border: 0;
+  border-radius: 0.55rem;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.order-pie-chart__label:hover,
+.order-pie-chart__label.is-hover,
+.order-pie-chart__label.is-active {
+  background: #f3f7f4;
+}
+
+.order-pie-chart__label.is-off {
+  opacity: 0.4;
+}
+
+.order-pie-chart__label.is-off .order-pie-chart__label-dot {
+  background: #cbd5e1 !important;
+}
+
+.order-pie-chart__label-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  flex: 0 0 auto;
+}
+
+.order-pie-chart__label-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.75rem;
+  color: #475569;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.order-pie-chart__label-value {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.order-pie-chart__label-pct {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #9197b3;
+  min-width: 2rem;
+  text-align: right;
+}
+
+.order-pie__tooltip {
+  display: none;
+  flex-direction: column;
+}
+
+.orders-stats {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.orders-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: #fff;
+  text-align: left;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.orders-stat:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.orders-stat.is-active {
+  border-color: #3B7A57;
+  box-shadow: 0 0 0 1px #3B7A57 inset;
+}
+
+.orders-stat__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.6rem;
+  flex-shrink: 0;
+}
+
+.orders-stat__icon--all {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.orders-stat__icon--pending {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.orders-stat__icon--shipping {
+  background: #f5f3ff;
+  color: #7c3aed;
+}
+
+.orders-stat__icon--due_soon {
+  background: #fefce8;
+  color: #ca8a04;
+}
+
+.orders-stat__icon--overdue {
+  background: #fff1f2;
+  color: #e11d48;
+}
+
+.orders-stat__icon--cancelled {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.orders-stat__icon--completed {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.orders-stat__label {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.orders-stat__value {
+  margin: 0.1rem 0 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.orders-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.orders-badge--pending {
+  background: rgb(232 164 90 / 0.14);
+  color: #b36b28;
+}
+
+.orders-badge--processing {
+  background: rgb(249 115 22 / 0.14);
+  color: #c2410c;
+}
+
+.orders-badge--shipping {
+  background: rgb(124 58 237 / 0.12);
+  color: #6d28d9;
+}
+
+.orders-badge--due_soon {
+  background: rgb(196 163 90 / 0.16);
+  color: #8a6d2c;
+}
+
+.orders-badge--overdue {
+  background: rgb(212 114 125 / 0.14);
+  color: #a84452;
+}
+
+.orders-badge--cancelled {
+  background: rgb(220 38 38 / 0.12);
+  color: #b91c1c;
+}
+
+.orders-badge--completed {
+  background: rgb(59 122 87 / 0.14);
+  color: #2f6144;
+}
+
+.orders-badge--active {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.orders-badge--hidden {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.orders-badge--expired {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.orders-badge--inactive {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.orders-badge--public {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.orders-badge--private {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.orders-code {
+  font-weight: 600;
+  color: #3B7A57;
+}
+
+.orders-total {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.orders-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2.5rem 1rem;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 1100px) {
+  .orders-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .orders-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
