@@ -225,17 +225,17 @@ export function EditPackagingComponent({
               ) : (
                 <div className="overview-table-wrap">
                   <div className="overview-table-inner">
-                    <table className="overview-table min-w-[1800px]" id="packagings-table">
+                    <table className="overview-table min-w-[1600px]" id="packagings-table">
                       <colgroup>
-                        <col style={{ width: "8%" }} />
-                        <col style={{ width: "14%" }} />
+                        <col style={{ width: "6%" }} />
+                        <col style={{ width: "12%" }} />
                         <col style={{ width: "14%" }} />
                         <col style={{ width: "16%" }} />
                         <col style={{ width: "10%" }} />
                         <col style={{ width: "10%" }} />
                         <col style={{ width: "8%" }} />
-                        <col style={{ width: "8%" }} />
-                        <col style={{ width: "8%" }} />
+                        <col style={{ width: "10%" }} />
+                        <col style={{ width: "10%" }} />
                         <col style={{ width: "4%" }} />
                       </colgroup>
                       <thead>
