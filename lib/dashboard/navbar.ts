@@ -88,7 +88,7 @@ export const MENU: Navbar[] = [
     id: "agents",
     resource: "agency",
     label: "Quản lý đại lý",
-    href: "/agencies",
+    href: "/agents",
     icon: "hero-users",
     title: "Quản lý đại lý",
     create: true,
