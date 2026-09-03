@@ -10,7 +10,7 @@ const PROTECTED_ROUTES = [
   "/products/packaging",
   "/products/product",
   "/order",
-  "/agents",
+  "/agencies",
   "/promotion",
   "/users",
   "/departments",
