@@ -23,6 +23,7 @@ import {
   updateDepartment,
   type UpdateDepartmentInput,
 } from "@/lib/api/departments";
+import { totalPagesFromMeta } from "@/lib/api/pagination";
 import { putFlash } from "@/lib/flash/flash";
 import { formatDateVi } from "@/lib/format/date";
 
@@ -108,9 +109,7 @@ export function EditDepartmentComponent({
 
       setLoadError(null);
       setDepartments(result.data ?? []);
-      const total = result.meta?.total ?? result.data?.length ?? 0;
-      const size = result.meta?.page_size ?? pageSize;
-      setTotalPages(Math.max(1, Math.ceil(total / size)));
+      setTotalPages(totalPagesFromMeta(result.meta, result.data?.length ?? 0, pageSize));
     });
 
     return () => {
@@ -244,7 +243,7 @@ export function EditDepartmentComponent({
                               <td>{department.name}</td>
                               <td className="overview-table__muted">{formatDateVi(department.created_at)}</td>
                               <td className="overview-table__muted">{formatDateVi(department.activated_at)}</td>
-                              <td className="actions bg-transparent">
+                              <td className="actions">
                                 <div className="admin-actions">
                                   <button type="button" className="admin-actions__btn" aria-label="Chỉnh sửa">
                                     <Icon name="hero-pencil-square" className="size-4" />

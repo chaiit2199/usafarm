@@ -9,6 +9,7 @@ import { Icon } from "@/components/icon";
 import { Tab } from "@/components/tab";
 import { fetchRolePermissions, filterRoles, updateRole, approveRole, rejectRole, type UpdateRoleInput } from "@/lib/api/roles";
 import type { Permission, Role, ScopeType } from "@/lib/api/types";
+import { totalPagesFromMeta } from "@/lib/api/pagination";
 import { USER_STATUS_TABS, UserStatus, type UserStatusTabValue, roleStatusMeta } from "@/lib/constants";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 import { putFlash } from "@/lib/flash/flash";
@@ -88,9 +89,7 @@ export function PermissionGroupsComponent({
     }).then((result) => {
       if (cancelled || !result.ok) return;
       setRoles(result.data ?? []);
-      const total = result.meta?.total ?? result.data?.length ?? 0;
-      const size = result.meta?.page_size ?? pageSize;
-      setTotalPages(Math.max(1, Math.ceil(total / size)));
+      setTotalPages(totalPagesFromMeta(result.meta, result.data?.length ?? 0, pageSize));
     });
 
     return () => {
@@ -236,7 +235,7 @@ export function PermissionGroupsComponent({
                         <td>{role.description}</td>
                         <td className="overview-table__muted">{formatDateVi(role.created_at)}</td>
                         <td className="overview-table__muted">{formatDateVi(role.activated_at)}</td>
-                        <td className="actions bg-transparent">
+                        <td className="actions">
                           <div className="admin-actions">
                             <button type="button" className="admin-actions__btn" aria-label="Chỉnh sửa">
                               <Icon name="hero-pencil-square" className="size-4" />

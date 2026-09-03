@@ -11,6 +11,7 @@ import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel, SelectField } from "@/components/form-fields";
 import { Input, Modal, EmptyData, Pagination, TableHead, TableLoading } from "@/components/core_component";
 import { approveUser, filterUsers, rejectUser, updateUser } from "@/lib/api/users";
+import { totalPagesFromMeta } from "@/lib/api/pagination";
 import { putFlash } from "@/lib/flash/flash";
 import { formatDateVi } from "@/lib/format/date";
 
@@ -104,9 +105,7 @@ export function UsersComponent({
         }).then((result) => {
             if (cancelled || !result.ok) return;
             setUsers(result.data ?? []);
-            const total = result.meta?.total ?? result.data?.length ?? 0;
-            const size = result.meta?.page_size ?? pageSize;
-            setTotalPages(Math.max(1, Math.ceil(total / size)));
+            setTotalPages(totalPagesFromMeta(result.meta, result.data?.length ?? 0, pageSize));
         });
 
         return () => {

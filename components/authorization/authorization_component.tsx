@@ -8,6 +8,7 @@ import { Tab } from "@/components/tab";
 import { UserAvatar } from "@/components/user-components";
 import { filterUsers } from "@/lib/api/users";
 import type { Role, User } from "@/lib/api/types";
+import { totalPagesFromMeta } from "@/lib/api/pagination";
 import { UserStatus, userStatusMeta } from "@/lib/constants";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 import { formatDateVi } from "@/lib/format/date";
@@ -55,9 +56,7 @@ export function AuthorizationComponent({ roles }: { roles: Role[] }) {
     }).then((result) => {
       if (cancelled || !result.ok) return;
       setUsers(result.data ?? []);
-      const total = result.meta?.total ?? result.data?.length ?? 0;
-      const size = result.meta?.page_size ?? pageSize;
-      setTotalPages(Math.max(1, Math.ceil(total / size)));
+      setTotalPages(totalPagesFromMeta(result.meta, result.data?.length ?? 0, pageSize));
     });
 
     return () => {

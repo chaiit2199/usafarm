@@ -3,6 +3,7 @@ import { Suspense } from "react";
 
 import { Dashboard, TableSkeleton } from "@/components/dashboard";
 import { getDepartments } from "@/lib/api/me";
+import { totalPagesFromMeta } from "@/lib/api/pagination";
 import { filterUsers } from "@/lib/api/users";
 import { catchPageLoadError } from "@/lib/catch-page-load";
 import { pageMetadata } from "@/lib/dashboard/navbar";
@@ -31,13 +32,7 @@ async function StaffData() {
       <StaffUsers
         departments={departments}
         initialUsers={usersResult.data ?? []}
-        initialTotalPages={Math.max(
-          1,
-          Math.ceil(
-            (usersResult.meta?.total ?? usersResult.data?.length ?? 0) /
-              (usersResult.meta?.page_size ?? 20),
-          ),
-        )}
+        initialTotalPages={totalPagesFromMeta(usersResult.meta, usersResult.data?.length ?? 0)}
       />
     );
   } catch (error) {

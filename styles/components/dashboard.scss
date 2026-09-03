@@ -927,12 +927,7 @@ $sidebar-label-delay: 0.15s;
 }
 
 .dash-tag {
-  display: inline-flex;
-  padding: 0.1rem 0.375rem;
-  border-radius: 0.25rem;
-  background: var(--dash-muted-soft);
-  color: var(--dash-muted);
-  font-size: 0.6875rem;
+  @apply inline-flex px-1 py-0.5 rounded-md bg-theme-muted/10 text-theme-muted text-xs;
 }
 
 /* —— Tables —— */

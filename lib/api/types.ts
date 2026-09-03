@@ -1,7 +1,12 @@
 export type ApiListMeta = {
+  /** @deprecated Prefer total_records — kept for older list endpoints */
   total?: number;
+  /** @deprecated Prefer current_page */
   page?: number;
   page_size?: number;
+  current_page?: number;
+  total_page?: number;
+  total_records?: number;
   trace_id?: string;
 };
 
@@ -199,4 +204,49 @@ export type MeAccessData = {
 
 export type MeAccessResponse = {
   data: MeAccessData;
+};
+
+export type PackagingGroup = {
+  id: number;
+  code: string;
+  name: string;
+  status: number;
+};
+
+export type PackagingImage = {
+  id?: number;
+  url: string;
+  is_primary?: boolean;
+  sort_order?: number;
+  content_type?: string;
+  image_type?: string;
+  original_filename?: string;
+  size_bytes?: number;
+};
+
+export type Packaging = {
+  id: number;
+  code: string;
+  name: string;
+  status: number;
+  unit: string;
+  weight_kg: string | number;
+  note?: string;
+  groups: PackagingGroup[];
+  images?: PackagingImage[];
+};
+
+export type PackagingsResponse = {
+  data: Packaging[];
+  meta?: ApiListMeta;
+};
+
+export type PackagingResponse = {
+  data: Packaging;
+  meta?: ApiListMeta;
+};
+
+export type PackagingGroupsResponse = {
+  data: PackagingGroup[];
+  meta?: ApiListMeta;
 };

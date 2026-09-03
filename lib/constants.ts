@@ -8,6 +8,19 @@ export const ORDER_STATUSES = [
   { label: "Hoàn thành", value: "completed", color: "#3B7A57" },
 ] as const;
 
+export const PACKAGING_UNITS = [
+  { label: "Cái", value: "CAI"},
+  { label: "Viên", value: "VIEN"},
+  { label: "Thùng", value: "THUNG"},
+  { label: "Bao", value: "BAO"},
+  { label: "Chai", value: "CHAI"},
+  { label: "Gói", value: "GOI"},
+  { label: "Tấn", value: "TAN"},
+  { label: "Tạ", value: "TA"},
+  { label: "Kilogram", value: "KILOGRAM"},
+  { label: "Gram", value: "GRAM"},
+] as const;
+
 export function orderLabel(status: string) {
   return ORDER_STATUSES.find((item) => item.value === status)?.label ?? "Không xác định";
 }

@@ -78,6 +78,8 @@ export async function fetchScopeTargets(scopeType: string): Promise<ScopeTarget[
 
   await requireCurrentUser();
 
+  console.log("path", path);
+
   try {
     return (await client.get<ScopeTargetsResponse>(`/api/v1/${path}`)).data ?? [];
   } catch (error) {

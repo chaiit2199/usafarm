@@ -3,6 +3,7 @@ import { Suspense } from "react";
 
 import { Dashboard, TableSkeleton } from "@/components/dashboard";
 import { getPermissions, getScopeTypes } from "@/lib/api/me";
+import { totalPagesFromMeta } from "@/lib/api/pagination";
 import { filterRoles } from "@/lib/api/roles";
 import { catchPageLoadError } from "@/lib/catch-page-load";
 import { PermissionGroupsComponent } from "@/components/permission_groups/permission_groups_component";
@@ -27,15 +28,13 @@ async function RolesData() {
       getPermissions(),
       filterRoles({ page: 1, page_size: 20 }),
     ]);
-    const pageSize = rolesResult.meta?.page_size ?? 20;
-    const total = rolesResult.meta?.total ?? rolesResult.data?.length ?? 0;
 
     return (
       <PermissionGroupsComponent
         scopeTypes={scopeTypes}
         permissions={permissions}
         initialRoles={rolesResult.data ?? []}
-        initialTotalPages={Math.max(1, Math.ceil(total / pageSize))}
+        initialTotalPages={totalPagesFromMeta(rolesResult.meta, rolesResult.data?.length ?? 0)}
       />
     );
   } catch (error) {

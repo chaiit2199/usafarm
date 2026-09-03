@@ -5,6 +5,7 @@ import { Dashboard, TableSkeleton } from "@/components/dashboard";
 import { PageLoadError } from "@/components/load_error";
 import { DepartmentsComponent } from "@/components/departments/departments_component";
 import { filterDepartments } from "@/lib/api/departments";
+import { totalPagesFromMeta } from "@/lib/api/pagination";
 import { pageMetadata } from "@/lib/dashboard/navbar";
 
 export const metadata: Metadata = pageMetadata("/departments");
@@ -25,13 +26,10 @@ async function DepartmentsData() {
     return <PageLoadError message={result.message} />;
   }
 
-  const pageSize = result.meta?.page_size ?? 20;
-  const total = result.meta?.total ?? result.data?.length ?? 0;
-
   return (
     <DepartmentsComponent
       initialDepartments={result.data ?? []}
-      initialTotalPages={Math.max(1, Math.ceil(total / pageSize))}
+      initialTotalPages={totalPagesFromMeta(result.meta, result.data?.length ?? 0)}
     />
   );
 }
