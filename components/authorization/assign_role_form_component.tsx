@@ -2,6 +2,7 @@
 
 import { useState, useEffect, type ChangeEvent, type FormEvent } from "react";
 
+import { Icon } from "@/components/icon";
 import { Modal } from "@/components/core_component";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel, SelectField } from "@/components/form-fields";
@@ -31,47 +32,42 @@ function scopeTypeLabel(code: string) {
   return SCOPE_TYPE_LABELS[code] ?? code;
 }
 
-type AssignRolePayload = AssignUserAccessInput;
-
-function readAssignForm(
-  data: FormData,
-  fallbackUserId: number | string | undefined,
-  roles: Role[],
-  requireScope: boolean,
-  requireTargets: boolean,
-): AssignRolePayload | null {
-  const userIdRaw = String(data.get("user_id") ?? fallbackUserId ?? "").trim();
-  const userId = Number(userIdRaw);
-  const roleId = Number(String(data.get("role_id") ?? "").trim());
-  const scopeType = String(data.get("scope_type") ?? "").trim();
-  const reason = String(data.get("reason") ?? "").trim();
-  const targetIds = data
-    .getAll("scope_target_ids")
-    .map((value) => Number(value))
-    .filter((id) => Number.isInteger(id) && id > 0);
-
-  if (!Number.isInteger(userId) || userId <= 0) return null;
-  if (!Number.isInteger(roleId) || roleId <= 0 || !reason) return null;
-  if (requireScope && !scopeType) return null;
-  if (requireTargets && targetIds.length === 0) return null;
-  if (!roles.some((role) => role.id === roleId)) return null;
-
-  return {
-    user_id: userId,
-    reason,
-    permissions: [
-      {
-        role_id: roleId,
-        scope_type: scopeType || "ALL",
-        target_ids: targetIds,
-      },
-    ],
-  };
+function requiresTargets(scope: string) {
+  return Boolean(SCOPE_TARGET_PATHS[scope]);
 }
+
+type AssignRolePayload = AssignUserAccessInput;
 
 function initialAllowedScopes(user: User | null, roles: Role[]) {
   if (!user || user.role == null || user.role === "") return [];
   return roles.find((role) => String(role.id) === String(user.role))?.allowed_scope_types ?? [];
+}
+
+function buildPayload(
+  data: FormData,
+  fallbackUserId: number | string | undefined,
+  roles: Role[],
+  selectedScopes: string[],
+  selectedTargetIdsByScope: Record<string, number[]>,
+): AssignRolePayload | null {
+  const userId = Number(String(data.get("user_id") ?? fallbackUserId ?? "").trim());
+  const roleId = Number(String(data.get("role_id") ?? "").trim());
+  const reason = String(data.get("reason") ?? "").trim();
+
+  if (!Number.isInteger(userId) || userId <= 0) return null;
+  if (!Number.isInteger(roleId) || roleId <= 0 || !reason) return null;
+  if (!roles.some((role) => role.id === roleId)) return null;
+  if (selectedScopes.length === 0) return null;
+
+  return {
+    user_id: userId,
+    reason,
+    permissions: selectedScopes.map((scope_type) => ({
+      role_id: roleId,
+      scope_type,
+      target_ids: requiresTargets(scope_type) ? (selectedTargetIdsByScope[scope_type] ?? []) : [],
+    })),
+  };
 }
 
 export function AssignRoleFormComponent({
@@ -88,48 +84,64 @@ export function AssignRoleFormComponent({
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [payload, setPayload] = useState<AssignRolePayload | null>(null);
   const [allowedScopes, setAllowedScopes] = useState<string[]>(() => initialAllowedScopes(user, roles));
-  const [selectedScope, setSelectedScope] = useState("");
-  const [scopeTargets, setScopeTargets] = useState<ScopeTarget[]>([]);
-  const [isTargetsLoading, setIsTargetsLoading] = useState(false);
-
-  // Prefill từ GET /users/:id/access (role + scope + kho đã gán)
+  const [selectedScopes, setSelectedScopes] = useState<string[]>([]);
+  const [targetsByScope, setTargetsByScope] = useState<Record<string, ScopeTarget[]>>({});
+  const [selectedTargetIdsByScope, setSelectedTargetIdsByScope] = useState<Record<string, number[]>>({});
+  const [loadingScopes, setLoadingScopes] = useState<Record<string, boolean>>({});
   const [selectedRoleId, setSelectedRoleId] = useState(
     user?.role != null && user.role !== "" ? String(user.role) : "",
   );
-  const [selectedTargetIds, setSelectedTargetIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (!user?.id) return;
 
     let cancelled = false;
 
-    // Load quyền đã gán → chọn sẵn role / scope / targets trên form
     void fetchUserAccess(Number(user.id)).then(async (data) => {
       if (cancelled) return;
 
-      const assigned = data.user.roles[0];
-      if (!assigned) return;
+      const assignedRoles = data.user.roles;
+      if (assignedRoles.length === 0) return;
 
-      const catalogRole = roles.find((role) => role.id === assigned.id);
-      setSelectedRoleId(String(assigned.id));
+      const primary = assignedRoles[0];
+      const catalogRole = roles.find((role) => role.id === primary.id);
+      const scopes = [...new Set(assignedRoles.map((role) => role.scope_type).filter(Boolean))];
+      const nextTargets: Record<string, number[]> = {};
+
+      for (const assigned of assignedRoles) {
+        nextTargets[assigned.scope_type] = assigned.targets.map((target) => target.id);
+      }
+
+      setSelectedRoleId(String(primary.id));
       setAllowedScopes(catalogRole?.allowed_scope_types ?? []);
-      setSelectedScope(assigned.scope_type);
-      setSelectedTargetIds(assigned.targets.map((t) => t.id));
+      setSelectedScopes(scopes);
+      setSelectedTargetIdsByScope(nextTargets);
 
-      // Scope kiểu WAREHOUSE/AGENCY cần list checkbox từ API
-      if (!SCOPE_TARGET_PATHS[assigned.scope_type]) return;
+      const scopesNeedingTargets = scopes.filter(requiresTargets);
+      if (scopesNeedingTargets.length === 0) return;
 
-      setIsTargetsLoading(true);
+      setLoadingScopes(Object.fromEntries(scopesNeedingTargets.map((scope) => [scope, true])));
       try {
-        const list = await fetchScopeTargets(assigned.scope_type);
-        if (!cancelled) setScopeTargets(list);
+        const entries = await Promise.all(
+          scopesNeedingTargets.map(async (scope) => {
+            const list = await fetchScopeTargets(scope);
+            return [scope, list] as const;
+          }),
+        );
+        if (!cancelled) {
+          setTargetsByScope((current) => ({
+            ...current,
+            ...Object.fromEntries(entries),
+          }));
+        }
       } catch (error) {
         if (!cancelled) {
-          setScopeTargets([]);
           putFlash("error", error instanceof Error ? error.message : "Không tải được danh sách phạm vi", 1500);
         }
       } finally {
-        if (!cancelled) setIsTargetsLoading(false);
+        if (!cancelled) {
+          setLoadingScopes(Object.fromEntries(scopesNeedingTargets.map((scope) => [scope, false])));
+        }
       }
     });
 
@@ -142,50 +154,84 @@ export function AssignRoleFormComponent({
     const role = roles.find((item) => String(item.id) === event.target.value) ?? null;
     setSelectedRoleId(event.target.value);
     setAllowedScopes(role?.allowed_scope_types ?? []);
-    setSelectedScope("");
-    setScopeTargets([]);
-    setSelectedTargetIds([]);
+    setSelectedScopes([]);
+    setTargetsByScope({});
+    setSelectedTargetIdsByScope({});
+    setLoadingScopes({});
   }
 
-  async function handleScopeChange(event: ChangeEvent<HTMLSelectElement>) {
-    const scopeType = event.target.value;
-    setSelectedScope(scopeType);
-    setScopeTargets([]);
-    setSelectedTargetIds([]);
+  async function ensureTargetsLoaded(scope: string) {
+    if (!requiresTargets(scope) || targetsByScope[scope]) return;
 
-    if (!scopeType || !SCOPE_TARGET_PATHS[scopeType]) return;
-
-    setIsTargetsLoading(true);
+    setLoadingScopes((current) => ({ ...current, [scope]: true }));
     try {
-      setScopeTargets(await fetchScopeTargets(scopeType));
+      const list = await fetchScopeTargets(scope);
+      setTargetsByScope((current) => ({ ...current, [scope]: list }));
     } catch (error) {
       putFlash("error", error instanceof Error ? error.message : "Không tải được danh sách phạm vi", 1500);
-      setScopeTargets([]);
+      setTargetsByScope((current) => ({ ...current, [scope]: [] }));
     } finally {
-      setIsTargetsLoading(false);
+      setLoadingScopes((current) => ({ ...current, [scope]: false }));
     }
+  }
+
+  function toggleScope(scope: string) {
+    const isSelected = selectedScopes.includes(scope);
+
+    if (isSelected) {
+      setSelectedScopes((current) => current.filter((item) => item !== scope));
+      setSelectedTargetIdsByScope((current) => {
+        const next = { ...current };
+        delete next[scope];
+        return next;
+      });
+      return;
+    }
+
+    // Mode 1: ALL (hoặc scope không cần targets) — chỉ chọn một mình
+    if (!requiresTargets(scope)) {
+      setSelectedScopes([scope]);
+      setSelectedTargetIdsByScope({});
+      return;
+    }
+
+    // Mode 2: WAREHOUSE / AGENCY — bỏ ALL/SELF, có thể chọn nhiều
+    setSelectedScopes((current) => [...current.filter(requiresTargets), scope]);
+    void ensureTargetsLoaded(scope);
+  }
+
+  function toggleTarget(scope: string, targetId: number) {
+    setSelectedTargetIdsByScope((current) => {
+      const selected = current[scope] ?? [];
+      const next = selected.includes(targetId)
+        ? selected.filter((id) => id !== targetId)
+        : [...selected, targetId];
+      return { ...current, [scope]: next };
+    });
   }
 
   function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const requireTargets = scopeTargets.length > 0;
 
-    // Checkbox group không dùng HTML required — bắt buộc chọn ≥ 1 khi có list kho/hãng
-    if (requireTargets) {
-      const checked = formData.getAll("scope_target_ids").filter(Boolean);
-      if (checked.length === 0) {
-        putFlash("error", "Vui lòng chọn ít nhất một đối tượng được truy cập", 1500);
+    if (allowedScopes.length > 0 && selectedScopes.length === 0) {
+      putFlash("error", "Vui lòng chọn ít nhất một phạm vi", 1500);
+      return;
+    }
+
+    for (const scope of selectedScopes) {
+      if (!requiresTargets(scope)) continue;
+      if ((selectedTargetIdsByScope[scope] ?? []).length === 0) {
+        putFlash("error", `Vui lòng chọn ít nhất một đối tượng cho ${scopeTypeLabel(scope)}`, 1500);
         return;
       }
     }
 
-    const formValues = readAssignForm(
-      formData,
+    const formValues = buildPayload(
+      new FormData(event.currentTarget),
       user?.id,
       roles,
-      allowedScopes.length > 0,
-      requireTargets,
+      selectedScopes,
+      selectedTargetIdsByScope,
     );
     if (!formValues) return;
 
@@ -197,15 +243,13 @@ export function AssignRoleFormComponent({
     if (!payload) return;
 
     const result = await assignUserAccess(payload);
-
     if (!result.ok) {
       setIsConfirmOpen(false);
       putFlash("error", result.message, 1500);
       return;
     }
 
-    const assignedUser =
-      user ?? users.find((item) => Number(item.id) === payload.user_id) ?? null;
+    const assignedUser = user ?? users.find((item) => Number(item.id) === payload.user_id) ?? null;
     const displayName = assignedUser?.full_name ?? `user #${payload.user_id}`;
 
     setIsConfirmOpen(false);
@@ -215,9 +259,7 @@ export function AssignRoleFormComponent({
 
   const formKey = user ? String(user.id ?? user.username) : "new-assign";
   const defaultUserId = user?.id != null ? String(user.id) : "";
-  const targetPath = selectedScope ? SCOPE_TARGET_PATHS[selectedScope] : undefined;
-  // key remount SelectField vì defaultValue chỉ áp dụng lần mount đầu
-  const prefillKey = `${selectedRoleId}:${selectedScope}`;
+  const targetScopes = selectedScopes.filter(requiresTargets);
 
   return (
     <>
@@ -225,7 +267,7 @@ export function AssignRoleFormComponent({
         id="assign-role-modal"
         show
         title="Gán người dùng vào vai trò"
-        subtitle="Phạm vi bị giới hạn theo danh sách vai trò đã cho phép."
+        subtitle="Chọn Toàn hệ thống, hoặc kết hợp Theo kho / Theo hãng."
         closeable={!isConfirmOpen}
         width="xl"
         onClose={onClose}
@@ -238,27 +280,25 @@ export function AssignRoleFormComponent({
           onSubmit={handleFormSubmit}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto flex-auto h-full content-start">
-            <div className="col-span-2">
-              <SelectField
-                id="assign-role-user"
-                name="user_id"
-                label={<RequiredLabel>Họ và tên</RequiredLabel>}
-                defaultValue={defaultUserId}
-                required
-              >
-                <option value="" disabled>
-                  Chọn người dùng
+            <SelectField
+              id="assign-role-user"
+              name="user_id"
+              label={<RequiredLabel>Họ và tên</RequiredLabel>}
+              defaultValue={defaultUserId}
+              required
+            >
+              <option value="" disabled>
+                Chọn người dùng
+              </option>
+              {users.map((item) => (
+                <option key={String(item.id ?? item.username)} value={String(item.id ?? item.username)}>
+                  {item.full_name} - {item.username}
                 </option>
-                {users.map((item) => (
-                  <option key={String(item.id ?? item.username)} value={String(item.id ?? item.username)}>
-                    {item.full_name} - {item.username}
-                  </option>
-                ))}
-              </SelectField>
-            </div>
+              ))}
+            </SelectField>
 
             <SelectField
-              key={`role-${prefillKey}`}
+              key={`role-${selectedRoleId}`}
               id="assign-role-role"
               name="role_id"
               label={<RequiredLabel>Vai trò</RequiredLabel>}
@@ -277,54 +317,72 @@ export function AssignRoleFormComponent({
             </SelectField>
 
             {allowedScopes.length > 0 && (
-              <SelectField
-                key={`scope-${prefillKey}`}
-                id="assign-role-scope"
-                name="scope_type"
-                label={<RequiredLabel>Phạm vi được truy cập</RequiredLabel>}
-                defaultValue={selectedScope}
-                required
-                onChange={handleScopeChange}
-              >
-                <option value="" disabled>
-                  Chọn phạm vi
-                </option>
-                {allowedScopes.map((scope) => (
-                  <option key={scope} value={scope}>
-                    {scopeTypeLabel(scope)}
-                  </option>
-                ))}
-              </SelectField>
-            )}
-
-            {isTargetsLoading && (
-              <p className="auth-targets__hint md:col-span-2">Đang tải danh sách…</p>
-            )}
-
-            {!isTargetsLoading && scopeTargets.length > 0 && targetPath && (
-              <div className="auth-targets md:col-span-2">
-                <p className="auth-targets__title">
-                  <RequiredLabel>{SCOPE_TARGET_TITLE[selectedScope] ?? "Đối tượng được truy cập"}</RequiredLabel>
+              <div className="core_field md:col-span-2">
+                <p className="core_label">
+                  <RequiredLabel>Phạm vi được truy cập</RequiredLabel>
                 </p>
-                <div className="auth-targets__list">
-                  {scopeTargets.map((target) => (
-                    <label key={target.id} className="auth-targets__item">
-                      <input
-                        type="checkbox"
-                        name="scope_target_ids"
-                        value={target.id}
-                        // Tick kho/hãng đã có trong access.targets
-                        defaultChecked={selectedTargetIds.includes(target.id)}
-                        className="core_input--checkbox"
-                      />
-                      <span className="auth-targets__body">
-                        <span className="auth-targets__name">{target.name}</span>
-                      </span>
-                    </label>
-                  ))}
+                <div className="auth-scope">
+                  {allowedScopes.map((scope) => {
+                    const isChecked = selectedScopes.includes(scope);
+
+                    return (
+                      <button
+                        key={scope}
+                        type="button"
+                        className={["auth-scope__item", isChecked && "is-checked"].filter(Boolean).join(" ")}
+                        onClick={() => toggleScope(scope)}
+                      >
+                        <span
+                          className={["auth-permission__check", isChecked && "is-checked"].filter(Boolean).join(" ")}
+                        >
+                          {isChecked && <Icon name="hero-check" className="size-3.5" />}
+                        </span>
+                        <span className="auth-scope__name">{scopeTypeLabel(scope)}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
+
+            {targetScopes.map((scope) => {
+              const targets = targetsByScope[scope] ?? [];
+              const selectedIds = selectedTargetIdsByScope[scope] ?? [];
+              const isLoading = loadingScopes[scope];
+
+              return (
+                <div key={scope} className="auth-targets md:col-span-2">
+                  <p className="auth-targets__title">
+                    <RequiredLabel>{SCOPE_TARGET_TITLE[scope] ?? scopeTypeLabel(scope)}</RequiredLabel>
+                  </p>
+                  {isLoading ? (
+                    <p className="auth-targets__hint">Đang tải danh sách…</p>
+                  ) : targets.length === 0 ? (
+                    <p className="auth-targets__hint">Không có đối tượng để chọn.</p>
+                  ) : (
+                    <div className="auth-targets__list">
+                      {targets.map((target) => {
+                        const checked = selectedIds.includes(target.id);
+
+                        return (
+                          <label key={target.id} className="auth-targets__item">
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => toggleTarget(scope, target.id)}
+                              className="core_input--checkbox"
+                            />
+                            <span className="auth-targets__body">
+                              <span className="auth-targets__name">{target.name}</span>
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
 
             <div className="core_field md:col-span-2">
               <label htmlFor="assign-role-reason" className="core_label">
