@@ -11,11 +11,9 @@ import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel, SelectField } from "@/components/form-fields";
 import {
   PACKAGING_UNITS,
-  RECORD_STATUS_OPTIONS,
   USER_STATUS_TABS,
   UserStatus,
   type UserStatusTabValue,
-  readFormStatus,
   recordStatusMeta,
 } from "@/lib/constants";
 import {
@@ -26,7 +24,12 @@ import {
 } from "@/lib/api/packaging";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import { putFlash } from "@/lib/flash/flash";
-import { PackagingGroupChecklist, PackagingGroupTags } from "./packaging_groups";
+import {
+  PackagingGroupChecklist,
+  PackagingGroupTags,
+  PackagingImageGallery,
+  PackagingThumb,
+} from "./packaging_groups";
 
 function formatWeight(weight: string | number | undefined) {
   if (weight == null || weight === "") return "—";
@@ -39,13 +42,16 @@ function unitLabel(unit: string) {
   return PACKAGING_UNITS.find((item) => item.value === unit)?.label ?? unit;
 }
 
-function readUpdateForm(data: FormData, id: number): UpdatePackagingInput | null {
+function readUpdateForm(
+  data: FormData,
+  id: number,
+  status: number,
+): UpdatePackagingInput | null {
   const text = (name: string) => String(data.get(name) ?? "").trim();
   const code = text("code");
   const name = text("name");
   const unit = text("unit");
   const note = text("note");
-  const status = readFormStatus(data) ?? UserStatus.Active;
   const weight_kg = Number(data.get("weight_kg"));
   const group_ids = data
     .getAll("group_ids")
@@ -160,7 +166,11 @@ export function EditPackagingComponent({
   function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selectedPackaging || selectedPackaging.status !== UserStatus.Active) return;
-    const formValues = readUpdateForm(new FormData(event.currentTarget), selectedPackaging.id);
+    const formValues = readUpdateForm(
+      new FormData(event.currentTarget),
+      selectedPackaging.id,
+      selectedPackaging.status,
+    );
     if (!formValues) return;
     setPayload(formValues);
     setIsConfirmOpen(true);
@@ -217,16 +227,18 @@ export function EditPackagingComponent({
                   <div className="overview-table-inner">
                     <table className="overview-table min-w-[1400px]" id="packagings-table">
                       <colgroup>
-                        <col style={{ width: "12%" }} />
+                        <col style={{ width: "8%" }} />
+                        <col style={{ width: "14%" }} />
+                        <col style={{ width: "18%" }} />
                         <col style={{ width: "24%" }} />
-                        <col style={{ width: "26%" }} />
                         <col style={{ width: "10%" }} />
                         <col style={{ width: "12%" }} />
-                        <col style={{ width: "8%" }} />
+                        <col style={{ width: "10%" }} />
                         <col style={{ width: "4%" }} />
                       </colgroup>
                       <thead>
                         <tr>
+                          <TableHead></TableHead>
                           <TableHead icon="hero-hashtag">Mã bao bì</TableHead>
                           <TableHead icon="hero-archive-box">Tên bao bì</TableHead>
                           <TableHead icon="hero-tag">Nhóm</TableHead>
@@ -247,6 +259,9 @@ export function EditPackagingComponent({
                               onClick={() => openEditForm(packaging)}
                               className="cursor-pointer"
                             >
+                              <td>
+                                <PackagingThumb images={packaging.images} alt={packaging.name} />
+                              </td>
                               <td className="overview-table__muted">{packaging.code}</td>
                               <td>{packaging.name}</td>
                               <td>
@@ -309,6 +324,12 @@ export function EditPackagingComponent({
               </div>
             ) : (
               <div className="admin-user-form gap-4 overflow-y-auto flex-auto h-full">
+                <div className="admin-user-form__full">
+                  <div className="core_field">
+                    <label className="core_label">Hình ảnh sản phẩm</label>
+                    <PackagingImageGallery images={selectedPackaging.images} alt={selectedPackaging.name} />
+                  </div>
+                </div>
                 <Input
                   id="update-packaging-code"
                   name="code"
@@ -352,20 +373,6 @@ export function EditPackagingComponent({
                   readOnly={!canEdit}
                   required={canEdit}
                 />
-                <SelectField
-                  id="update-packaging-status"
-                  name="status"
-                  label={<RequiredLabel>Trạng thái</RequiredLabel>}
-                  defaultValue={String(selectedPackaging.status)}
-                  required={canEdit}
-                  disabled={!canEdit}
-                >
-                  {RECORD_STATUS_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </SelectField>
                 <div className="admin-user-form__full">
                   <div className="core_field">
                     <label className="core_label">Nhóm bao bì</label>

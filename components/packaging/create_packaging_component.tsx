@@ -4,8 +4,8 @@ import { useState, type FormEvent } from "react";
 
 import { Input, Modal } from "@/components/core_component";
 import { FormSubmitButton } from "@/components/form-submit-button";
-import { RequiredLabel, RecordStatusSelectField, SelectField } from "@/components/form-fields";
-import { PACKAGING_UNITS, readFormStatus, UserStatus } from "@/lib/constants";
+import { RequiredLabel, SelectField } from "@/components/form-fields";
+import { PACKAGING_UNITS, UserStatus } from "@/lib/constants";
 import { createPackaging, type CreatePackagingInput } from "@/lib/api/packaging";
 import type { PackagingGroup } from "@/lib/api/types";
 import { putFlash } from "@/lib/flash/flash";
@@ -17,7 +17,6 @@ function readCreateForm(data: FormData): CreatePackagingInput | null {
   const name = text("name");
   const unit = text("unit");
   const note = text("note");
-  const status = readFormStatus(data) ?? UserStatus.Active;
   const weight_kg = Number(data.get("weight_kg"));
   const group_ids = data
     .getAll("group_ids")
@@ -29,7 +28,7 @@ function readCreateForm(data: FormData): CreatePackagingInput | null {
   return {
     code,
     name,
-    status,
+    status: UserStatus.Active,
     unit: unit as CreatePackagingInput["unit"],
     group_ids,
     note: note || undefined,
@@ -126,11 +125,6 @@ export function CreatePackagingComponent({
               label={<RequiredLabel>Định lượng (kg)</RequiredLabel>}
               placeholder="25"
               required
-            />
-            <RecordStatusSelectField
-              id="create-packaging-status"
-              label={<RequiredLabel>Trạng thái</RequiredLabel>}
-              defaultValue={UserStatus.Active}
             />
             <div className="admin-user-form__full">
               <div className="core_field">

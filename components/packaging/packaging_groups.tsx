@@ -1,6 +1,61 @@
 "use client";
 
-import type { PackagingGroup } from "@/lib/api/types";
+import type { PackagingGroup, PackagingImage } from "@/lib/api/types";
+
+export function primaryPackagingImage(images?: PackagingImage[]) {
+  if (!images?.length) return undefined;
+  return images.find((image) => image.is_primary) ?? images[0];
+}
+
+export function PackagingThumb({
+  images,
+  alt,
+}: {
+  images?: PackagingImage[];
+  alt: string;
+}) {
+  const image = primaryPackagingImage(images);
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- signed MinIO URLs / local default
+    <img
+      src={image?.url || "/images/packagingdefault.jpg"}
+      alt={alt}
+      className="packaging-thumb"
+    />
+  );
+}
+
+export function PackagingImageGallery({
+  images,
+  alt,
+}: {
+  images?: PackagingImage[];
+  alt: string;
+}) {
+  const list = [...(images ?? [])].sort(
+    (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || Number(b.is_primary) - Number(a.is_primary),
+  );
+
+  if (list.length === 0) {
+    return <p className="packaging-images__empty">Chưa có hình ảnh.</p>;
+  }
+
+  return (
+    <div className="packaging-images">
+      {list.map((image, index) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={image.id ?? `${image.url}-${index}`}
+          src={image.url}
+          alt={image.original_filename || alt}
+          title={image.image_type ?? image.original_filename}
+          className="packaging-images__item"
+        />
+      ))}
+    </div>
+  );
+}
 
 export function PackagingGroupTags({ groups }: { groups: PackagingGroup[] }) {
   const active = groups.filter((group) => group.status === 1 || group.status == null);

@@ -438,7 +438,7 @@
   table-layout: fixed; 
 
   th {
-    @apply text-sm font-medium text-theme-muted bg-theme-primary-border; 
+    @apply text-sm font-medium text-theme-muted bg-theme-primary-border align-top; 
     @apply p-2;
     text-align: left;
 
@@ -470,7 +470,7 @@
     text-align: left;
     color: var(--ov-text, #0f172a);
     border-bottom: 1px solid var(--theme-primary-border, #eef0f4);
-    vertical-align: middle;
+    vertical-align: top;
  
     &.is-num {
       text-align: right;
