@@ -29,11 +29,10 @@ async function PackagingData() {
   if (!packagingsResult.ok) {
     return <PageLoadError message={packagingsResult.message} />;
   }
-
   if (!groupsResult.ok) {
     return <PageLoadError message={groupsResult.message} />;
   }
-
+ 
   return (
     <PackagingComponent
       initialPackagings={packagingsResult.data ?? []}

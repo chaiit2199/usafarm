@@ -84,11 +84,11 @@ export function CreatePackagingComponent({
       >
         <form
           id="create-packaging-form"
-          className="core_modal__form overflow-hidden"
+          className="core_modal__form overflow-hidden -mx-4"
           autoComplete="off"
           onSubmit={handleFormSubmit}
         >
-          <div className="admin-user-form gap-4 overflow-y-auto flex-auto h-full">
+          <div className="admin-user-form gap-4 overflow-y-auto flex-auto h-full px-4">
             <Input
               id="create-packaging-code"
               name="code"

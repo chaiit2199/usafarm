@@ -28,8 +28,8 @@ import {
   PackagingGroupChecklist,
   PackagingGroupTags,
   PackagingImageGallery,
-  PackagingThumb,
 } from "./packaging_groups";
+import { formatDateVi } from "@/lib/format/date";
 
 function formatWeight(weight: string | number | undefined) {
   if (weight == null || weight === "") return "—";
@@ -225,15 +225,17 @@ export function EditPackagingComponent({
               ) : (
                 <div className="overview-table-wrap">
                   <div className="overview-table-inner">
-                    <table className="overview-table min-w-[1400px]" id="packagings-table">
+                    <table className="overview-table min-w-[1800px]" id="packagings-table">
                       <colgroup>
                         <col style={{ width: "8%" }} />
                         <col style={{ width: "14%" }} />
-                        <col style={{ width: "18%" }} />
-                        <col style={{ width: "24%" }} />
+                        <col style={{ width: "14%" }} />
+                        <col style={{ width: "16%" }} />
                         <col style={{ width: "10%" }} />
-                        <col style={{ width: "12%" }} />
                         <col style={{ width: "10%" }} />
+                        <col style={{ width: "8%" }} />
+                        <col style={{ width: "8%" }} />
+                        <col style={{ width: "8%" }} />
                         <col style={{ width: "4%" }} />
                       </colgroup>
                       <thead>
@@ -245,6 +247,8 @@ export function EditPackagingComponent({
                           <TableHead icon="hero-cube">Định lượng</TableHead>
                           <TableHead icon="hero-tag">Trạng thái</TableHead>
                           <TableHead icon="hero-building-office-2">Đơn vị</TableHead>
+                          <TableHead icon="hero-calendar-days">Ngày tạo</TableHead>
+                          <TableHead icon="hero-calendar-days">Ngày hiệu lực</TableHead>
                           <th className="actions" />
                         </tr>
                       </thead>
@@ -260,7 +264,11 @@ export function EditPackagingComponent({
                               className="cursor-pointer"
                             >
                               <td>
-                                <PackagingThumb images={packaging.images} alt={packaging.name} />
+                                <img
+                                  src={packaging.images?.[0]?.url || "/images/packagingdefault.jpg"}
+                                  alt={packaging.name}
+                                  className="packaging-thumb"
+                                />
                               </td>
                               <td className="overview-table__muted">{packaging.code}</td>
                               <td>{packaging.name}</td>
@@ -272,6 +280,8 @@ export function EditPackagingComponent({
                                 <span className={`status status--${meta.kind}`}>{meta.label}</span>
                               </td>
                               <td className="overview-table__muted">{unitLabel(packaging.unit)}</td>
+                              <td className="overview-table__muted">dd/mm/yy</td>
+                              <td className="overview-table__muted">dd/mm/yy</td>
                               <td className="actions">
                                 <div className="admin-actions">
                                   <button type="button" className="admin-actions__btn" aria-label="Chỉnh sửa">
@@ -314,7 +324,7 @@ export function EditPackagingComponent({
           <form
             key={`${selectedPackaging.id}-${selectedPackaging.groups?.map((g) => g.id).join("-") ?? ""}`}
             id="update-packaging-form"
-            className="core_modal__form overflow-hidden"
+            className="core_modal__form overflow-hidden -mx-4"
             autoComplete="off"
             onSubmit={handleFormSubmit}
           >
@@ -323,7 +333,7 @@ export function EditPackagingComponent({
                 <p className="overview-table__muted">Đang tải chi tiết…</p>
               </div>
             ) : (
-              <div className="admin-user-form gap-4 overflow-y-auto flex-auto h-full">
+              <div className="admin-user-form gap-4 overflow-y-auto flex-auto h-full px-4">
                 <div className="admin-user-form__full">
                   <div className="core_field">
                     <label className="core_label">Hình ảnh sản phẩm</label>

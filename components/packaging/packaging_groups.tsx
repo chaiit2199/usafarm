@@ -7,25 +7,6 @@ export function primaryPackagingImage(images?: PackagingImage[]) {
   return images.find((image) => image.is_primary) ?? images[0];
 }
 
-export function PackagingThumb({
-  images,
-  alt,
-}: {
-  images?: PackagingImage[];
-  alt: string;
-}) {
-  const image = primaryPackagingImage(images);
-
-  return (
-    // eslint-disable-next-line @next/next/no-img-element -- signed MinIO URLs / local default
-    <img
-      src={image?.url || "/images/packagingdefault.jpg"}
-      alt={alt}
-      className="packaging-thumb"
-    />
-  );
-}
-
 export function PackagingImageGallery({
   images,
   alt,

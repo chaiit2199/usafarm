@@ -61,6 +61,7 @@ export const MENU: Navbar[] = [
         icon: "hero-archive-box",
         title: "Quản lý bao bì",
         create: true,
+        search: true,
       },
       {
         id: "product",

@@ -4,17 +4,7 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
-}
-
-@media (min-width: 40rem) {
-  .admin-user-form {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .admin-user-form__full {
-    grid-column: 1 / -1;
-  }
-}
+} 
 
 .core_label__required {
   color: #ef4444;
