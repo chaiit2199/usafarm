@@ -5,7 +5,7 @@ import Image from "next/image";
 export default function NotFound() {
   return (
     <div className="flex items-center justify-center flex-col px-4 bg-white min-h-screen">
-      <Image src="/images/banners/404-banner.jpg" alt="banner" width={515} height={515} />
+      <Image src="/images/banners/404-banner.jpg" priority alt="banner" width={515} height={515}   className="h-auto w-auto max-w-full" />
       <div className="flex justify-center flex-col max-w-[510px] w-full">
         <p className="text-2xl font-smb mb-3 text-center">Trang không tồn tại</p>
         <p className="mb-6 text-center">

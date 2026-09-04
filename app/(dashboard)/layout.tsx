@@ -12,8 +12,10 @@ export default async function DashboardLayout({ children }: LayoutProps<"/">) {
       <div className="dashboard" id="dashboard">
         <SidebarComponent user={user} menu={menu} />
         <div className="dashboard__container">
-          <DashboardHeader />
-          {children}
+          <div className="dashboard__inner">
+            <DashboardHeader />
+            {children}
+          </div>
         </div>
       </div>
     </div>

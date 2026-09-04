@@ -45,6 +45,12 @@ $sidebar-label-delay: 0.15s;
   @apply min-h-screen pb-2;
   max-height: 100vh;
   width: calc(100% - 300px);
+  overflow-x: auto;
+}
+
+.dashboard__inner {
+  min-width: 1000px;
+  overflow-x: auto;
 }
 
 .dash-sidebar__brand {
@@ -188,7 +194,7 @@ $sidebar-label-delay: 0.15s;
 }
 
 .sidebar__footer {
-  @apply flex flex-col gap-2 md:pb-12 pb-24 pt-6 px-6 bg-white border-t border-theme-primary-border;
+  @apply flex flex-col gap-2 md:pb-12 pb-6 pt-6 px-6 bg-white border-t border-theme-primary-border;
   transition: padding $sidebar-duration $sidebar-ease;
 }
 
