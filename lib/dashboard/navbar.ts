@@ -38,25 +38,40 @@ export const MENU: Navbar[] = [
   {
     id: "products",
     label: "Sản phẩm",
+    title: "Sản phẩm",
     icon: "hero-cube",
     children: [
       {
         id: "cost-management",
-        label: "Quản lý giá vốn",
+        label: "Thêm nguyên liệu vào kho",
         href: "/products/cost-management",
-        icon: "hero-currency-dollar",
-        title: "Quản lý giá vốn",
+        icon: "hero-building-storefront",
+        title: "Quản lý nguyên liệu",
       },
       {
         id: "ingredients",
-        label: "Quản lý thành phần",
+        label: "Tạo mới nhóm hàng (NPK, DAP, HUMIC...)",
         href: "/products/ingredients",
         icon: "hero-beaker",
-        title: "Quản lý thành phần",
+        title: "Quản lý nhóm hàng",
+      },
+      {
+        id: "types",
+        label: "Tạo mới loại hàng (30-10-10,20-15-15...)",
+        href: "/products/types",
+        icon: "hero-swatch",
+        title: "Quản lý loại hàng",
+      },
+      {
+        id: "seeds",
+        label: "Tạo mới loại hạt",
+        href: "/products/seeds",
+        icon: "hero-sparkles",
+        title: "Quản lý loại hạt",
       },
       {
         id: "packaging",
-        label: "Quản lý bao bì",
+        label: "Thêm mới mẫu bao bì và gán vào nhóm hàng",
         href: "/products/packaging",
         icon: "hero-archive-box",
         title: "Quản lý bao bì",
@@ -65,14 +80,14 @@ export const MENU: Navbar[] = [
       },
       {
         id: "product",
-        label: "Quản lý thành phẩm",
+        label: "Hệ thống tự động tạo sản phẩm từ nhóm hàng, loại hàng, bao bì, loại hạt",
         href: "/products/product",
-        icon: "hero-calculator",
-        title: "Quản lý thành phẩm",
+        icon: "hero-cog-6-tooth",
+        title: "Quản lý sản phẩm",
         create: true,
         view: true,
       },
-    ],
+    ]
   },
   {
     id: "order",
@@ -107,6 +122,7 @@ export const MENU: Navbar[] = [
   {
     id: "management",
     label: "Quản lý",
+    title: "Quản lý",
     icon: "hero-building-office-2",
     children: [
       {
@@ -219,12 +235,14 @@ export function getPageTitle(pathname: string): string {
   return findMenuItem(pathname)?.title ?? DEFAULT_PAGE_TITLE;
 }
 
-export type HeaderConfig = { title: string } & Required<HeaderButtons>;
+export type HeaderConfig = { title: string, label: string } & Required<HeaderButtons>;
 
 export function getHeaderConfig(pathname: string): HeaderConfig {
   const item = findMenuItem(pathname);
+  const title = getPageTitle(pathname);
   return {
-    title: getPageTitle(pathname),
+    title: title,
+    label: item?.label ?? title,
     create: Boolean(item?.create),
     export: Boolean(item?.export),
     filter: Boolean(item?.filter),

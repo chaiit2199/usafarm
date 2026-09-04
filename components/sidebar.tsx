@@ -81,7 +81,7 @@ export function SidebarComponent({ user, menu }: { user?: User | null; menu: Nav
                     ]
                       .filter(Boolean)
                       .join(" ")}
-                    title={item.label}
+                    title={item.title}
                     aria-expanded={isOpen}
                     aria-controls={`nav-sub-${item.id}`}
                     onClick={() => {
@@ -90,7 +90,7 @@ export function SidebarComponent({ user, menu }: { user?: User | null; menu: Nav
                     }}
                   >
                     <Icon name={item.icon} className="dash-sidebar__icon" />
-                    <span className="dash-sidebar__label">{item.label}</span>
+                    <span className="dash-sidebar__label">{item.title}</span>
                     <svg
                       className="dash-sidebar__chevron"
                       viewBox="0 0 24 24"
@@ -112,11 +112,11 @@ export function SidebarComponent({ user, menu }: { user?: User | null; menu: Nav
                             .filter(Boolean)
                             .join(" ")}
                           id={`nav-${child.id}`}
-                          title={child.label}
+                          title={child.title}
                           onClick={() => collapsed && setCollapsed(false)}
                         >
                           <Icon name={child.icon} className="dash-sidebar__icon" />
-                          <span className="dash-sidebar__label">{child.label}</span>
+                          <span className="dash-sidebar__label">{child.title}</span>
                         </Link>
                       </li>
                     ))}

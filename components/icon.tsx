@@ -38,6 +38,8 @@ import {
   UserGroupIcon,
   UsersIcon,
   XMarkIcon,
+  SwatchIcon,
+  SparklesIcon,
 } from "@heroicons/react/24/outline";
 import {
   CheckIcon,
@@ -92,6 +94,8 @@ const ICONS = {
   "hero-information-circle-mini": InformationCircleIcon,
   "hero-check-circle-mini": CheckCircleIcon,
   "hero-exclamation-circle-mini": ExclamationCircleIcon,
+  "hero-swatch": SwatchIcon,
+  "hero-sparkles": SparklesIcon,
 } as const;
 
 export type IconName = keyof typeof ICONS;

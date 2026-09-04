@@ -23,7 +23,8 @@ export function DashboardHeader() {
   return (
     <header className="header" id="header">
       <div className="header__left">
-        <p className="text-2xl font-medium">{meta.title}</p>
+        <p className="text-2xl font-medium mb-1">{meta.title}</p>
+        <p className="text-sm text-gray-500">{meta.label}</p>
       </div>
 
       <div className="header__actions" id="header-actions">
