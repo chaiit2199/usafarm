@@ -1,13 +1,6 @@
 /* Overview page — Tổng quan */
 
 .overview {
-  --ov-text: #0f172a;
-  --ov-muted: #9197b3;
-  --ov-card: #ffffff;
-  --ov-radius: 1.25rem;
-  --ov-shadow: 0 8px 24px rgb(15 23 42 / 0.04);
-  --ov-shadow-hover: 0 12px 28px rgb(15 23 42 / 0.06);
-
   display: flex;
   flex-direction: column;
 }
@@ -21,16 +14,16 @@
   @apply flex items-center;
   gap: 1rem;
   padding: 1.35rem 1.4rem;
-  border-radius: var(--ov-radius);
-  background: var(--ov-card);
-  box-shadow: var(--ov-shadow);
+  border-radius: var(--dash-radius);
+  background: var(--dash-card);
+  box-shadow: 0 8px 24px rgb(15 23 42 / 0.04);
   transition:
     box-shadow 0.2s ease,
     transform 0.2s ease;
 }
 
 .overview-kpi:hover {
-  box-shadow: var(--ov-shadow-hover);
+  box-shadow: 0 12px 28px rgb(15 23 42 / 0.06);
   transform: translateY(-1px);
 }
 
@@ -42,11 +35,7 @@
 }
 
 .overview-kpi__label {
-  margin: 0;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--ov-muted);
-  letter-spacing: 0.01em;
+  @apply font-medium text-theme-muted;
 }
 
 .overview-kpi__icon {
@@ -70,7 +59,7 @@
   margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--ov-text);
+  color: var(--dash-fg);
   letter-spacing: -0.02em;
   line-height: 1.15;
 }
@@ -82,7 +71,7 @@
   margin: 0.15rem 0 0;
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--ov-muted);
+  color: var(--dash-muted);
 }
 
 .overview-kpi__change.is-up {
@@ -102,15 +91,15 @@
   grid-column: span 12;
   padding: 1.5rem 1.6rem 1.65rem;
   margin: 0;
-  border-radius: var(--ov-radius);
-  background: var(--ov-card);
-  box-shadow: var(--ov-shadow);
+  border-radius: var(--dash-radius);
+  background: var(--dash-card);
+  box-shadow: 0 8px 24px rgb(15 23 42 / 0.04);
   transition: box-shadow 0.2s ease;
   margin-bottom: 1.25rem;
 }
 
 .overview-card:hover {
-  box-shadow: var(--ov-shadow-hover);
+  box-shadow: 0 12px 28px rgb(15 23 42 / 0.06);
 }
 
 .overview-card--chart {
@@ -156,14 +145,14 @@
   width: auto;
   font-size: 1.05rem;
   font-weight: 650;
-  color: var(--ov-text);
+  color: var(--dash-fg);
   letter-spacing: -0.01em;
 }
 
 .overview-card__period {
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--ov-muted);
+  color: var(--dash-muted);
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
   background: #f5f7fa;
@@ -464,7 +453,7 @@
     @apply py-3.5 px-2; 
     vertical-align: top;
     text-align: left;
-    color: var(--ov-text, #0f172a);
+    color: var(--dash-fg);
     border-bottom: 1px solid var(--theme-primary-border, #eef0f4);
     vertical-align: top;
  
@@ -515,7 +504,7 @@
 }
 
 .overview-table__muted {
-  color: var(--ov-muted, #9197b3);
+  color: var(--dash-muted);
   white-space: nowrap;
 }
 
@@ -549,13 +538,13 @@
 
 .overview-seller__name {
   font-weight: 600;
-  color: var(--ov-text, #0f172a);
+  color: var(--dash-fg);
   white-space: nowrap;
 }
 
 .overview-seller__code {
   font-size: 0.75rem;
-  color: var(--ov-muted, #9197b3);
+  color: var(--dash-muted);
 }
 
 .overview-rank {
@@ -651,11 +640,11 @@
   gap: 0.75rem;
   padding: 0.35rem 0;
   font-size: 0.75rem;
-  color: var(--ov-text);
+  color: var(--dash-fg);
 }
 
 .overview-alert__list li span:last-child {
-  color: var(--ov-muted);
+  color: var(--dash-muted);
   white-space: nowrap;
 }
 
@@ -675,7 +664,7 @@
   border: 1px solid var(--theme-primary-border);
   border-radius: 0.55rem;
   background: #fff;
-  color: var(--ov-blue);
+  color: var(--theme-info);
   font-size: 0.75rem;
   font-weight: 600;
   transition:
