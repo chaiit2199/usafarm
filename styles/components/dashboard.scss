@@ -255,7 +255,7 @@ $sidebar-label-delay: 0.15s;
 }
 
 .dash-sidebar__icon {
-  @apply w-6 h-6 shrink-0 transition-all;
+  @apply w-5 h-5 shrink-0 transition-all;
 }
 
 .dash-sidebar__label {
@@ -318,7 +318,7 @@ $sidebar-label-delay: 0.15s;
     gap $sidebar-duration $sidebar-ease;
 
   .dash-sidebar__icon {
-    @apply w-6 h-6 transition-all;
+    @apply w-5 h-5 transition-all;
   }
 
   &.active,

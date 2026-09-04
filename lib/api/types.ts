@@ -1,3 +1,5 @@
+import type { OrderStatusId } from "@/lib/constants";
+
 export type ApiListMeta = {
   /** @deprecated Prefer total_records — kept for older list endpoints */
   total?: number;
@@ -250,3 +252,34 @@ export type PackagingGroupsResponse = {
   data: PackagingGroup[];
   meta?: ApiListMeta;
 };
+
+
+
+// Order
+export type OrderItem = {
+  id: number;
+  product_code: string;
+  product_name: string;
+  quantity: number;
+  unit_price: number;
+  status: OrderStatusId;
+};
+
+export type Order = {
+  id: number;
+  code: string;
+  agency_name: string;
+  address: string;
+  status: OrderStatusId;
+  created_at: string;
+  updated_at: string;
+  /** Đã thu */
+  collected_amount: number;
+  /** Đã nhận */
+  received_amount: number;
+  items: OrderItem[];
+};
+
+export function orderTotal(order: Order): number {
+  return order.items.reduce((sum, item) => sum + item.quantity * item.unit_price, 0);
+}

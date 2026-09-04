@@ -1,13 +1,4 @@
-export const ORDER_STATUSES = [
-  { label: "Chờ giao", value: "pending", color: "#E8A45A" },
-  { label: "Đang xử lý", value: "processing", color: "#F97316" },
-  { label: "Đang giao", value: "shipping", color: "#7C3AED" },
-  { label: "Sắp đến hạn", value: "due_soon", color: "#C4A35A" },
-  { label: "Quá hạn", value: "overdue", color: "#D4727D" },
-  { label: "Hủy", value: "cancelled", color: "#DC2626" },
-  { label: "Hoàn thành", value: "completed", color: "#3B7A57" },
-] as const;
-
+ 
 export const PACKAGING_UNITS = [
   { label: "Cái", value: "CAI"},
   { label: "Viên", value: "VIEN"},
@@ -19,26 +10,7 @@ export const PACKAGING_UNITS = [
   { label: "Tạ", value: "TA"},
   { label: "Kilogram", value: "KILOGRAM"},
   { label: "Gram", value: "GRAM"},
-] as const;
-
-export function orderLabel(status: string) {
-  return ORDER_STATUSES.find((item) => item.value === status)?.label ?? "Không xác định";
-}
-
-export function orderColor(status: string) {
-  return ORDER_STATUSES.find((item) => item.value === status)?.color ?? "#94A3B8";
-}
-
-export const ORDER_SERIES = [
-  { status: "completed", value: 180 },
-  { status: "processing", value: 93 },
-  { status: "shipping", value: 65 },
-  { status: "cancelled", value: 3 },
-].map((item) => ({
-  ...item,
-  label: orderLabel(item.status),
-  color: orderColor(item.status),
-}));
+] as const; 
 
 /** API: 0 = inactive, 1 = active, 2 = waiting for approve, 3 = rejected. */
 export enum UserStatus {
@@ -96,3 +68,39 @@ export const userStatusMeta = recordStatusMeta;
 
 /** Role dùng cùng 0/1/2/3 với user & department. */
 export const roleStatusMeta = recordStatusMeta;
+
+// ORDER STATUSES
+export const ORDER_STATUSES = [
+  { id: 1, label: "Đơn mới", color: "#E8A45A" },
+  { id: 2, label: "CBH", color: "#F97316" },           // Chuẩn bị hàng
+  { id: 3, label: "Đóng gói", color: "#C4A35A" },
+  { id: 4, label: "Vận chuyển", color: "#7C3AED" },
+  { id: 5, label: "Vận chuyển xong", color: "#6366F1" },
+  { id: 6, label: "Đã thu SP", color: "#0EA5E9" },
+  { id: 7, label: "Đã thu tiền", color: "#14B8A6" },
+  { id: 8, label: "Hoàn thành", color: "#3B7A57" },
+] as const;
+
+export type OrderStatusId = (typeof ORDER_STATUSES)[number]["id"]; 
+
+export function getOrderStatusLabel(statusId: number) {
+  return ORDER_STATUSES.find((s) => s.id === statusId)?.label ?? "Không xác định";
+}
+
+export function orderColor(statusId: number) {
+  return ORDER_STATUSES.find((s) => s.id === statusId)?.color ?? "#94A3B8";
+}
+
+/** Fake series for overview pie chart — status key = id string. */
+export const ORDER_SERIES = [
+  { status: "1", value: 42 },
+  { status: "2", value: 28 },
+  { status: "3", value: 19 },
+  { status: "4", value: 35 },
+  { status: "5", value: 22 },
+  { status: "8", value: 61 },
+].map((item) => ({
+  ...item,
+  label: getOrderStatusLabel(Number(item.status)),
+  color: orderColor(Number(item.status)),
+}));

@@ -447,11 +447,7 @@
     }
     &:last-child {
       @apply rounded-tr-lg rounded-br-lg;
-    }
-
-    &.is-num {
-      text-align: right;
-    }
+    } 
 
     &.is-center {
       text-align: center;
@@ -473,7 +469,6 @@
     vertical-align: top;
  
     &.is-num {
-      text-align: right;
       font-variant-numeric: tabular-nums;
     }
 
