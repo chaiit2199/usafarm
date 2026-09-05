@@ -129,4 +129,62 @@
 .header-menu__item--danger .header-menu__icon {
   @apply text-red-500;
 }
+
+.header__notifications .core_dropdown__list {
+  @apply min-w-[20rem] max-w-[22rem] p-0 overflow-hidden rounded-xl bg-white drop-shadow-md;
+}
+
+.header__notify-btn {
+  @apply relative inline-flex items-center justify-center size-[42px] rounded-xl bg-white text-theme-muted drop-shadow-sm cursor-pointer;
+}
+
+.header__notify-badge {
+  @apply absolute -right-1 -top-1 min-w-4 h-4 px-1 rounded-full bg-theme-primary text-[10px] leading-none text-white flex items-center justify-center font-semibold;
+}
+
+.header-notify {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-notify__head {
+  @apply flex items-center justify-between gap-3 px-4 py-3 border-b border-theme-primary-border text-sm;
+}
+
+.header-notify__head strong {
+  @apply font-semibold text-theme-base-content;
+}
+
+.header-notify__head span {
+  @apply text-xs text-theme-muted;
+}
+
+.header-notify__list {
+  @apply max-h-80 overflow-y-auto m-0 p-0 list-none;
+}
+
+.header-notify__item {
+  @apply w-full flex flex-col gap-1 px-4 py-3 text-left border-0 bg-transparent cursor-pointer;
+}
+
+.header-notify__item:hover {
+  background: rgb(0 0 0 / 0.04);
+}
+
+.header-notify__item.is-unread {
+  background: rgb(59 122 87 / 0.08);
+}
+
+.header-notify__item.is-unread:hover {
+  background: rgb(59 122 87 / 0.12);
+}
+
+.header-notify__title {
+  @apply text-sm font-semibold text-theme-base-content;
+}
+
+.header-notify__message,
+.header-notify__time {
+  @apply text-xs text-theme-muted;
+}
  

@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { HeaderNotifications } from "@/components/header_notifications";
 import { Icon } from "@/components/icon";
 import { getHeaderConfig } from "@/lib/dashboard/navbar";
 import { emitHeaderAction } from "@/lib/dashboard/header-actions";
@@ -115,7 +116,10 @@ export function DashboardHeader() {
             Bộ lọc
           </button>
         )}
+
+        <HeaderNotifications />
       </div>
+      
     </header>
   );
 }

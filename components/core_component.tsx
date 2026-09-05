@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { Icon } from "./icon";
 
 export { Input, type InputProps } from "@/components/input";
 export { Tab, type TabItem, type TabProps } from "@/components/tab";
@@ -34,6 +35,7 @@ export type ModalProps = {
   show?: boolean;
   icon?: React.ReactNode;
   onClose?: () => void;
+  onBack?: () => void;
   closeable?: ModalCloseable;
   width?: ModalWidth;
   height?: ModalHeight;
@@ -54,6 +56,7 @@ export function Modal({
   show = false,
   icon,
   onClose,
+  onBack,
   closeable = true,
   width = "md",
   height = "base",
@@ -95,7 +98,7 @@ export function Modal({
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown, true);
     };
-  }, [show, dismiss.escape, onClose]);
+  }, [show, dismiss.escape, onClose, onBack]);
 
   if (!show || typeof document === "undefined") return null;
 
@@ -136,7 +139,18 @@ export function Modal({
                 <header>
                   {icon && <span className="core_modal__icon">{icon}</span>}
                   <div className="core_modal__title--left">
+                    
                     <h2 id={`${modalId}-title`} className="core_modal__title flex items-center gap-4">
+                    {onBack && (
+                      <button
+                        type="button"
+                        className="core_modal__back"
+                        onClick={onBack}
+                      >
+                        <Icon name="hero-chevron-left" className="size-6 font-bold" />
+                      </button>
+                    )}
+                      
                       {title} {status && <div className="core_modal__status mb-2">{status}</div>}
                     </h2>
                     {subtitle && <div className="core_modal__subtitle">{subtitle}</div>}

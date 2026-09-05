@@ -32,14 +32,14 @@ export const ORDERS: Order[] = [
     items: [
       {
         id: 11,
-        product_code: "NPK-30-10-10",
+        product_code: "NPK-301010MSOP",
         product_name: "NPK 30-10-10 Bao 25kg",
         quantity: 10,
         price: 5_000_000,
       },
       {
         id: 12,
-        product_code: "DAP-18-46",
+        product_code: "DAP1846MSOP",
         product_name: "DAP 18-46 Bao 50kg",
         quantity: 5,
         price: 4_250_000,
@@ -60,7 +60,7 @@ export const ORDERS: Order[] = [
     items: [
       {
         id: 21,
-        product_code: "UREA-46",
+        product_code: "URE1846MSOP",
         product_name: "Urê 46% Bao 50kg",
         quantity: 20,
         price: 8_400_000,
@@ -88,7 +88,7 @@ export const ORDERS: Order[] = [
       },
       {
         id: 32,
-        product_code: "NPK-20-15-15",
+        product_code: "NPK201515MSOP",
         product_name: "NPK 20-15-15 Bao 25kg",
         quantity: 40,
         price: 19_200_000,
@@ -103,17 +103,66 @@ export const ORDERS: Order[] = [
     status: 1,
     created_at: "2024-05-15T07:45:00+07:00",
     updated_at: "2024-05-15T07:45:00+07:00",
-    total_amount: 5_850_000,
+    total_amount: 15_850_000,
     collected_amount: 0,
     received_amount: 0,
     items: [
       {
         id: 41,
-        product_code: "KALI-60",
+        product_code: "KALI60MSOP-1",
         product_name: "Kali clorua 60% Bao 50kg",
         quantity: 15,
-        price: 5_850_000,
+        price: 5_000_000,
       },
+      {
+        id: 4,
+        product_code: "URE1846MSOP-2",
+        product_name: "Urê 46% Bao 50kg",
+        quantity: 15,
+        price: 10_000_000,
+      },
+      {
+        id: 44,
+        product_code: "KALI60MSOP-3",
+        product_name: "Kali clorua 60% Bao 50kg",
+        quantity: 15,
+        price: 850_000,
+      },
+      {
+        id: 41,
+        product_code: "KALI60MSOP-4",
+        product_name: "Kali clorua 60% Bao 50kg",
+        quantity: 15,
+        price: 5_000_000,
+      },
+      {
+        id: 4,
+        product_code: "URE1846MSOP-5",
+        product_name: "Urê 46% Bao 50kg",
+        quantity: 15,
+        price: 10_000_000,
+      },
+      {
+        id: 44,
+        product_code: "KALI60MSOP-6",
+        product_name: "Kali clorua 60% Bao 50kg",
+        quantity: 15,
+        price: 850_000,
+      },
+      {
+        id: 41,
+        product_code: "KALI60MSOP-7",
+        product_name: "Kali clorua 60% Bao 50kg",
+        quantity: 15,
+        price: 5_000_000,
+      },
+      {
+        id: 4,
+        product_code: "URE1846MSOP-8",
+        product_name: "Urê 46% Bao 50kg",
+        quantity: 15,
+        price: 10_000_000,
+      }, 
     ],
   },
   {
@@ -130,7 +179,7 @@ export const ORDERS: Order[] = [
     items: [
       {
         id: 51,
-        product_code: "NPK-16-16-8",
+        product_code: "NPK16168MSOP",
         product_name: "NPK 16-16-8 Bao 25kg",
         quantity: 30,
         price: 13_650_000,
@@ -151,7 +200,7 @@ export const ORDERS: Order[] = [
     items: [
       {
         id: 61,
-        product_code: "SA-21",
+        product_code: "SA211846MSOP",
         product_name: "Phân SA 21% Bao 50kg",
         quantity: 25,
         price: 7_750_000,
@@ -208,9 +257,9 @@ export function OrdersTableComponent() {
                   <col style={{ width: "10%" }} />
                   <col style={{ width: "8%" }} />
                   <col style={{ width: "8%" }} />
-                  <col style={{ width: "10%" }} />
-                  <col style={{ width: "10%" }} />
                   <col style={{ width: "12%" }} />
+                  <col style={{ width: "10%" }} />
+                  <col style={{ width: "10%" }} />
                   <col style={{ width: "18%" }} />
                   <col style={{ width: "4%" }} />
                 </colgroup>
@@ -221,9 +270,10 @@ export function OrdersTableComponent() {
                     <TableHead icon="hero-banknotes">Tổng</TableHead>
                     <TableHead icon="hero-banknotes">Đã thu</TableHead>
                     <TableHead icon="hero-banknotes">Đã nhận</TableHead>
+                    <TableHead icon="hero-tag">Trạng thái</TableHead>
                     <TableHead icon="hero-calendar-days">Ngày tạo</TableHead>
                     <TableHead icon="hero-calendar-days">Ngày CN</TableHead>
-                    <TableHead icon="hero-tag">Trạng thái</TableHead>
+                    
                     <TableHead icon="hero-map-pin">Địa chỉ</TableHead>
                     <th className="actions" />
                   </tr>
@@ -236,11 +286,11 @@ export function OrdersTableComponent() {
                       <td className="is-num overview-table__money">{formatMoney(orderTotal(order))}</td>
                       <td className="is-num overview-table__money">{formatMoney(order.collected_amount)}</td>
                       <td className="is-num overview-table__money">{formatMoney(order.received_amount)}</td>
-                      <td className="overview-table__muted">{formatDateTimeVi(order.created_at)}</td>
-                      <td className="overview-table__muted">{formatDateTimeVi(order.updated_at)}</td>
                       <td>
                         <OrderStatusBadge status={order.status} />
                       </td>
+                      <td className="overview-table__muted">{formatDateTimeVi(order.created_at)}</td>
+                      <td className="overview-table__muted">{formatDateTimeVi(order.updated_at)}</td>
                       <td className="overview-table__muted">{order.address}</td>
                       <td className="actions">
                         <div className="admin-actions">

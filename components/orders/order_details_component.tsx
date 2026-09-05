@@ -34,10 +34,11 @@ function OrderStatusBadge({ status }: { status: OrderStatusId }) {
 }
 
 export function OrderDetailsComponent({ order, onClose }: OrderDetailsComponentProps) {
-  const [isProductDetailsOpen, setIsProductDetailsOpen] = useState(false);
+  const [isProductDetailsOpen, setIsProductDetailsOpen] = useState("details");
 
   return (
     <>
+    {isProductDetailsOpen === "details" && (
       <Modal
         id="order-details-modal"
         show
@@ -48,12 +49,12 @@ export function OrderDetailsComponent({ order, onClose }: OrderDetailsComponentP
         onClose={onClose}
       >
         <div className="core_modal__form overflow-hidden -mx-4">
-          <div className="px-4 pb-4">
-            <div className="overview-table-wrap">
+          <div className="px-4 pb-4 overflow-y-auto">
               <div className="overview-table-inner">
                 <table className="overview-table min-w-full" id="order-details-table">
                   <colgroup>
-                    <col style={{ width: "20%" }} />
+                    <col style={{ width: "5%" }} />
+                    <col style={{ width: "15%" }} />
                     <col style={{ width: "40%" }} />
                     <col style={{ width: "16%" }} />
                     <col style={{ width: "20%" }} />
@@ -61,6 +62,7 @@ export function OrderDetailsComponent({ order, onClose }: OrderDetailsComponentP
                   </colgroup>
                   <thead>
                     <tr>
+                      <TableHead></TableHead>
                       <TableHead icon="hero-hashtag">Mã sản phẩm</TableHead>
                       <TableHead icon="hero-cube">Sản phẩm</TableHead>
                       <TableHead icon="hero-hashtag">Số lượng</TableHead>
@@ -69,8 +71,11 @@ export function OrderDetailsComponent({ order, onClose }: OrderDetailsComponentP
                     </tr>
                   </thead>
                   <tbody>
-                    {order.items.map((item) => (
-                      <tr key={item.id}>
+                    {order.items.map((item, index) => (
+                      <tr key={item.product_code}>
+                        <td>
+                          <span className="overview-table__muted">{index + 1}</span>
+                        </td>
                         <td>
                           <span className="overview-table__muted">{item.product_code}</span>
                         </td>
@@ -86,7 +91,7 @@ export function OrderDetailsComponent({ order, onClose }: OrderDetailsComponentP
                                 type="button"
                                 className="admin-actions__btn"
                                 aria-label="Chỉnh sửa sản phẩm"
-                                onClick={() => setIsProductDetailsOpen(true)}
+                                onClick={() => setIsProductDetailsOpen("product-details")}
                               >
                                 <Icon name="hero-pencil-square" className="size-4" />
                               </button>
@@ -98,7 +103,6 @@ export function OrderDetailsComponent({ order, onClose }: OrderDetailsComponentP
                   </tbody>
                 </table>
               </div>
-            </div>
           </div>
 
           <div className="core_modal__actions">
@@ -124,10 +128,11 @@ export function OrderDetailsComponent({ order, onClose }: OrderDetailsComponentP
           </div>
         </div>
       </Modal>
+    )}
 
-      {isProductDetailsOpen && (
-        <OrderProductDetailsComponent onClose={() => setIsProductDetailsOpen(false)} />
-      )}
+    {isProductDetailsOpen === "product-details" && (
+      <OrderProductDetailsComponent onClose={() => setIsProductDetailsOpen("details")} />
+    )}
     </>
   );
 }
