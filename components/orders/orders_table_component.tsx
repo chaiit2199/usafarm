@@ -17,6 +17,10 @@ const ORDER_STATUS_TABS = [
   ...ORDER_STATUSES.map((s) => ({ value: s.id, label: s.label })),
 ];
 
+function handleOrderClick(order: Order) {
+  console.log(order);
+}
+
 export const ORDERS: Order[] = [
   {
     id: 1,
@@ -26,24 +30,23 @@ export const ORDERS: Order[] = [
     status: 8,
     created_at: "2024-05-18T10:20:00+07:00",
     updated_at: "2024-05-20T14:05:00+07:00",
-    collected_amount: 9_250_000,
-    received_amount: 9_250_000,
+    total_amount: 9_250_000,
+    collected_amount: 250_000,
+    received_amount: 9_000_000,
     items: [
       {
         id: 11,
         product_code: "NPK-30-10-10",
         product_name: "NPK 30-10-10 Bao 25kg",
         quantity: 10,
-        unit_price: 500_000,
-        status: 8,
+        price: 5_000_000,
       },
       {
         id: 12,
         product_code: "DAP-18-46",
         product_name: "DAP 18-46 Bao 50kg",
         quantity: 5,
-        unit_price: 850_000,
-        status: 8,
+        price: 4_250_000,
       },
     ],
   },
@@ -55,6 +58,7 @@ export const ORDERS: Order[] = [
     status: 2,
     created_at: "2024-05-17T10:15:00+07:00",
     updated_at: "2024-05-17T16:40:00+07:00",
+    total_amount: 8_400_000,
     collected_amount: 0,
     received_amount: 0,
     items: [
@@ -63,8 +67,7 @@ export const ORDERS: Order[] = [
         product_code: "UREA-46",
         product_name: "Urê 46% Bao 50kg",
         quantity: 20,
-        unit_price: 420_000,
-        status: 2,
+        price: 8_400_000,
       },
     ],
   },
@@ -76,6 +79,7 @@ export const ORDERS: Order[] = [
     status: 4,
     created_at: "2024-05-16T09:00:00+07:00",
     updated_at: "2024-05-18T11:20:00+07:00",
+    total_amount: 26_700_000,
     collected_amount: 3_000_000,
     received_amount: 5_000_000,
     items: [
@@ -84,16 +88,14 @@ export const ORDERS: Order[] = [
         product_code: "HUMIC-01",
         product_name: "Humic Acid Gói 1kg",
         quantity: 100,
-        unit_price: 75_000,
-        status: 4,
+        price: 7_500_000,
       },
       {
         id: 32,
         product_code: "NPK-20-15-15",
         product_name: "NPK 20-15-15 Bao 25kg",
         quantity: 40,
-        unit_price: 480_000,
-        status: 1,
+        price: 19_200_000,
       },
     ],
   },
@@ -105,6 +107,7 @@ export const ORDERS: Order[] = [
     status: 1,
     created_at: "2024-05-15T07:45:00+07:00",
     updated_at: "2024-05-15T07:45:00+07:00",
+    total_amount: 5_850_000,
     collected_amount: 0,
     received_amount: 0,
     items: [
@@ -113,8 +116,7 @@ export const ORDERS: Order[] = [
         product_code: "KALI-60",
         product_name: "Kali clorua 60% Bao 50kg",
         quantity: 15,
-        unit_price: 390_000,
-        status: 1,
+        price: 5_850_000,
       },
     ],
   },
@@ -126,6 +128,7 @@ export const ORDERS: Order[] = [
     status: 5,
     created_at: "2024-05-14T11:20:00+07:00",
     updated_at: "2024-05-16T09:10:00+07:00",
+    total_amount: 13_650_000,
     collected_amount: 0,
     received_amount: 13_650_000,
     items: [
@@ -134,8 +137,7 @@ export const ORDERS: Order[] = [
         product_code: "NPK-16-16-8",
         product_name: "NPK 16-16-8 Bao 25kg",
         quantity: 30,
-        unit_price: 455_000,
-        status: 5,
+        price: 13_650_000,
       },
     ],
   },
@@ -147,6 +149,7 @@ export const ORDERS: Order[] = [
     status: 3,
     created_at: "2024-05-13T14:00:00+07:00",
     updated_at: "2024-05-14T08:30:00+07:00",
+    total_amount: 7_750_000,
     collected_amount: 0,
     received_amount: 2_000_000,
     items: [
@@ -155,8 +158,7 @@ export const ORDERS: Order[] = [
         product_code: "SA-21",
         product_name: "Phân SA 21% Bao 50kg",
         quantity: 25,
-        unit_price: 310_000,
-        status: 3,
+        price: 7_750_000,
       },
     ],
   },
@@ -221,7 +223,7 @@ export function OrdersTableComponent() {
               </thead>
               <tbody>
                 {ORDERS.map((order) => (
-                  <tr key={order.code} id={`order-row-${order.code}`} className="cursor-pointer">
+                  <tr key={order.code} id={`order-row-${order.code}`} className="cursor-pointer" onClick={() => { handleOrderClick(order) }}>
                     <td className="overview-table__code">{order.code}</td>
                     <td>{order.agency_name}</td>
                     <td className="is-num overview-table__money">{formatMoney(orderTotal(order))}</td>

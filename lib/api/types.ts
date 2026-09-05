@@ -261,8 +261,7 @@ export type OrderItem = {
   product_code: string;
   product_name: string;
   quantity: number;
-  unit_price: number;
-  status: OrderStatusId;
+  price: number;
 };
 
 export type Order = {
@@ -273,6 +272,8 @@ export type Order = {
   status: OrderStatusId;
   created_at: string;
   updated_at: string;
+  /** Tổng tiền đơn */
+  total_amount: number;
   /** Đã thu */
   collected_amount: number;
   /** Đã nhận */
@@ -281,5 +282,5 @@ export type Order = {
 };
 
 export function orderTotal(order: Order): number {
-  return order.items.reduce((sum, item) => sum + item.quantity * item.unit_price, 0);
+  return order.total_amount;
 }

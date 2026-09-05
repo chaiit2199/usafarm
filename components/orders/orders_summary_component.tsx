@@ -1,9 +1,9 @@
 import { Icon } from "@/components/icon";
 
 export const OrdersSummary = [
-    { id: "revenue", label: "Doanh thu", value: "10,248 tỷ" },
-    { id: "debt", label: "Công nợ", value: "2,45 tỷ" },
-    { id: "paid", label: "Đã thu", value: "6 tỷ" },
+    { id: "revenue", label: "Doanh thu", value: "10 tỷ" },
+    { id: "debt", label: "Công nợ", value: "1 tỷ" },
+    { id: "paid", label: "Đã thu", value: "9 tỷ" },
   ];
   
 

@@ -72,11 +72,11 @@ export const roleStatusMeta = recordStatusMeta;
 // ORDER STATUSES
 export const ORDER_STATUSES = [
   { id: 1, label: "Đơn mới", color: "#E8A45A" },
-  { id: 2, label: "CBH", color: "#F97316" },           // Chuẩn bị hàng
+  { id: 2, label: "Chuẩn bị hàng", color: "#F97316" },           // Chuẩn bị hàng
   { id: 3, label: "Đóng gói", color: "#C4A35A" },
-  { id: 4, label: "Vận chuyển", color: "#7C3AED" },
-  { id: 5, label: "Vận chuyển xong", color: "#6366F1" },
-  { id: 6, label: "Đã thu SP", color: "#0EA5E9" },
+  { id: 4, label: "Đang vận chuyển", color: "#7C3AED" },
+  { id: 5, label: "Đã vận chuyển", color: "#6366F1" },
+  { id: 6, label: "Đã thu một phần", color: "#0EA5E9" },
   { id: 7, label: "Đã thu tiền", color: "#14B8A6" },
   { id: 8, label: "Hoàn thành", color: "#3B7A57" },
 ] as const;
