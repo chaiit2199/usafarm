@@ -16,7 +16,7 @@
 .core_input {
   @apply border border-theme-primary-border rounded-lg bg-white text-theme-muted font-normal leading-6 outline-none transition-all;
   @apply px-4 py-2 h-11;
-  font-size: 16px;
+  font-size: 16px; 
 }
 
 .core_input::placeholder {
@@ -116,6 +116,14 @@ textarea.core_input:read-only {
   background-color: #fff;
   border-color: var(--theme-primary-border);
   color: #1a202c;
+
+  &--sm {
+    @apply px-3 py-1.5 h-9;
+
+    &:disabled {
+      @apply border-transparent bg-transparent;
+    }
+  } 
 }
 
 .core_modal .core_input--select {

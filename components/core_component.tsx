@@ -136,13 +136,12 @@ export function Modal({
                 <header>
                   {icon && <span className="core_modal__icon">{icon}</span>}
                   <div className="core_modal__title--left">
-                    <h2 id={`${modalId}-title`} className="core_modal__title">
-                      {title}
+                    <h2 id={`${modalId}-title`} className="core_modal__title flex items-center gap-4">
+                      {title} {status && <div className="core_modal__status mb-2">{status}</div>}
                     </h2>
                     {subtitle && <div className="core_modal__subtitle">{subtitle}</div>}
                   </div>
-                  <div className="core_modal__title--right">
-                    {status && <div className="core_modal__status">{status}</div>}
+                  <div className="core_modal__title--right"> 
                     {showCloseIcon && dismiss.closeButton && (
                       <button
                         type="button"

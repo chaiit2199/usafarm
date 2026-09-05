@@ -177,13 +177,19 @@
 }
 
 .core_button {
-  @apply flex items-center justify-center h-10 transition-all;
+  @apply flex items-center justify-center h-10 transition-all min-w-20;
   padding: 8px 20px;
   border: 0;
   border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+
+  &:disabled,
+  &[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
 .core_button--primary {
