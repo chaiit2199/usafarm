@@ -1,6 +1,9 @@
 "use client";
 
+import { useState } from "react";
+
 import { Pagination, TableHead } from "@/components/core_component";
+import { OrderDetailsComponent } from "@/components/orders/order_details_component";
 import { Tab } from "@/components/tab";
 import { Order, orderTotal } from "@/lib/api/types";
 import {
@@ -12,14 +15,7 @@ import {
 import { formatDateTimeVi } from "@/lib/format/date";
 import { Icon } from "@/components/icon";
 
-const ORDER_STATUS_TABS = [
-  { value: "all" as const, label: "Tất cả" },
-  ...ORDER_STATUSES.map((s) => ({ value: s.id, label: s.label })),
-];
-
-function handleOrderClick(order: Order) {
-  console.log(order);
-}
+const ORDER_STATUS_TABS = [{ value: "all" as const, label: "Tất cả" }, ...ORDER_STATUSES.map((s) => ({ value: s.id, label: s.label }))];
 
 export const ORDERS: Order[] = [
   {
@@ -187,73 +183,97 @@ function OrderStatusBadge({ status }: { status: OrderStatusId }) {
 }
 
 export function OrdersTableComponent() {
-  return (
-    <section className="section" id="admin-orders-section">
-      <div className="section-table mb-6">
-        <Tab tabs={ORDER_STATUS_TABS} activeTab="all" />
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
-        <div className="overview-table-wrap">
-          <div className="overview-table-inner">
-            <table className="overview-table min-w-[1600px]" id="orders-table">
-              <colgroup>
-                <col style={{ width: "8%" }} />
-                <col style={{ width: "12%" }} />
-                <col style={{ width: "10%" }} />
-                <col style={{ width: "8%" }} />
-                <col style={{ width: "8%" }} />
-                <col style={{ width: "10%" }} />
-                <col style={{ width: "10%" }} />
-                <col style={{ width: "12%" }} />
-                <col style={{ width: "18%" }} />
-                <col style={{ width: "4%" }} />
-              </colgroup>
-              <thead>
-                <tr>
-                  <TableHead icon="hero-clipboard-document-list">Mã đơn</TableHead>
-                  <TableHead icon="hero-building-storefront">Đại lý</TableHead>
-                  <TableHead icon="hero-banknotes">Tổng</TableHead>
-                  <TableHead icon="hero-banknotes">Đã thu</TableHead>
-                  <TableHead icon="hero-banknotes">Đã nhận</TableHead>
-                  <TableHead icon="hero-calendar-days">Ngày tạo</TableHead>
-                  <TableHead icon="hero-calendar-days">Ngày CN</TableHead>
-                  <TableHead icon="hero-tag">Trạng thái</TableHead>
-                  <TableHead icon="hero-map-pin">Địa chỉ</TableHead>
-                  <th className="actions" />
-                </tr>
-              </thead>
-              <tbody>
-                {ORDERS.map((order) => (
-                  <tr key={order.code} id={`order-row-${order.code}`} className="cursor-pointer" onClick={() => { handleOrderClick(order) }}>
-                    <td className="overview-table__code">{order.code}</td>
-                    <td>{order.agency_name}</td>
-                    <td className="is-num overview-table__money">{formatMoney(orderTotal(order))}</td>
-                    <td className="is-num overview-table__money">{formatMoney(order.collected_amount)}</td>
-                    <td className="is-num overview-table__money">{formatMoney(order.received_amount)}</td>
-                    <td className="overview-table__muted">{formatDateTimeVi(order.created_at)}</td>
-                    <td className="overview-table__muted">{formatDateTimeVi(order.updated_at)}</td>
-                    <td><OrderStatusBadge status={order.status} /></td>
-                    <td className="overview-table__muted">{order.address}</td>
-                    <td className="actions">
-                      <div className="admin-actions">
-                        <button type="button" className="admin-actions__btn" aria-label="Chỉnh sửa">
-                          <Icon name="hero-pencil-square" className="size-4" />
-                        </button>
-                      </div>
-                    </td>
+  function handleOrderClick(order: Order) {
+    setSelectedOrder(order);
+  }
+
+  function closeOrderDetails() {
+    setSelectedOrder(null);
+  }
+
+  return (
+    <>
+      <section className="section" id="admin-orders-section">
+        <div className="section-table style-2 mb-6">
+          <Tab tabs={ORDER_STATUS_TABS} activeTab="all" />
+
+          <div className="overview-table-wrap style-2">
+            <div className="overview-table-inner cursor-e-resize">
+              <table className="overview-table min-w-[1600px]" id="orders-table">
+                <colgroup>
+                  <col style={{ width: "8%" }} />
+                  <col style={{ width: "12%" }} />
+                  <col style={{ width: "10%" }} />
+                  <col style={{ width: "8%" }} />
+                  <col style={{ width: "8%" }} />
+                  <col style={{ width: "10%" }} />
+                  <col style={{ width: "10%" }} />
+                  <col style={{ width: "12%" }} />
+                  <col style={{ width: "18%" }} />
+                  <col style={{ width: "4%" }} />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <TableHead icon="hero-clipboard-document-list">Mã đơn</TableHead>
+                    <TableHead icon="hero-building-storefront">Đại lý</TableHead>
+                    <TableHead icon="hero-banknotes">Tổng</TableHead>
+                    <TableHead icon="hero-banknotes">Đã thu</TableHead>
+                    <TableHead icon="hero-banknotes">Đã nhận</TableHead>
+                    <TableHead icon="hero-calendar-days">Ngày tạo</TableHead>
+                    <TableHead icon="hero-calendar-days">Ngày CN</TableHead>
+                    <TableHead icon="hero-tag">Trạng thái</TableHead>
+                    <TableHead icon="hero-map-pin">Địa chỉ</TableHead>
+                    <th className="actions" />
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {ORDERS.map((order) => (
+                    <tr key={order.code} id={`order-row-${order.code}`} className="cursor-pointer" onClick={() => handleOrderClick(order)}>
+                      <td className="overview-table__code">{order.code}</td>
+                      <td>{order.agency_name}</td>
+                      <td className="is-num overview-table__money">{formatMoney(orderTotal(order))}</td>
+                      <td className="is-num overview-table__money">{formatMoney(order.collected_amount)}</td>
+                      <td className="is-num overview-table__money">{formatMoney(order.received_amount)}</td>
+                      <td className="overview-table__muted">{formatDateTimeVi(order.created_at)}</td>
+                      <td className="overview-table__muted">{formatDateTimeVi(order.updated_at)}</td>
+                      <td>
+                        <OrderStatusBadge status={order.status} />
+                      </td>
+                      <td className="overview-table__muted">{order.address}</td>
+                      <td className="actions">
+                        <div className="admin-actions">
+                          <button
+                            type="button"
+                            className="admin-actions__btn"
+                            aria-label="Chỉnh sửa"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleOrderClick(order);
+                            }}
+                          >
+                            <Icon name="hero-pencil-square" className="size-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
+          <Pagination
+            currentPage={1}
+            totalPages={1}
+            pageSize={20}
+            onPageChange={() => {}}
+            onPageSizeChange={() => {}}
+          />
         </div>
-        <Pagination
-          currentPage={1}
-          totalPages={1}
-          pageSize={20}
-          onPageChange={() => {}}
-          onPageSizeChange={() => {}}
-        />
-      </div>
-    </section>
+      </section>
+
+      {selectedOrder && <OrderDetailsComponent order={selectedOrder} onClose={closeOrderDetails} />}
+    </>
   );
 }

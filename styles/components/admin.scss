@@ -95,10 +95,17 @@
 
 .section-table {
   @apply overflow-hidden rounded-4xl bg-white px-8 py-6 drop-shadow-xs relative;
-  height: calc(100vh - 152px);
 
   .core_paginator {
     @apply absolute bottom-6 left-0 right-0 px-6 w-full;
+  }
+
+  &:not(.style-2) {
+    height: calc(100vh - 152px);
+  }
+
+  &.style-2 {
+    height: calc(100vh - 264px);
   }
 } 
 

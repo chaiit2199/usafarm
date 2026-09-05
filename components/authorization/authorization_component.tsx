@@ -80,7 +80,7 @@ export function AuthorizationComponent({ roles }: { roles: Role[] }) {
             <EmptyData title="Không có nhân viên" description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm." />
           ) : (
             <div className="overview-table-wrap">
-              <div className="overview-table-inner">
+              <div className="overview-table-inner cursor-e-resize">
                 <table className="overview-table min-w-[1400px]" id="authorization-table">
                   <colgroup>
                     <col style={{ width: "21%" }} />
