@@ -18,6 +18,7 @@ import { runServerAction } from "@/lib/server-actions";
 import { client } from "@/lib/http/client";
 import { requireCurrentUser } from "@/lib/api/me";
 import type { UserAccessResponse, UsersResponse } from "@/lib/api/types";
+import { UserStatus } from "@/lib/constants";
 
 export type FilterUsersParams = {
   search?: string;
@@ -63,6 +64,14 @@ export async function approveUser(payload: { id: number }) {
 export async function rejectUser(payload: { id: number; reason: string }) {
   return runServerAction(rejectUserSchema, payload, "Không thể từ chối nhân viên", async ({ id, reason }) => {
     await client.post(`/api/v1/users/${id}/reject`, { reason });
+    revalidatePath("/users");
+    return { ok: true as const };
+  });
+}
+
+export async function resubmitUser(payload: { id: number }) {
+  return runServerAction(userIdSchema, payload, "Không thể gửi duyệt lại nhân viên", async ({ id }) => {
+    await client.patch(`/api/v1/users/${id}`, { status: UserStatus.WaitingForApproval });
     revalidatePath("/users");
     return { ok: true as const };
   });

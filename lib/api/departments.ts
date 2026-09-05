@@ -13,6 +13,7 @@ import {
 import { runServerAction } from "@/lib/server-actions";
 import { client, HttpError } from "@/lib/http/client";
 import type { DepartmentsResponse } from "@/lib/api/types";
+import { UserStatus } from "@/lib/constants";
 
 export type FilterDepartmentsParams = {
   search?: string;
@@ -51,6 +52,14 @@ export async function approveDepartment(payload: { id: number }) {
 export async function rejectDepartment(payload: { id: number; reason: string }) {
   return runServerAction(rejectDepartmentSchema, payload, "Không thể từ chối phòng ban", async ({ id, reason }) => {
     await client.post(`/api/v1/departments/${id}/reject`, { reason });
+    revalidatePath("/departments");
+    return { ok: true as const };
+  });
+}
+
+export async function resubmitDepartment(payload: { id: number }) {
+  return runServerAction(departmentIdSchema, payload, "Không thể gửi duyệt lại phòng ban", async ({ id }) => {
+    await client.patch(`/api/v1/departments/${id}`, { status: UserStatus.WaitingForApproval });
     revalidatePath("/departments");
     return { ok: true as const };
   });

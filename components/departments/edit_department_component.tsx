@@ -20,6 +20,7 @@ import {
   approveDepartment,
   filterDepartments,
   rejectDepartment,
+  resubmitDepartment,
   updateDepartment,
   type UpdateDepartmentInput,
 } from "@/lib/api/departments";
@@ -27,18 +28,20 @@ import { totalPagesFromMeta } from "@/lib/api/pagination";
 import { putFlash } from "@/lib/flash/flash";
 import { formatDateVi } from "@/lib/format/date";
 
-type ConfirmAction = "update" | "approve" | "reject";
+type ConfirmAction = "update" | "approve" | "reject" | "resubmit";
 
 const CONFIRM_TITLE: Record<ConfirmAction, string> = {
   update: "Xác nhận cập nhật phòng ban",
   approve: "Xác nhận duyệt phòng ban",
   reject: "Xác nhận từ chối phòng ban",
+  resubmit: "Xác nhận gửi duyệt lại phòng ban",
 };
 
 const CONFIRM_SUCCESS: Record<ConfirmAction, string> = {
   update: "Cập nhật phòng ban thành công",
   approve: "Đã duyệt phòng ban",
   reject: "Đã từ chối phòng ban",
+  resubmit: "Đã gửi duyệt lại phòng ban",
 };
 
 type UpdateDepartmentForm = Pick<UpdateDepartmentInput, "code" | "name">;
@@ -81,6 +84,7 @@ export function EditDepartmentComponent({
   const skipFirstFetch = useRef(true);
   const canEdit = selectedDepartment?.status === UserStatus.Active;
   const isPendingApproval = selectedDepartment?.status === UserStatus.WaitingForApproval;
+  const isRejected = selectedDepartment?.status === UserStatus.Rejected;
 
   useEffect(() => {
     setPage(1);
@@ -141,7 +145,7 @@ export function EditDepartmentComponent({
     setIsConfirmOpen(true);
   }
 
-  function openReviewConfirm(action: "approve" | "reject") {
+  function openReviewConfirm(action: "approve" | "reject" | "resubmit") {
     if (!selectedDepartment?.id) return;
     setConfirmAction(action);
     setIsConfirmOpen(true);
@@ -159,7 +163,9 @@ export function EditDepartmentComponent({
           : null
         : confirmAction === "approve"
           ? await approveDepartment({ id: departmentId })
-          : await rejectDepartment({ id: departmentId, reason });
+          : confirmAction === "reject"
+            ? await rejectDepartment({ id: departmentId, reason })
+            : await resubmitDepartment({ id: departmentId });
 
     if (!result?.ok) {
       setIsConfirmOpen(false);
@@ -307,7 +313,7 @@ export function EditDepartmentComponent({
                 readOnly={!canEdit}
               />
               {selectedDepartment.status === UserStatus.Rejected && (
-                <div className="admin-user-form__full">
+                <div className="admin-user-form__full col-span-2">
                   <div className="core_field">
                     <label htmlFor="update-department-reason" className="core_label">
                       Lý do từ chối
@@ -346,6 +352,15 @@ export function EditDepartmentComponent({
                     Duyệt
                   </button>
                 </>
+              )}
+              {isRejected && (
+                <button
+                  type="button"
+                  className="core_button core_button--primary"
+                  onClick={() => openReviewConfirm("resubmit")}
+                >
+                  Gửi duyệt lại
+                </button>
               )}
               {canEdit && (
                 <button type="submit" className="core_button core_button--primary">
@@ -398,7 +413,13 @@ export function EditDepartmentComponent({
               Hủy
             </button>
             <FormSubmitButton>
-              {confirmAction === "reject" ? "Từ chối" : confirmAction === "approve" ? "Duyệt" : "Xác nhận"}
+              {confirmAction === "reject"
+                ? "Từ chối"
+                : confirmAction === "approve"
+                  ? "Duyệt"
+                  : confirmAction === "resubmit"
+                    ? "Gửi duyệt lại"
+                    : "Xác nhận"}
             </FormSubmitButton>
           </div>
         </form>

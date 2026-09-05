@@ -14,6 +14,7 @@ import {
 import { runServerAction } from "@/lib/server-actions";
 import { client, HttpError } from "@/lib/http/client";
 import type { RolePermissionsResponse, RolesResponse, ScopeTarget, ScopeTargetsResponse } from "@/lib/api/types";
+import { UserStatus } from "@/lib/constants";
 
 export type { CreateRoleInput, UpdateRoleInput };
 
@@ -62,6 +63,14 @@ export async function approveRole(payload: { id: number }) {
 export async function rejectRole(payload: { id: number; reason: string }) {
   return runServerAction(rejectRoleSchema, payload, "Không thể từ chối nhóm quyền", async ({ id, reason }) => {
     await client.post(`/api/v1/roles/${id}/reject`, { reason });
+    revalidatePath("/roles");
+    return { ok: true as const };
+  });
+}
+
+export async function resubmitRole(payload: { id: number }) {
+  return runServerAction(roleIdSchema, payload, "Không thể gửi duyệt lại nhóm quyền", async ({ id }) => {
+    await client.patch(`/api/v1/roles/${id}`, { status: UserStatus.WaitingForApproval });
     revalidatePath("/roles");
     return { ok: true as const };
   });

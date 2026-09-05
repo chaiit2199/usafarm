@@ -7,7 +7,7 @@ import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel } from "@/components/form-fields";
 import { Icon } from "@/components/icon";
 import { Tab } from "@/components/tab";
-import { fetchRolePermissions, filterRoles, updateRole, approveRole, rejectRole, type UpdateRoleInput } from "@/lib/api/roles";
+import { fetchRolePermissions, filterRoles, updateRole, approveRole, rejectRole, resubmitRole, type UpdateRoleInput } from "@/lib/api/roles";
 import type { Permission, Role, ScopeType } from "@/lib/api/types";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import { USER_STATUS_TABS, UserStatus, type UserStatusTabValue, roleStatusMeta } from "@/lib/constants";
@@ -18,18 +18,20 @@ import { readUpdateRoleForm } from "@/lib/roles/read-update-role-form";
 import { SelectRoles } from "./select_roles_component";
 import { CreatePermissionGroupComponent } from "./create_permission_group_component";
 
-type ConfirmAction = "update" | "approve" | "reject";
+type ConfirmAction = "update" | "approve" | "reject" | "resubmit";
 
 const CONFIRM_TITLE: Record<ConfirmAction, string> = {
   update: "Xác nhận cập nhật nhóm quyền",
   approve: "Xác nhận duyệt nhóm quyền",
   reject: "Xác nhận từ chối nhóm quyền",
+  resubmit: "Xác nhận gửi duyệt lại nhóm quyền",
 };
 
 const CONFIRM_SUCCESS: Record<ConfirmAction, string> = {
   update: "Cập nhật nhóm quyền thành công",
   approve: "Đã duyệt nhóm quyền",
   reject: "Đã từ chối nhóm quyền",
+  resubmit: "Đã gửi duyệt lại nhóm quyền",
 };
 
 export function PermissionGroupsComponent({
@@ -62,6 +64,7 @@ export function PermissionGroupsComponent({
   const [isPermissionsLoading, setIsPermissionsLoading] = useState(false);
   const canEdit = selectedRole?.status === UserStatus.Active;
   const isPendingApproval = selectedRole?.status === UserStatus.WaitingForApproval;
+  const isRejected = selectedRole?.status === UserStatus.Rejected;
 
   useEffect(() => {
     return subscribeHeaderAction("/roles", (detail) => {
@@ -142,7 +145,7 @@ export function PermissionGroupsComponent({
     setIsConfirmOpen(true);
   }
 
-  function openReviewConfirm(action: "approve" | "reject") {
+  function openReviewConfirm(action: "approve" | "reject" | "resubmit") {
     if (!selectedRole?.id) return;
     setConfirmAction(action);
     setIsConfirmOpen(true);
@@ -160,7 +163,9 @@ export function PermissionGroupsComponent({
           : null
         : confirmAction === "approve"
           ? await approveRole({ id: roleId })
-          : await rejectRole({ id: roleId, reason });
+          : confirmAction === "reject"
+            ? await rejectRole({ id: roleId, reason })
+            : await resubmitRole({ id: roleId });
 
     if (!result?.ok) {
       setIsConfirmOpen(false);
@@ -305,7 +310,7 @@ export function PermissionGroupsComponent({
                   />
                 </div>
                 {selectedRole.status === UserStatus.Rejected && (
-                  <div className="core_field">
+                  <div className="core_field col-span-2">
                     <label htmlFor="permission-group-reason" className="core_label">
                       Lý do từ chối
                     </label>
@@ -355,6 +360,15 @@ export function PermissionGroupsComponent({
                     Duyệt
                   </button>
                 </>
+              )}
+              {isRejected && (
+                <button
+                  type="button"
+                  className="core_button core_button--primary"
+                  onClick={() => openReviewConfirm("resubmit")}
+                >
+                  Gửi duyệt lại
+                </button>
               )}
               {canEdit && (
                 <button type="submit" id="permission-group-submit" className="core_button core_button--primary">
@@ -407,7 +421,13 @@ export function PermissionGroupsComponent({
               Hủy
             </button>
             <FormSubmitButton>
-              {confirmAction === "reject" ? "Từ chối" : confirmAction === "approve" ? "Duyệt" : "Xác nhận"}
+              {confirmAction === "reject"
+                ? "Từ chối"
+                : confirmAction === "approve"
+                  ? "Duyệt"
+                  : confirmAction === "resubmit"
+                    ? "Gửi duyệt lại"
+                    : "Xác nhận"}
             </FormSubmitButton>
           </div>
         </form>

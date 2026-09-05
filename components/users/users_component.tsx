@@ -10,23 +10,25 @@ import { USER_STATUS_TABS, UserStatus, type UserStatusTabValue, readFormStatus, 
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel, SelectField } from "@/components/form-fields";
 import { Input, Modal, EmptyData, Pagination, TableHead, TableLoading } from "@/components/core_component";
-import { approveUser, filterUsers, rejectUser, updateUser } from "@/lib/api/users";
+import { approveUser, filterUsers, rejectUser, resubmitUser, updateUser } from "@/lib/api/users";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import { putFlash } from "@/lib/flash/flash";
 import { formatDateVi } from "@/lib/format/date";
 
-type ConfirmAction = "update" | "approve" | "reject";
+type ConfirmAction = "update" | "approve" | "reject" | "resubmit";
 
 const CONFIRM_TITLE: Record<ConfirmAction, string> = {
     update: "Xác nhận cập nhật nhân viên",
     approve: "Xác nhận duyệt nhân viên",
     reject: "Xác nhận từ chối nhân viên",
+    resubmit: "Xác nhận gửi duyệt lại nhân viên",
 };
 
 const CONFIRM_SUCCESS: Record<ConfirmAction, string> = {
     update: "Cập nhật nhân viên thành công",
     approve: "Đã duyệt nhân viên",
     reject: "Đã từ chối nhân viên",
+    resubmit: "Đã gửi duyệt lại nhân viên",
 };
 
 type UpdateUserEntity = {
@@ -84,6 +86,7 @@ export function UsersComponent({
     const skipFirstFetch = useRef(true);
     const canEdit = selectedUser?.status === UserStatus.Active;
     const isPendingApproval = selectedUser?.status === UserStatus.WaitingForApproval;
+    const isRejected = selectedUser?.status === UserStatus.Rejected;
 
     useEffect(() => {
         setPage(1);
@@ -138,7 +141,7 @@ export function UsersComponent({
         setIsConfirmOpen(true);
     }
 
-    function openReviewConfirm(action: "approve" | "reject") {
+    function openReviewConfirm(action: "approve" | "reject" | "resubmit") {
         if (!selectedUser?.id) return;
         setConfirmAction(action);
         setIsConfirmOpen(true);
@@ -156,7 +159,9 @@ export function UsersComponent({
                     : null
                 : confirmAction === "approve"
                     ? await approveUser({ id: userId })
-                    : await rejectUser({ id: userId, reason });
+                    : confirmAction === "reject"
+                        ? await rejectUser({ id: userId, reason })
+                        : await resubmitUser({ id: userId });
 
         if (!result?.ok) {
             setIsConfirmOpen(false);
@@ -339,7 +344,7 @@ export function UsersComponent({
                             readOnly={!canEdit}
                         />
                         {selectedUser.status === UserStatus.Rejected && (
-                            <div className="admin-user-form__full">
+                            <div className="admin-user-form__full col-span-2">
                                 <div className="core_field">
                                     <label htmlFor="update-user-reason" className="core_label">
                                         Lý do từ chối
@@ -371,6 +376,11 @@ export function UsersComponent({
                             Duyệt
                         </button>
                         </>
+                    )}
+                    {isRejected && (
+                        <button type="button" className="core_button core_button--primary" onClick={() => openReviewConfirm("resubmit")}>
+                            Gửi duyệt lại
+                        </button>
                     )}
                     {canEdit && (
                         <button type="submit" className="core_button core_button--primary">
@@ -423,7 +433,13 @@ export function UsersComponent({
                         Hủy
                     </button>
                     <FormSubmitButton>
-                        {confirmAction === "reject" ? "Từ chối" : confirmAction === "approve" ? "Duyệt" : "Xác nhận"}
+                        {confirmAction === "reject"
+                            ? "Từ chối"
+                            : confirmAction === "approve"
+                              ? "Duyệt"
+                              : confirmAction === "resubmit"
+                                ? "Gửi duyệt lại"
+                                : "Xác nhận"}
                     </FormSubmitButton>
                     </div>
                 </form>
