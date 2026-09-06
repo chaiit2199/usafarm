@@ -42,7 +42,7 @@ export function OrderDetailsComponent({ order, onClose }: OrderDetailsComponentP
       <Modal
         id="order-details-modal"
         show
-        width="2xl"
+        width="4xl"
         title={`Đơn hàng ${order.code}`}
         subtitle={`${order.agency_name} - ${order.address}`}
         status={<OrderStatusBadge status={order.status} />}
@@ -100,6 +100,19 @@ export function OrderDetailsComponent({ order, onClose }: OrderDetailsComponentP
                         </td>
                       </tr>
                     ))}
+                  </tbody>
+                </table>
+
+                <table className="overview-table min-w-full" id="order-details-table">
+                  <colgroup>
+                    <col style={{ width: "76%" }} />
+                    <col style={{ width: "24%" }} />
+                  </colgroup> 
+                  <tbody>
+                    <tr>  
+                    <td className="is-num overview-table__money border-t border-theme-primary-border font-bold">Tổng tiền</td>
+                    <td className="is-num overview-table__money border-t border-theme-primary-border font-bold">{formatMoney(order.total_amount)}</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>

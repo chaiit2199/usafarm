@@ -20,7 +20,7 @@ function modalDismissOptions(closeable: ModalCloseable) {
     closeButton: closeable !== false,
   };
 }
-export type ModalWidth = "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
+export type ModalWidth = "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
 export type ModalHeight = "base" | "full";
 
 export type ModalAction = {

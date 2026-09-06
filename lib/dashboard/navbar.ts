@@ -104,7 +104,6 @@ export const MENU: Navbar[] = [
     href: "/orders",
     icon: "hero-clipboard-document-list",
     title: "Quản lý đơn hàng",
-    create: true,
     view: true,
     filter: true,
     search: true,
