@@ -15,9 +15,9 @@ export function SidebarComponent({ user, menu }: { user?: User | null; menu: Nav
   const pathname = usePathname();
   const currentPage = getPageId(pathname);
   const [collapsed, setCollapsed] = useState(false);
-  const [openIndex, setOpenIndex] = useState<number | null>(() => {
+  const [openIndexes, setOpenIndexes] = useState<Set<number>>(() => {
     const match = menu.findIndex((item) => item.children?.some((child) => child.href === pathname));
-    return match >= 0 ? match : null;
+    return match >= 0 ? new Set([match]) : new Set();
   });
   const displayName = user?.full_name || user?.username || "User";
   const role = user?.role ?? "1002";
@@ -25,11 +25,27 @@ export function SidebarComponent({ user, menu }: { user?: User | null; menu: Nav
 
   useEffect(() => {
     const match = menu.findIndex((item) => item.children?.some((child) => child.href === pathname));
-    if (match >= 0) setOpenIndex(match);
+    if (match < 0) return;
+    setOpenIndexes((current) => {
+      if (current.has(match)) return current;
+      const next = new Set(current);
+      next.add(match);
+      return next;
+    });
   }, [pathname, menu]);
 
   function groupOpen(index: number) {
-    return openIndex === index;
+    return openIndexes.has(index);
+  }
+
+  function toggleGroup(index: number) {
+    if (collapsed) setCollapsed(false);
+    setOpenIndexes((current) => {
+      const next = new Set(current);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
   }
 
   function groupActive(item: Navbar) {
@@ -84,10 +100,7 @@ export function SidebarComponent({ user, menu }: { user?: User | null; menu: Nav
                     title={item.title}
                     aria-expanded={isOpen}
                     aria-controls={`nav-sub-${item.id}`}
-                    onClick={() => {
-                      setCollapsed(false);
-                      setOpenIndex(openIndex === index ? null : index);
-                    }}
+                    onClick={() => toggleGroup(index)}
                   >
                     <Icon name={item.icon} className="dash-sidebar__icon" />
                     <span className="dash-sidebar__label">{item.title}</span>
@@ -100,7 +113,11 @@ export function SidebarComponent({ user, menu }: { user?: User | null; menu: Nav
                       <path d="m17.414 10.586-8-8a2 2 0 0 0-2.828 2.828L13.172 12l-6.586 6.586a2 2 0 0 0 2.828 2.828l8-8a2 2 0 0 0 0-2.828" fill="#9197b3" />
                     </svg>
                   </button>
-                  <ul id={`nav-sub-${item.id}`} className="dash-sidebar__subnav" hidden={!isOpen}>
+                  <ul
+                    id={`nav-sub-${item.id}`}
+                    className="dash-sidebar__subnav"
+                    aria-hidden={!isOpen}
+                  >
                     {item.children.map((child) => (
                       <li key={child.id}>
                         <Link
@@ -113,6 +130,7 @@ export function SidebarComponent({ user, menu }: { user?: User | null; menu: Nav
                             .join(" ")}
                           id={`nav-${child.id}`}
                           title={child.title}
+                          tabIndex={isOpen ? undefined : -1}
                           onClick={() => collapsed && setCollapsed(false)}
                         >
                           <Icon name={child.icon} className="dash-sidebar__icon" />
