@@ -35,7 +35,7 @@ $sidebar-duration: 0.28s;
 $sidebar-label-delay: 0.15s;
 
 .dash-sidebar {
-  @apply sticky top-0 flex flex-col w-[300px] h-full bg-white h-screen shadow-md;
+  @apply sticky top-0 flex flex-col w-[260px] h-full bg-white h-screen shadow-md;
   transition: width $sidebar-duration $sidebar-ease;
   z-index: 20;
   will-change: width;
@@ -44,7 +44,7 @@ $sidebar-label-delay: 0.15s;
 .dashboard__container {
   @apply min-h-screen pb-2;
   max-height: 100vh;
-  width: calc(100% - 300px);
+  width: calc(100% - 260px);
   overflow-x: auto;
 }
 
@@ -70,7 +70,7 @@ $sidebar-label-delay: 0.15s;
 }
 
 .dash-sidebar__toggle {
-  @apply w-8 h-8 absolute -right-4 top-10 z-10;
+  @apply w-8 h-8 absolute -right-4 top-12 z-10;
   transform: translateY(-50%) rotate(0deg);
   transition: transform 0.3s ease-in-out;
   &.is-open {
@@ -189,7 +189,7 @@ $sidebar-label-delay: 0.15s;
 }
 
 .dash-sidebar__nav {
-  @apply flex flex-col gap-2 py-4 px-6 overflow-y-auto flex-auto;
+  @apply flex flex-col gap-2 py-4 px-5 overflow-y-auto flex-auto;
   transition: padding $sidebar-duration $sidebar-ease;
 }
 

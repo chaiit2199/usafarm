@@ -71,7 +71,7 @@ export function AuthorizationComponent({ roles }: { roles: Role[] }) {
       )}
 
       <section className="section" id="admin-authorization-section">
-        <div className="section-table mb-6">
+        <div className="section-container section-table mb-6">
           <Tab tabs={ACTIVE_STATUS_TABS} activeTab={UserStatus.Active} />
 
           {users === null ? (

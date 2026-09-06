@@ -188,7 +188,7 @@ export function PermissionGroupsComponent({
         />
       )}
       <section className="section" id="admin-permission-section">
-        <div className="section-table mb-6">
+        <div className="section-container section-table mb-6">
           <Tab
             tabs={USER_STATUS_TABS}
             activeTab={activeTab}

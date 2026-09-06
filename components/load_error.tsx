@@ -69,7 +69,7 @@ export function PageLoadError({
 }) {
   return (
     <section className="section">
-      <div className="section-table">
+      <div className="section-container section-table">
         <LoadError message={message} onRetry={onRetry} />
       </div>
     </section>

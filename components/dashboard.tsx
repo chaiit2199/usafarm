@@ -26,7 +26,7 @@ export function WipPage({ id }: { id: string }) {
 export function TableSkeleton() {
   return (
     <section className="section">
-      <div className="section-table mb-6">
+      <div className="section-container section-table mb-6">
         <div className="relative min-h-100 table-skeleton-pulse overflow-hidden max-w-full">
           <div className="loading show">
             <div className="loading-inner">

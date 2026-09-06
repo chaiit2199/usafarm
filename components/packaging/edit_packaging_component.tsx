@@ -194,7 +194,7 @@ export function EditPackagingComponent({
   return (
     <>
       <section className="section" id="admin-packaging-section">
-        <div className="section-table mb-6">
+        <div className="section-container section-table mb-6">
           {loadError ? (
             <LoadError
               message={loadError}

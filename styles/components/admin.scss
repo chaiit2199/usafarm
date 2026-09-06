@@ -93,9 +93,11 @@
   transform: translateY(1px);
 }
 
-.section-table {
-  @apply overflow-hidden rounded-4xl bg-white px-8 py-6 drop-shadow-xs relative;
+.section-container {
+  @apply overflow-hidden rounded-2xl bg-white p-6 drop-shadow-xs relative;
+}
 
+.section-table { 
   .core_paginator {
     @apply absolute bottom-6 left-0 right-0 px-6 w-full;
   }

@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Pagination, TableHead } from "@/components/core_component";
-import { OrderDetailsComponent } from "@/components/orders/order_details_component";
 import { Tab } from "@/components/tab";
 import { Order, orderTotal } from "@/lib/api/types";
+
 import {
   ORDER_STATUSES,
   type OrderStatusId,
@@ -189,21 +190,12 @@ function OrderStatusBadge({ status }: { status: OrderStatusId }) {
   );
 }
 
-export function OrdersTableComponent() {
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-
-  function handleOrderClick(order: Order) {
-    setSelectedOrder(order);
-  }
-
-  function closeOrderDetails() {
-    setSelectedOrder(null);
-  }
-
+export function OrdersTableComponent() { 
+  const router = useRouter();
   return (
     <>
       <section className="section" id="admin-orders-section">
-        <div className="section-table style-2 mb-6">
+        <div className="section-container section-table style-2 mb-6">
           <Tab tabs={ORDER_STATUS_TABS} activeTab="all" />
 
           <div className="overview-table-wrap style-2">
@@ -235,7 +227,7 @@ export function OrdersTableComponent() {
                 </thead>
                 <tbody>
                   {ORDERS.map((order) => (
-                    <tr key={order.code} id={`order-row-${order.code}`} className="cursor-pointer" onClick={() => handleOrderClick(order)}>
+                    <tr key={order.code} id={`order-row-${order.code}`} className="cursor-pointer" onClick={() => router.push(`/orders/${order.code}`)}>
                       <td className="overview-table__code">{order.code}</td>
                       <td>{order.agency_name}</td>
                       <td className="overview-table__muted">{formatDateTimeVi(order.created_at)}</td>
@@ -255,7 +247,7 @@ export function OrdersTableComponent() {
                             aria-label="Chỉnh sửa"
                             onClick={(event) => {
                               event.stopPropagation();
-                              handleOrderClick(order);
+                              router.push(`/orders/${order.code}`);
                             }}
                           >
                             <Icon name="hero-pencil-square" className="size-4" />
@@ -277,8 +269,6 @@ export function OrdersTableComponent() {
           />
         </div>
       </section>
-
-      {selectedOrder && <OrderDetailsComponent order={selectedOrder} onClose={closeOrderDetails} />}
     </>
   );
 }

@@ -1,12 +1,28 @@
 /* App header — breadcrumb, title, action bar */
 
 .header {
-  @apply flex items-center justify-between gap-4 flex-shrink-0 p-10 bg-transparent max-h-30;
+  @apply flex items-center justify-between gap-4 flex-shrink-0 px-10 py-7 bg-transparent max-h-30;
 }
 
 .header__left {
   min-width: 0;
-} 
+}
+
+.header__breadcrumb {
+  @apply flex items-center flex-wrap gap-2 text-2xl font-medium;
+}
+
+.header__breadcrumb-link {
+  @apply transition-colors hover:text-theme-primary;
+}
+
+.header__breadcrumb-sep {
+  @apply size-5 shrink-0 text-theme-muted;
+}
+
+.header__breadcrumb-current {
+  @apply text-theme-base-content;
+}
 
 .header__actions {
   @apply flex items-center gap-3;

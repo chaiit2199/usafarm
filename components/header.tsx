@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -24,8 +25,20 @@ export function DashboardHeader() {
   return (
     <header className="header" id="header">
       <div className="header__left">
-        <p className="text-2xl font-medium mb-1">{meta.title}</p>
-        <p className="text-sm text-gray-500">{meta.label}</p>
+        {meta.subpage ? (
+          <nav className="header__breadcrumb" aria-label="Breadcrumb">
+            <Link href={meta.href!} className="header__breadcrumb-link">
+              {meta.title}
+            </Link>
+            <Icon name="hero-chevron-right" className="header__breadcrumb-sep" />
+            <span className="header__breadcrumb-current">{meta.subpage}</span>
+          </nav>
+        ) : (
+          <>
+            <p className="text-2xl font-medium mb-1">{meta.title}</p>
+            <p className="text-sm text-gray-500">{meta.label}</p>
+          </>
+        )}
       </div>
 
       <div className="header__actions" id="header-actions">
@@ -119,7 +132,6 @@ export function DashboardHeader() {
 
         <HeaderNotifications />
       </div>
-      
     </header>
   );
 }

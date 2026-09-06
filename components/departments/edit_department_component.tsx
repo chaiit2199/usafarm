@@ -181,7 +181,7 @@ export function EditDepartmentComponent({
   return (
     <>
       <section className="section" id="admin-departments-section">
-        <div className="section-table mb-6">
+        <div className="section-container section-table mb-6">
           {loadError ? (
             <LoadError
               message={loadError}

@@ -238,32 +238,63 @@ function findMenuItem(pathname: string, menu: Navbar[] = MENU) {
   return null;
 }
 
-export const DEFAULT_PAGE_TITLE = "USA FARM AGRI";
-
-export function getPageTitle(pathname: string): string {
-  return findMenuItem(pathname)?.title ?? DEFAULT_PAGE_TITLE;
+/** Parent menu for nested paths (`/orders/12` → `/orders`). */
+function findPrefixMenuItem(pathname: string, menu: Navbar[] = MENU): Navbar | NavBarItem | null {
+  let best: Navbar | NavBarItem | null = null;
+  for (const item of menu) {
+    for (const entry of [item, ...(item.children ?? [])]) {
+      const href = entry.href;
+      if (!href || href === "/") continue;
+      if (pathname.startsWith(`${href}/`) && (!best || href.length > (best.href?.length ?? 0))) {
+        best = entry;
+      }
+    }
+  }
+  return best;
 }
 
-export type HeaderConfig = { title: string, label: string } & Required<HeaderButtons>;
+export const DEFAULT_PAGE_TITLE = "USA FARM AGRI";
+
+export type HeaderConfig = {
+  title: string;
+  label: string;
+  href?: string;
+  subpage?: string;
+} & Required<HeaderButtons>;
+
+export function getPageTitle(pathname: string): string {
+  return (
+    findMenuItem(pathname)?.title ??
+    findPrefixMenuItem(pathname)?.title ??
+    DEFAULT_PAGE_TITLE
+  );
+}
 
 export function getHeaderConfig(pathname: string): HeaderConfig {
-  const item = findMenuItem(pathname);
-  const title = getPageTitle(pathname);
+  const exact = findMenuItem(pathname);
+  const item = exact ?? findPrefixMenuItem(pathname);
+  const title = item?.title ?? DEFAULT_PAGE_TITLE;
+  const nested = !exact && item?.href ? pathname.slice(item.href.length + 1) : "";
+  const subpage = nested || undefined;
+  const hideActions = Boolean(subpage);
+
   return {
-    title: title,
-    label: item?.label ?? title,
-    create: Boolean(item?.create),
-    export: Boolean(item?.export),
-    filter: Boolean(item?.filter),
-    authorization: Boolean(item?.authorization),
-    search: Boolean(item?.search),
+    title,
+    label: subpage ? "" : (item?.label ?? title),
+    href: subpage ? item?.href : undefined,
+    subpage,
+    create: hideActions ? false : Boolean(item?.create),
+    export: hideActions ? false : Boolean(item?.export),
+    filter: hideActions ? false : Boolean(item?.filter),
+    authorization: hideActions ? false : Boolean(item?.authorization),
+    search: hideActions ? false : Boolean(item?.search),
   };
 }
 
 export function getPageId(pathname: string) {
-  return findMenuItem(pathname)?.id ?? "";
+  return findMenuItem(pathname)?.id ?? findPrefixMenuItem(pathname)?.id ?? "";
 }
 
-export function pageMetadata(pathname: string): Metadata {
-  return { title: getPageTitle(pathname) };
+export function pageMetadata(pathname: string, subpage?: string): Metadata {
+  return { title: subpage ?? getPageTitle(pathname) };
 }

@@ -272,11 +272,8 @@ export type Order = {
   status: OrderStatusId;
   created_at: string;
   updated_at: string;
-  /** Tổng tiền đơn */
   total_amount: number;
-  /** Đã thu */
   collected_amount: number;
-  /** Đã nhận */
   received_amount: number;
   items: OrderItem[];
 };
@@ -284,3 +281,13 @@ export type Order = {
 export function orderTotal(order: Order): number {
   return order.total_amount;
 }
+
+
+export type ProductComponent = {
+  type: string;
+  code: string;
+  owner: string;
+  demand: string;
+  stock: string;
+  status: string;
+};

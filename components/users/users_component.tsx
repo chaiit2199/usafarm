@@ -177,7 +177,7 @@ export function UsersComponent({
     return (
         <>
         <section className="section" id="admin-users-section">
-            <div className="section-table mb-6">
+            <div className="section-container section-table mb-6">
             {/* Tab */}
                 <Tab
                     tabs={USER_STATUS_TABS}
