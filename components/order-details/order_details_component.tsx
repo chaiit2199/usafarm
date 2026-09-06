@@ -43,7 +43,7 @@ const PRODUCT_COMPONENTS: ProductComponent[] = [
   },
 ];
 
-const PRODUCT_TABLE_COL_SPAN = 8; 
+const PRODUCT_TABLE_COL_SPAN = 7; 
 
 function formatMoney(value: number) {
   return `${new Intl.NumberFormat("en-US").format(value)} đ`;
@@ -72,15 +72,15 @@ function ProductComponentsPanel() {
     <div className="bg-[#F8FAFC] px-4 py-3">
       <p className="mb-2 text-sm font-semibold text-theme-base-content">Thành phần của sản phẩm</p>
       <div className="overview-table-inner cursor-e-resize">
-        <table className="overview-table min-w-[1200px]">
+        <table className="overview-table min-w-[1400px]">
         <colgroup>
           <col style={{ width: "4%" }} />
-          <col style={{ width: "22%" }} />
-          <col style={{ width: "28%" }} />
-          <col style={{ width: "6%" }} />
-          <col style={{ width: "12%" }} />
-          <col style={{ width: "12%" }} />
+          <col style={{ width: "20%" }} />
+          <col style={{ width: "24%" }} />
           <col style={{ width: "10%" }} />
+          <col style={{ width: "12%" }} />
+          <col style={{ width: "12%" }} />
+          <col style={{ width: "12%" }} />
         </colgroup>
           <thead>
             <tr>
