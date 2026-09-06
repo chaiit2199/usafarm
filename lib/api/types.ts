@@ -262,6 +262,7 @@ export type OrderItem = {
   product_name: string;
   quantity: number;
   price: number;
+  status: string;
 };
 
 export type Order = {

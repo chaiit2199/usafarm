@@ -8,8 +8,10 @@ import { OrderProductDetailsComponent } from "@/components/orders/order_product_
 import type { Order, OrderItem, ProductComponent } from "@/lib/api/types";
 import { getOrderStatusLabel, orderColor, type OrderStatusId } from "@/lib/constants";
 import { formatDateTimeVi } from "@/lib/format/date";
-import { MOCK_WAREHOUSES, warehouseOptionLabel } from "@/lib/mock/authorization";
+import { MOCK_WAREHOUSES } from "@/lib/mock/authorization";
 import { SelectField } from "../form-fields";
+import { useRouter } from "next/navigation";
+
 
 type OrderDetailsComponentProps = {
   order: Order;
@@ -23,7 +25,7 @@ const PRODUCT_COMPONENTS: ProductComponent[] = [
     owner: "Công ty (CT)",
     demand: "200 Cái",
     stock: "15,500 Cái",
-    status: "OK - Đủ",
+    status: "-500",
   },
   {
     type: "Ruột thô",
@@ -31,7 +33,7 @@ const PRODUCT_COMPONENTS: ProductComponent[] = [
     owner: "Công ty",
     demand: "10,000 KG",
     stock: "30,000 KG",
-    status: "OK - Đủ",
+    status: "Đủ",
   },
   {
     type: "Tồn thành phẩm có sẵn",
@@ -69,9 +71,9 @@ function OrderStatusBadge({ status }: { status: OrderStatusId }) {
 
 function ProductComponentsPanel() {
   return (
-    <div className="bg-[#F8FAFC] px-4 py-3">
+    <div className="px-4 py-3">
       <p className="mb-2 text-sm font-semibold text-theme-base-content">Thành phần của sản phẩm</p>
-      <div className="overview-table-inner cursor-e-resize">
+      <div className="overview-table-inner cursor-e-resize theme-primary-border">
         <table className="overview-table min-w-[1400px]">
         <colgroup>
           <col style={{ width: "4%" }} />
@@ -90,7 +92,7 @@ function ProductComponentsPanel() {
               <TableHead>Nguồn sở hữu</TableHead>
               <TableHead>Nhu cầu cần</TableHead>
               <TableHead>Tồn kho khả dụng</TableHead>
-              <TableHead>Trạng thái vật tư</TableHead>
+              <TableHead className="actions">Trạng thái vật tư</TableHead>
             </tr>
           </thead>
           <tbody>
@@ -102,8 +104,8 @@ function ProductComponentsPanel() {
                 <td>{row.owner}</td>
                 <td>{row.demand}</td>
                 <td>{row.stock}</td>
-                <td>
-                  <span className="status status--active">{row.status}</span>
+                <td className="actions">
+                  <span className={`status ${row.status === "Đủ" || row.status === "Có thể xuất thẳng" ? "status--active" : "status--rejected"}`}>{row.status}</span>
                 </td>
               </tr>
             ))}
@@ -136,12 +138,14 @@ function OrderProductRow({ item, expanded, onToggle }: {
         <td className="overview-table__muted">{item.quantity}</td>
         <td className="is-num overview-table__money">{formatMoney(item.price)}</td>
         <td className="is-num overview-table__money">{formatMoney(item.price)}</td>
-        <td className="font-semibold">Sẵn sàng</td>
+        <td className="font-semibold">
+          <span className={`status ${item.status === "-500" ? "status--rejected" : item.status === "Đủ" ? "status--active" : ""}`}>{item.status}</span>
+        </td>
       </tr>
 
       {expanded && (
-        <tr>
-          <td colSpan={PRODUCT_TABLE_COL_SPAN} className="!p-0">
+        <tr className="td-collapse">
+          <td colSpan={PRODUCT_TABLE_COL_SPAN}>
             <ProductComponentsPanel />
           </td>
         </tr>
@@ -155,7 +159,7 @@ export function OrderDetailsComponent({ order }: OrderDetailsComponentProps) {
   const [expandedIds, setExpandedIds] = useState<number[]>([]);
 
   const remainingDebt = Math.max(order.total_amount - order.collected_amount, 0);
-  const totalQuantity = order.items.reduce((sum, item) => sum + item.quantity, 0);
+  const router = useRouter();
 
   function toggleExpanded(id: number) {
     setExpandedIds((current) =>
@@ -165,7 +169,7 @@ export function OrderDetailsComponent({ order }: OrderDetailsComponentProps) {
 
   return (
     <> 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-6">
       <section className="section-container mb-6">
         <h6 className="mb-3 text-base font-semibold flex items-center gap-2"> 
           <Icon name="hero-clipboard-document-list" className="size-5 text-theme-primary" />
@@ -316,23 +320,63 @@ export function OrderDetailsComponent({ order }: OrderDetailsComponentProps) {
           </div>
         </section>
 
-      <div className="core_modal__actions">
-        {order.status === 1 && (
-          <button type="button" className="core_button core_button--primary mr-auto">
-            Tách đơn
+
+        <div className="section-container mb-6">
+          <h6 className="mb-4 text-base font-semibold flex items-center gap-2">
+            <Icon name="hero-rectangle-stack" className="size-5 text-theme-primary" />
+            Tách đơn tự động
+          </h6>
+
+          <div className="grid grid-cols-2 gap-6">
+            <div className="rounded-xl border border-theme-primary-border p-4">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className="text-xs font-medium text-slate-500">Đơn 1</span>
+                <span className="status status--active">Sẵn sàng đóng gói</span>
+              </div>
+              <p className="text-2xl font-semibold text-slate-900">
+                600 <span className="text-base font-medium text-slate-500">bao</span>
+              </p>
+              <p className="mt-1 text-xs text-slate-500">Xuất từ tồn khả dụng</p>
+            </div> 
+
+            <div className="rounded-xl border border-theme-primary-border p-4">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className="text-xs font-medium text-slate-500">Đơn 2</span>
+                <span
+                  className="status"
+                  style={{
+                    color: "#B45309",
+                    borderColor: "#F59E0B55",
+                    backgroundColor: "#F59E0B1A",
+                  }}
+                >
+                  Treo chờ hàng
+                </span>
+              </div>
+              <p className="text-2xl font-semibold text-slate-900">
+                400 <span className="text-base font-medium text-slate-500">bao</span>
+              </p>
+              <p className="mt-1 text-xs text-slate-500">Chờ bổ sung tồn kho</p>
+            </div>
+          </div>
+        </div>
+
+
+        <div className="flex items-center justify-end gap-3 pt-2 mb-12">
+          <button type="button" className="core_button core_button--secondary" onClick={() => router.push("/orders")}>
+            Quay lại
           </button>
-        )} 
-        {order.status !== 8 && (
+          
           <button type="button" className="core_button core_button--danger">
             Huỷ đơn
-          </button>
-        )}
-        {order.status === 1 && (
+          </button> 
+
           <button type="button" className="core_button core_button--primary">
             Chuẩn bị đóng gói
           </button>
-        )}
-      </div>
+        </div>
+
+       
 
       {view === "product-details" && (
         <OrderProductDetailsComponent onClose={() => setView("details")} />

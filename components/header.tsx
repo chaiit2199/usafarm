@@ -28,6 +28,9 @@ export function DashboardHeader() {
         {meta.subpage ? (
           <nav className="header__breadcrumb" aria-label="Breadcrumb">
             <Link href={meta.href!} className="header__breadcrumb-link">
+              <span className="header__breadcrumb-icon">
+                <Icon name="hero-arrow-left" className="size-5" />
+              </span>
               {meta.title}
             </Link>
             <Icon name="hero-chevron-right" className="header__breadcrumb-sep" />
