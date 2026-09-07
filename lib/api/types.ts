@@ -300,7 +300,7 @@ export type OrderLine = {
   sales_sku_id: number;
   sales_sku_code: string;
   packaging_name: string;
-  packaging_weight_kg: string;
+  packaging_weight_kg: number;
   core_name: string;
   product_name: string;
   quantity: number;
@@ -348,20 +348,26 @@ export type OrderResponse = {
   meta?: ApiListMeta;
 };
 
-export type OrderFulfillmentWarehouse = {
-  warehouse_id: number;
-  warehouse_code: string;
-  warehouse_name: string;
-  can_fulfill_remaining: boolean;
-  core_available_kg: string;
-  finished_goods_available: number;
-  fulfillable_quantity: number;
-  packable_quantity: number;
-  packaging_available: number; // Tồn vỏ bao khả dụng
-  suggested_finished_goods_quantity: number; // Tồn thành phẩm sẵn để xuất thẳng
-  suggested_pack_new_quantity: number; // Số bao có thể đóng mới từ vỏ + ruột
-  suggested_quantity: number; // Số bao kho có thể giao được
+export type OrderFulfillmentAllocationProposal = {
+  suggested_finished_goods_quantity: number; // Gợi ý xuất từ thành phẩm sẵn
+  suggested_pack_new_quantity: number; // Gợi ý đóng mới từ vỏ + ruột
+  suggested_quantity: number; // Tổng bao kho này có thể giao (thành phẩm + đóng mới)
   waiting_quantity: number; // Phần còn thiếu / treo chờ sau khi lấy hết khả năng kho này
+};
+
+export type OrderFulfillmentWarehouse = {
+  warehouse_id: number; // ID kho
+  warehouse_code: string; // Mã kho
+  warehouse_name: string; // Tên kho hiển thị
+  packaging_available: number; // Tồn vỏ bao khả dụng
+  is_packaging_available: boolean; // Vỏ bao đủ cho nhu cầu dòng này
+  finished_goods_available: number; // Tồn thành phẩm đóng sẵn có thể xuất thẳng
+  is_finished_goods_available: boolean; // Thành phẩm sẵn đủ cho nhu cầu
+  core_available: string; // Lượng ruột thô / cốt còn (string số, vd. "3000.000")
+  unit: string; // Đơn vị của core_available (vd. "kilogram", "ton")
+  is_core_available: boolean; // Ruột thô đủ cho nhu cầu
+  can_fulfill_remaining: boolean; // Kho đủ hoàn tất phần còn lại (không cần tách đơn chờ)
+  allocation_proposal: OrderFulfillmentAllocationProposal; // Đề xuất phân bổ xuất / đóng từ kho này
 };
 
 export type OrderFulfillmentLine = {

@@ -1,16 +1,16 @@
-"use client"; 
+"use client";
 
-import { Fragment, useMemo, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { TableHead } from "@/components/core_component";
 import { Icon } from "@/components/icon";
 import { SelectField } from "@/components/form-fields";
+import { OrderProductRow } from "@/components/order-details/order_product_row";
 import type {
   Order,
   OrderFulfillmentCapacity,
   OrderFulfillmentWarehouse,
-  OrderLine,
 } from "@/lib/api/types";
 import { orderAmount, orderReceived, orderRemaining } from "@/lib/api/types";
 import { getOrderStatusLabel, orderColor, type OrderStatusInput } from "@/lib/constants";
@@ -21,13 +21,16 @@ type OrderDetailsComponentProps = {
   fulfillmentCapacity: OrderFulfillmentCapacity;
 };
 
-const PRODUCT_TABLE_COL_SPAN = 7;
+type WarehouseAvailable = {
+  readyToPack: number;
+  awaitingStock: number;
+  can_fulfill_remaining: boolean;
+};
 
 function formatMoney(value: number) {
   return `${new Intl.NumberFormat("en-US").format(value)} đ`;
 }
 
-/** Danh sách kho unique từ mọi fulfillment line. */
 function listWarehouses(capacity: OrderFulfillmentCapacity): OrderFulfillmentWarehouse[] {
   return Array.from(
     new Map(
@@ -38,8 +41,7 @@ function listWarehouses(capacity: OrderFulfillmentCapacity): OrderFulfillmentWar
   );
 }
 
-/** Ghép order.line.id ↔ capacity.line.order_line_id ↔ warehouses.warehouse_id */
-function findWarehouseCapacity(
+function getWarehouse(
   capacity: OrderFulfillmentCapacity,
   orderLineId: number,
   warehouseId: number | null,
@@ -67,167 +69,38 @@ function OrderStatusBadge({ status }: { status: OrderStatusInput }) {
   );
 }
 
-function LineFulfillmentStatus({ waiting }: { waiting: number | undefined }) {
-  if (waiting == null) {
-    return <span className="status">—</span>;
-  }
-  if (waiting <= 0) {
-    return <span className="status status--active">Đủ</span>;
-  }
-  return <span className="status status--rejected">Thiếu {waiting} bao</span>;
-}
-
-/** Expand: tồn kho theo kho đã chọn (không hardcode). */
-function ProductCapacityPanel({ capacity }: { capacity?: OrderFulfillmentWarehouse }) {
-  if (!capacity) {
-    return (
-      <div className="px-4 py-3 text-sm text-slate-500">
-        Chọn kho để xem năng lực đối chiếu cho dòng này.
-      </div>
-    );
-  }
-
-  const rows = [
-    {
-      type: "Vỏ bao",
-      stock: `${capacity.packaging_available} Bao`,
-      ok: capacity.packaging_available > 0,
-    },
-    {
-      type: "Ruột thô",
-      stock: `${capacity.core_available_kg} KG`,
-      ok: Number(capacity.core_available_kg) > 0,
-    },
-    {
-      type: "Tồn thành phẩm có sẵn",
-      stock: `${capacity.finished_goods_available} Bao`,
-      ok: capacity.finished_goods_available > 0,
-    },
-  ];
-
-  return (
-    <div className="px-4 py-3">
-      <p className="mb-2 text-sm font-semibold text-theme-base-content">
-        Năng lực kho — {capacity.warehouse_name}
-      </p>
-      <div className="overview-table-inner theme-primary-border">
-        <table className="overview-table min-w-full">
-          <thead>
-            <tr>
-              <TableHead>Loại vật tư</TableHead>
-              <TableHead>Tồn kho khả dụng</TableHead>
-              <TableHead>Gợi ý xuất</TableHead>
-              <TableHead>Thiếu bao</TableHead>
-              <TableHead>Trạng thái</TableHead>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.type}>
-                <td className="font-semibold">{row.type}</td>
-                <td>{row.stock}</td>
-                <td className="overview-table__muted">
-                  {row.type === "Vỏ bao" && `${capacity.suggested_pack_new_quantity} Bao`}
-                  {row.type === "Ruột thô" && "—"}
-                  {row.type === "Tồn thành phẩm có sẵn" &&
-                    `${capacity.suggested_finished_goods_quantity} Bao`}
-                </td>
-                <td>{capacity.waiting_quantity}</td>
-                <td>
-                  <span className={`status ${row.ok ? "status--active" : "status--rejected"}`}>
-                    {row.ok ? "Có sẵn" : "Thiếu"}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-function OrderProductRow({
-  item,
-  capacity,
-  expanded,
-  onToggle,
-}: {
-  item: OrderLine;
-  capacity?: OrderFulfillmentWarehouse;
-  expanded: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <Fragment>
-      <tr>
-        <td>
-          <button type="button" className="admin-actions__btn" onClick={onToggle}>
-            <Icon
-              name="hero-chevron-down"
-              className={[
-                "size-5 transition-transform duration-200",
-                expanded ? "rotate-0" : "-rotate-90",
-              ].join(" ")}
-            />
-          </button>
-        </td>
-        <td>
-          <span className="overview-table__muted">{item.sales_sku_code}</span>
-        </td>
-        <td>{item.product_name}</td>
-        <td className="overview-table__muted">{item.quantity}</td>
-        <td className="is-num overview-table__money">
-          {formatMoney(orderAmount(item.unit_price))}
-        </td>
-        <td className="is-num overview-table__money">
-          {formatMoney(orderAmount(item.total_amount))}
-        </td>
-        <td className="font-semibold">
-          <LineFulfillmentStatus waiting={capacity?.waiting_quantity} />
-        </td>
-      </tr>
-
-      {expanded && (
-        <tr className="td-collapse">
-          <td colSpan={PRODUCT_TABLE_COL_SPAN}>
-            <ProductCapacityPanel capacity={capacity} />
-          </td>
-        </tr>
-      )}
-    </Fragment>
-  );
-}
-
 export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetailsComponentProps) {
   const router = useRouter();
   const [expandedIds, setExpandedIds] = useState<number[]>([]);
   const remainingDebt = orderRemaining(order);
 
-  const warehouses = useMemo(
-    () => listWarehouses(fulfillmentCapacity),
-    [fulfillmentCapacity],
-  );
+  const warehouses = listWarehouses(fulfillmentCapacity);
 
+
+  // Khởi tạo warehouseId là first warehouses
   const [warehouseId, setWarehouseId] = useState<number | null>(
-    () =>
-      warehouses.find((w) => w.can_fulfill_remaining)?.warehouse_id ??
-      warehouses[0]?.warehouse_id ??
-      null,
+    () => warehouses[0]?.warehouse_id ?? null,
   );
 
-  /** Cộng theo kho đang chọn → tách đơn. */
-  const splitTotals = useMemo(() => {
-    let ready = 0;
-    let waiting = 0;
-    for (const line of order.lines) {
-      const cap = findWarehouseCapacity(fulfillmentCapacity, line.id, warehouseId);
-      if (!cap) continue;
-      ready += cap.suggested_quantity;
-      waiting += cap.waiting_quantity;
-    }
-    return { ready, waiting };
-  }, [order.lines, fulfillmentCapacity, warehouseId]);
+  // warehouseAvailable
+  const warehouseAvailable: WarehouseAvailable = {
+    readyToPack: 0,
+    awaitingStock: 0,
+    can_fulfill_remaining: false,
+  };
+
+  // warehouseAvailable Map từng item trong order.lines tìm warehouseId tương ứng với line sản phẩm
+  for (const line of order.lines) {
+    const warehouse = getWarehouse(fulfillmentCapacity, line.id, warehouseId);
+    console.log(warehouse);
+    if (!warehouse) continue;
+    warehouseAvailable.readyToPack +=
+      warehouse.allocation_proposal.suggested_quantity;
+    warehouseAvailable.awaitingStock +=
+      warehouse.allocation_proposal.waiting_quantity;
+    warehouseAvailable.can_fulfill_remaining = warehouse.can_fulfill_remaining;
+  }
+  console.log(warehouseAvailable);
 
   function toggleExpanded(id: number) {
     setExpandedIds((current) =>
@@ -390,7 +263,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
                 <OrderProductRow
                   key={item.id}
                   item={item}
-                  capacity={findWarehouseCapacity(
+                  capacity={getWarehouse(
                     fulfillmentCapacity,
                     item.id,
                     warehouseId,
@@ -411,7 +284,8 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
         </div>
       </section>
 
-      <div className="section-container mb-6">
+      {!warehouseAvailable.can_fulfill_remaining ? (
+        <div className="section-container mb-6">
         <h6 className="mb-4 text-base font-semibold flex items-center gap-2">
           <Icon name="hero-rectangle-stack" className="size-5 text-theme-primary" />
           Tách đơn tự động
@@ -420,19 +294,19 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
         <div className="grid grid-cols-2 gap-6">
           <div className="rounded-xl border border-theme-primary-border p-4">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-xs font-medium text-slate-500">Đơn 1</span>
+              <span className="font-medium text-slate-500">Đơn 1</span>
               <span className="status status--active">Sẵn sàng đóng gói</span>
             </div>
             <p className="text-2xl font-semibold text-slate-900">
-              {splitTotals.ready}{" "}
+              {warehouseAvailable.readyToPack}{" "}
               <span className="text-base font-medium text-slate-500">bao</span>
             </p>
-            <p className="mt-1 text-xs text-slate-500">Xuất từ tồn khả dụng (suggested)</p>
+            <p className="mt-1 text-xs text-slate-500">Xuất từ tồn khả dụng</p>
           </div>
 
           <div className="rounded-xl border border-theme-primary-border p-4">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-xs font-medium text-slate-500">Đơn 2</span>
+              <span className="font-medium text-slate-500">Đơn 2</span>
               <span
                 className="status"
                 style={{
@@ -441,17 +315,38 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
                   backgroundColor: "#F59E0B1A",
                 }}
               >
-                Treo chờ hàng
+                Chờ bổ sung
               </span>
             </div>
             <p className="text-2xl font-semibold text-slate-900">
-              {splitTotals.waiting}{" "}
+              {warehouseAvailable.awaitingStock}{" "}
               <span className="text-base font-medium text-slate-500">bao</span>
             </p>
-            <p className="mt-1 text-xs text-slate-500">Chờ bổ sung tồn kho (waiting)</p>
+            <p className="mt-1 text-xs text-slate-500">Chờ bổ sung tồn kho</p>
           </div>
         </div>
       </div>
+      ) : (
+        <div className="section-container mb-6">
+          <h6 className="mb-4 text-base font-semibold flex items-center gap-2">
+            <Icon name="hero-rectangle-stack" className="size-5 text-theme-primary" />
+            Đóng gói toàn bộ
+          </h6>
+          <div className="rounded-xl border border-theme-primary-border p-4 max-w-md">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="font-medium text-slate-500">Toàn bộ đơn</span>
+              <span className="status status--active">Sẵn sàng đóng gói</span>
+            </div>
+            <p className="text-2xl font-semibold text-slate-900">
+              {warehouseAvailable.readyToPack}{" "}
+              <span className="text-base font-medium text-slate-500">bao</span>
+            </p>
+            <p className="mt-1 text-xs text-slate-500">
+              Kho đủ tồn — xuất và đóng gói một lần
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center justify-end gap-3 pt-2 mb-12">
         <button

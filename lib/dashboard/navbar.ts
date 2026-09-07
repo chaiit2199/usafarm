@@ -258,6 +258,12 @@ export const DEFAULT_PAGE_TITLE = "USA FARM AGRI";
 export type HeaderPageOptions = {
   subpage?: string;
   href?: string;
+  /** Override header action buttons (e.g. show export on detail pages). */
+  export?: boolean;
+  create?: boolean;
+  filter?: boolean;
+  search?: boolean;
+  authorization?: boolean;
 };
 
 export type HeaderConfig = {
@@ -287,16 +293,25 @@ export function getHeaderConfig(
   const href = options?.href ?? (subpage ? item?.href : undefined);
   const hideActions = Boolean(subpage) || isNested;
 
+  function action(
+    key: keyof HeaderButtons,
+    fromMenu: boolean | undefined,
+  ): boolean {
+    const override = options?.[key];
+    if (override != null) return override;
+    return hideActions ? false : Boolean(fromMenu);
+  }
+
   return {
     title,
     label: subpage ? "" : (item?.label ?? title),
     href,
     subpage,
-    create: hideActions ? false : Boolean(item?.create),
-    export: hideActions ? false : Boolean(item?.export),
-    filter: hideActions ? false : Boolean(item?.filter),
-    authorization: hideActions ? false : Boolean(item?.authorization),
-    search: hideActions ? false : Boolean(item?.search),
+    create: action("create", item?.create),
+    export: action("export", item?.export),
+    filter: action("filter", item?.filter),
+    authorization: action("authorization", item?.authorization),
+    search: action("search", item?.search),
   };
 }
 

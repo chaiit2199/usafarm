@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 import { Dashboard } from "@/components/dashboard";
-import { HeaderPageMeta } from "@/components/header_page_meta";
+import { HeaderPageMeta } from "@/components/header_meta";
 import { OrderDetailsComponent } from "@/components/order-details/order_details_component";
-import { getOrder, getOrderFulfillmentCapacity } from "@/lib/api/orders";
+import { getOrderDetail } from "@/lib/api/orders";
 import { pageMetadata } from "@/lib/dashboard/navbar";
 
 type PageProps = {
@@ -17,25 +17,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Page({ params }: PageProps) {
   const { code } = await params;
-  const orderResult = await getOrder(code);
-  const fulfillmentResult =
-    orderResult.ok && orderResult.data
-      ? await getOrderFulfillmentCapacity(orderResult.data.id)
-      : null;
+  const result = await getOrderDetail(code);
 
   return (
     <>
-      <HeaderPageMeta href="/orders" subpage={orderResult.data?.code ?? code} />
+      <HeaderPageMeta
+        href="/orders"
+        subpage={result.ok ? result.data.order.code : code}
+        export={true}
+      />
       <Dashboard id="order-detail-main">
-        {orderResult.ok &&
-          orderResult.data &&
-          fulfillmentResult?.ok &&
-          fulfillmentResult.data && (
-            <OrderDetailsComponent
-              order={orderResult.data}
-              fulfillmentCapacity={fulfillmentResult.data}
-            />
-          )}
+        {result.ok && (
+          <OrderDetailsComponent
+            order={result.data.order}
+            fulfillmentCapacity={result.data.fulfillment}
+          />
+        )}
       </Dashboard>
     </>
   );

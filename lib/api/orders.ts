@@ -60,3 +60,27 @@ export async function getOrderFulfillmentCapacity(orderId: number) {
     };
   }
 }
+
+/** Order detail + fulfillment capacity (sequential: capacity needs order.id). */
+export async function getOrderDetail(code: string) {
+  const order = await getOrder(code);
+  if (!order.ok || !order.data) {
+    return {
+      ok: false as const,
+      message: !order.ok ? order.message : "Không thể tải đơn hàng",
+    };
+  }
+
+  const fulfillment = await getOrderFulfillmentCapacity(order.data.id);
+  if (!fulfillment.ok || !fulfillment.data) {
+    return {
+      ok: false as const,
+      message: !fulfillment.ok ? fulfillment.message : "Không thể tải năng lực đối chiếu kho",
+    };
+  }
+
+  return {
+    ok: true as const,
+    data: { order: order.data, fulfillment: fulfillment.data },
+  };
+}

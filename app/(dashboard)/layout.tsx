@@ -1,5 +1,5 @@
 import { SidebarComponent } from "@/components/sidebar";
-import { DashboardHeader } from "@/components/header";
+import { DashboardChrome } from "@/components/dashboard_chrome";
 import { getCurrentUserPermissions, requireCurrentUser } from "@/lib/api/me";
 import { buildMenuWithPermissions } from "@/lib/dashboard/navbar";
 
@@ -13,8 +13,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/">) {
         <SidebarComponent user={user} menu={menu} />
         <div className="dashboard__container">
           <div className="dashboard__inner">
-            <DashboardHeader />
-            {children}
+            <DashboardChrome>{children}</DashboardChrome>
           </div>
         </div>
       </div>
