@@ -255,6 +255,12 @@ function findPrefixMenuItem(pathname: string, menu: Navbar[] = MENU): Navbar | N
 
 export const DEFAULT_PAGE_TITLE = "USA FARM AGRI";
 
+export type HeaderPageOptions = {
+  subpage?: string;
+  /** Title link; defaults to menu href when `subpage` is set. */
+  href?: string;
+};
+
 export type HeaderConfig = {
   title: string;
   label: string;
@@ -270,18 +276,22 @@ export function getPageTitle(pathname: string): string {
   );
 }
 
-export function getHeaderConfig(pathname: string): HeaderConfig {
+export function getHeaderConfig(
+  pathname: string,
+  options?: HeaderPageOptions,
+): HeaderConfig {
   const exact = findMenuItem(pathname);
   const item = exact ?? findPrefixMenuItem(pathname);
   const title = item?.title ?? DEFAULT_PAGE_TITLE;
-  const nested = !exact && item?.href ? pathname.slice(item.href.length + 1) : "";
-  const subpage = nested || undefined;
-  const hideActions = Boolean(subpage);
+  const subpage = options?.subpage;
+  const isNested = !exact && Boolean(item);
+  const href = options?.href ?? (subpage ? item?.href : undefined);
+  const hideActions = Boolean(subpage) || isNested;
 
   return {
     title,
     label: subpage ? "" : (item?.label ?? title),
-    href: subpage ? item?.href : undefined,
+    href,
     subpage,
     create: hideActions ? false : Boolean(item?.create),
     export: hideActions ? false : Boolean(item?.export),

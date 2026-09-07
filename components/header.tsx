@@ -2,16 +2,25 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { HeaderNotifications } from "@/components/header_notifications";
 import { Icon } from "@/components/icon";
+import {
+  getHeaderPageOptions,
+  subscribeHeaderPageOptions,
+} from "@/lib/dashboard/header-page-meta";
 import { getHeaderConfig } from "@/lib/dashboard/navbar";
 import { emitHeaderAction } from "@/lib/dashboard/header-actions";
 
 export function DashboardHeader() {
   const pathname = usePathname();
-  const meta = getHeaderConfig(pathname);
+  const pageOptions = useSyncExternalStore(
+    subscribeHeaderPageOptions,
+    getHeaderPageOptions,
+    () => null,
+  );
+  const meta = getHeaderConfig(pathname, pageOptions ?? undefined);
   const [query, setQuery] = useState("");
 
   useEffect(() => {

@@ -1,5 +1,3 @@
-import type { OrderStatusId } from "@/lib/constants";
-
 export type ApiListMeta = {
   /** @deprecated Prefer total_records — kept for older list endpoints */
   total?: number;
@@ -256,33 +254,151 @@ export type PackagingGroupsResponse = {
 
 
 // Order
-export type OrderItem = {
+export type OrderStatusRef = {
+  code: number;
+  semantic: string;
+};
+
+export type OrderAgency = {
   id: number;
-  product_code: string;
+  code: string;
+  name: string;
+  phone?: string | null;
+  contact_name?: string | null;
+};
+
+export type OrderCreator = {
+  id: number;
+  code: string;
+  name: string;
+};
+
+export type OrderDeliveryAddress = {
+  address: string;
+  label?: string | null;
+  latitude?: string | null;
+  longitude?: string | null;
+  source_agency_address_id?: number | null;
+};
+
+export type OrderFinancialSummary = {
+  payment_status: string;
+  net_received_amount: string;
+  outstanding_receivable_amount: string;
+  overpaid_amount: string;
+  payable_amount: string;
+  receivable_amount: string;
+  received_amount: string;
+  refunded_amount: string;
+  remaining_amount: string;
+};
+
+export type OrderLine = {
+  id: number;
+  packaging_id: number;
+  requested_core_material_id: number;
+  sales_sku_id: number;
+  sales_sku_code: string;
+  packaging_name: string;
+  packaging_weight_kg: string;
+  core_name: string;
   product_name: string;
   quantity: number;
-  price: number;
-  status: string;
+  unit_price: string;
+  minimum_price: string;
+  discount_amount: string;
+  subtotal_amount: string;
+  total_amount: string;
 };
+
+/** @deprecated Prefer OrderLine */
+export type OrderItem = OrderLine;
 
 export type Order = {
   id: number;
   code: string;
-  agency_name: string;
-  address: string;
-  status: OrderStatusId;
+  version: number;
+  status: OrderStatusRef;
+  agency_id: number;
+  agency: OrderAgency;
+  created_by: OrderCreator;
   created_at: string;
   updated_at: string;
-  total_amount: number;
-  collected_amount: number;
-  received_amount: number;
-  items: OrderItem[];
+  locked_at?: string | null;
+  delivery_address: OrderDeliveryAddress;
+  discount_amount: string;
+  discount_percent: string;
+  subtotal_amount: string;
+  shipping_amount: string;
+  total_amount: string;
+  financial_revision: number;
+  financial_status: OrderStatusRef;
+  financial_summary: OrderFinancialSummary;
+  warehouse_assignments: unknown[];
+  lines: OrderLine[];
+}; 
+
+export type OrdersResponse = {
+  data: Order[];
+  meta?: ApiListMeta;
 };
 
-export function orderTotal(order: Order): number {
-  return order.total_amount;
+export type OrderResponse = {
+  data: Order;
+  meta?: ApiListMeta;
+};
+
+export type OrderFulfillmentWarehouse = {
+  warehouse_id: number;
+  warehouse_code: string;
+  warehouse_name: string;
+  can_fulfill_remaining: boolean;
+  core_available_kg: string;
+  finished_goods_available: number;
+  fulfillable_quantity: number;
+  packable_quantity: number;
+  packaging_available: number; // Tồn vỏ bao khả dụng
+  suggested_finished_goods_quantity: number; // Tồn thành phẩm sẵn để xuất thẳng
+  suggested_pack_new_quantity: number; // Số bao có thể đóng mới từ vỏ + ruột
+  suggested_quantity: number; // Số bao kho có thể giao được
+  waiting_quantity: number; // Phần còn thiếu / treo chờ sau khi lấy hết khả năng kho này
+};
+
+export type OrderFulfillmentLine = {
+  order_line_id: number;
+  requested_quantity: number;
+  remaining_quantity: number;
+  warehouses: OrderFulfillmentWarehouse[];
+};
+
+export type OrderFulfillmentCapacity = {
+  order_id: number;
+  calculated_at: string;
+  proposal_only: boolean;
+  lines: OrderFulfillmentLine[];
+};
+
+export type OrderFulfillmentCapacityResponse = {
+  data: OrderFulfillmentCapacity;
+  meta?: ApiListMeta;
+};
+
+export function orderAmount(value: string | number | null | undefined): number {
+  const n = Number(value ?? 0);
+  return Number.isFinite(n) ? n : 0;
 }
 
+export function orderTotal(order: Order): number {
+  return orderAmount(order.total_amount);
+}
+
+export function orderReceived(order: Order): number {
+  return orderAmount(order.financial_summary?.received_amount);
+}
+
+export function orderRemaining(order: Order): number {
+  return orderAmount(order.financial_summary?.remaining_amount);
+}
 
 export type ProductComponent = {
   type: string;

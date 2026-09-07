@@ -14,6 +14,7 @@ export function SelectField({
   id,
   name,
   label,
+  value,
   defaultValue,
   required,
   disabled,
@@ -23,6 +24,7 @@ export function SelectField({
   id: string;
   name: string;
   label: ReactNode;
+  value?: string;
   defaultValue?: string;
   required?: boolean;
   disabled?: boolean;
@@ -37,6 +39,7 @@ export function SelectField({
       <select
         id={id}
         name={name}
+        value={value}
         defaultValue={defaultValue}
         required={required}
         disabled={disabled}

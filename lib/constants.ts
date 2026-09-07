@@ -71,24 +71,40 @@ export const roleStatusMeta = recordStatusMeta;
 
 // ORDER STATUSES
 export const ORDER_STATUSES = [
-  { id: 1, label: "Đơn mới", color: "#E8A45A" },
-  { id: 2, label: "Chuẩn bị hàng", color: "#F97316" },           // Chuẩn bị hàng
-  { id: 3, label: "Đóng gói", color: "#C4A35A" },
-  { id: 4, label: "Đang vận chuyển", color: "#7C3AED" },
-  { id: 5, label: "Đã vận chuyển", color: "#6366F1" },
-  { id: 6, label: "Đã thu một phần", color: "#0EA5E9" },
-  { id: 7, label: "Đã thu tiền", color: "#14B8A6" },
-  { id: 8, label: "Hoàn thành", color: "#3B7A57" },
+  { id: 0, semantic: "DRAFT", label: "Đơn mới", color: "#E8A45A" },
+  { id: 1, semantic: "PREPARING", label: "Chuẩn bị hàng", color: "#F97316" },
+  { id: 2, semantic: "PACKING", label: "Đóng gói", color: "#C4A35A" },
+  { id: 3, semantic: "SHIPPING", label: "Đang vận chuyển", color: "#7C3AED" },
+  { id: 4, semantic: "SHIPPED", label: "Đã vận chuyển", color: "#6366F1" },
+  { id: 5, semantic: "PARTIAL_COLLECTED", label: "Đã thu một phần", color: "#0EA5E9" },
+  { id: 6, semantic: "COLLECTED", label: "Đã thu tiền", color: "#14B8A6" },
+  { id: 7, semantic: "COMPLETED", label: "Hoàn thành", color: "#3B7A57" },
 ] as const;
 
-export type OrderStatusId = (typeof ORDER_STATUSES)[number]["id"]; 
+export type OrderStatusId = (typeof ORDER_STATUSES)[number]["id"];
+export type OrderStatusSemantic = (typeof ORDER_STATUSES)[number]["semantic"];
 
-export function getOrderStatusLabel(statusId: number) {
-  return ORDER_STATUSES.find((s) => s.id === statusId)?.label ?? "Không xác định";
+export type OrderStatusInput = number | { code: number; semantic?: string };
+
+function resolveOrderStatus(status: OrderStatusInput) {
+  const code = typeof status === "number" ? status : status.code;
+  const semantic = typeof status === "number" ? undefined : status.semantic;
+  return (
+    ORDER_STATUSES.find((s) => s.id === code) ??
+    ORDER_STATUSES.find((s) => s.semantic === semantic) ??
+    null
+  );
 }
 
-export function orderColor(statusId: number) {
-  return ORDER_STATUSES.find((s) => s.id === statusId)?.color ?? "#94A3B8";
+export function getOrderStatusLabel(status: OrderStatusInput) {
+  const matched = resolveOrderStatus(status);
+  if (matched) return matched.label;
+  if (typeof status === "object" && status.semantic) return status.semantic;
+  return "Không xác định";
+}
+
+export function orderColor(status: OrderStatusInput) {
+  return resolveOrderStatus(status)?.color ?? "#94A3B8";
 }
 
 /** Fake series for overview pie chart — status key = id string. */
