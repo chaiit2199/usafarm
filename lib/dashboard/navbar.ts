@@ -36,6 +36,42 @@ export type Navbar = {
 export const MENU: Navbar[] = [
   { id: "home", label: "Dashboard", href: "/", icon: "hero-squares-2x2", title: "Tổng quan" },
   {
+    id: "warehouse",
+    label: "Quản lý kho",
+    title: "Quản lý kho",
+    icon: "hero-building-storefront",
+    children: [
+      {
+        id: "warehouses",
+        label: "Nền tảng gốc — cấu hình kho bãi để gán số dư độc lập cho các phân hệ sau",
+        href: "/warehouse",
+        icon: "hero-building-office-2",
+        title: "Quản lý kho hàng",
+      },
+      {
+        id: "packaging-stock",
+        label: "Theo dõi tồn kho theo vị trí bãi chứa và quyền sở hữu bao bì",
+        href: "/warehouse/packaging",
+        icon: "hero-archive-box",
+        title: "Quản lý vỏ bao",
+      },
+      {
+        id: "raw-materials",
+        label: "Theo dõi khối lượng nguyên liệu thô theo từng kho bồn chứa",
+        href: "/warehouse/ingredients",
+        icon: "hero-beaker",
+        title: "Quản lý nguyên liệu",
+      },
+      {
+        id: "finished-goods",
+        label: "Thành phẩm từ hàng hoàn về, có thể xuất ngay không cần chạy máy đóng gói lại",
+        href: "/warehouse/finished-goods",
+        icon: "hero-cube",
+        title: "Tồn kho thành phẩm",
+      },
+    ],
+  },
+  {
     id: "products",
     label: "Sản phẩm",
     title: "Sản phẩm",
