@@ -1,24 +1,4 @@
-"use client";
-
-/**
- * Luồng đối chiếu kho (order detail)
- *
- * 1. Order GET /orders/{code}
- *    - Bảng SP: lines[] → sales_sku_code, product_name, quantity, unit_price, total_amount
- *    - Tổng hàng: subtotal_amount
- *
- * 2. Capacity GET /orders/{id}/fulfillment-capacity
- *    - lines[].order_line_id = order.lines[].id
- *    - User chọn warehouses[].warehouse_id
- *
- * 3. Với mỗi dòng SP + kho đã chọn:
- *    - Thiếu bao = waiting_quantity (cột trạng thái)
- *    - Expand: packaging_available, core_available_kg, finished_goods_available
- *
- * 4. Tách đơn (theo kho đang chọn, cộng mọi dòng):
- *    - Đơn 1 = Σ suggested_quantity (xuất được)
- *    - Đơn 2 = Σ waiting_quantity (treo chờ)
- */
+"use client"; 
 
 import { Fragment, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";

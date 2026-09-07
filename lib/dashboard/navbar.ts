@@ -257,7 +257,6 @@ export const DEFAULT_PAGE_TITLE = "USA FARM AGRI";
 
 export type HeaderPageOptions = {
   subpage?: string;
-  /** Title link; defaults to menu href when `subpage` is set. */
   href?: string;
 };
 
