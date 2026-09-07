@@ -9,6 +9,7 @@ import { SelectField } from "@/components/form-fields";
 import { OrderProductRow } from "@/components/order-details/order_product_row";
 import type {
   Order,
+  OrderFulfillmentAllocationProposal,
   OrderFulfillmentCapacity,
   OrderFulfillmentWarehouse,
 } from "@/lib/api/types";
@@ -19,13 +20,7 @@ import { formatDateTimeVi } from "@/lib/format/date";
 type OrderDetailsComponentProps = {
   order: Order;
   fulfillmentCapacity: OrderFulfillmentCapacity;
-};
-
-type WarehouseAvailable = {
-  readyToPack: number;
-  awaitingStock: number;
-  can_fulfill_remaining: boolean;
-};
+}; 
 
 function formatMoney(value: number) {
   return `${new Intl.NumberFormat("en-US").format(value)} đ`;
@@ -40,6 +35,8 @@ function listWarehouses(capacity: OrderFulfillmentCapacity): OrderFulfillmentWar
     ).values(),
   );
 }
+
+
 
 function getWarehouse(
   capacity: OrderFulfillmentCapacity,
@@ -82,25 +79,26 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
     () => warehouses[0]?.warehouse_id ?? null,
   );
 
-  // warehouseAvailable
-  const warehouseAvailable: WarehouseAvailable = {
-    readyToPack: 0,
-    awaitingStock: 0,
+  const warehouseSssignments = {
     can_fulfill_remaining: false,
+    allocation_proposal: {
+      suggested_finished_goods_quantity: 0,
+      suggested_pack_new_quantity: 0,
+      suggested_quantity: 0,
+      waiting_quantity: 0,
+    }
   };
 
   // warehouseAvailable Map từng item trong order.lines tìm warehouseId tương ứng với line sản phẩm
   for (const line of order.lines) {
     const warehouse = getWarehouse(fulfillmentCapacity, line.id, warehouseId);
-    console.log(warehouse);
     if (!warehouse) continue;
-    warehouseAvailable.readyToPack +=
-      warehouse.allocation_proposal.suggested_quantity;
-    warehouseAvailable.awaitingStock +=
-      warehouse.allocation_proposal.waiting_quantity;
-    warehouseAvailable.can_fulfill_remaining = warehouse.can_fulfill_remaining;
+    warehouseSssignments.can_fulfill_remaining = warehouse.can_fulfill_remaining;
+    warehouseSssignments.allocation_proposal.suggested_finished_goods_quantity += warehouse.allocation_proposal.suggested_finished_goods_quantity;
+    warehouseSssignments.allocation_proposal.suggested_pack_new_quantity += warehouse.allocation_proposal.suggested_pack_new_quantity;
+    warehouseSssignments.allocation_proposal.suggested_quantity += warehouse.allocation_proposal.suggested_quantity;
+    warehouseSssignments.allocation_proposal.waiting_quantity += warehouse.allocation_proposal.waiting_quantity;
   }
-  console.log(warehouseAvailable);
 
   function toggleExpanded(id: number) {
     setExpandedIds((current) =>
@@ -284,7 +282,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
         </div>
       </section>
 
-      {!warehouseAvailable.can_fulfill_remaining ? (
+      {!warehouseSssignments.can_fulfill_remaining ? (
         <div className="section-container mb-6">
         <h6 className="mb-4 text-base font-semibold flex items-center gap-2">
           <Icon name="hero-rectangle-stack" className="size-5 text-theme-primary" />
@@ -295,13 +293,13 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
           <div className="rounded-xl border border-theme-primary-border p-4">
             <div className="flex items-center justify-between gap-2 mb-2">
               <span className="font-medium text-slate-500">Đơn 1</span>
-              <span className="status status--active">Sẵn sàng đóng gói</span>
+              <span className="status status--active">Sẵn sàng phân kho</span>
             </div>
             <p className="text-2xl font-semibold text-slate-900">
-              {warehouseAvailable.readyToPack}{" "}
-              <span className="text-base font-medium text-slate-500">bao</span>
+              {warehouseSssignments.allocation_proposal.suggested_quantity} bao
+              <span className="text-base font-medium text-slate-500 pl-1"></span>
             </p>
-            <p className="mt-1 text-xs text-slate-500">Xuất từ tồn khả dụng</p>
+            <p className="mt-1 text-xs text-slate-500">{warehouseSssignments.allocation_proposal.suggested_finished_goods_quantity} bao thành phẩm · {warehouseSssignments.allocation_proposal.suggested_pack_new_quantity} bao đóng mới</p>
           </div>
 
           <div className="rounded-xl border border-theme-primary-border p-4">
@@ -319,8 +317,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
               </span>
             </div>
             <p className="text-2xl font-semibold text-slate-900">
-              {warehouseAvailable.awaitingStock}{" "}
-              <span className="text-base font-medium text-slate-500">bao</span>
+              {warehouseSssignments.allocation_proposal.waiting_quantity} bao
             </p>
             <p className="mt-1 text-xs text-slate-500">Chờ bổ sung tồn kho</p>
           </div>
@@ -332,19 +329,19 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
             <Icon name="hero-rectangle-stack" className="size-5 text-theme-primary" />
             Đóng gói toàn bộ
           </h6>
-          <div className="rounded-xl border border-theme-primary-border p-4 max-w-md">
+          <div className="grid grid-cols-2 gap-6">
+          <div className="rounded-xl border border-theme-primary-border p-4">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="font-medium text-slate-500">Toàn bộ đơn</span>
-              <span className="status status--active">Sẵn sàng đóng gói</span>
+              <span className="font-medium text-slate-500">Đơn 1</span>
+              <span className="status status--active">Sẵn sàng phân kho</span>
             </div>
             <p className="text-2xl font-semibold text-slate-900">
-              {warehouseAvailable.readyToPack}{" "}
-              <span className="text-base font-medium text-slate-500">bao</span>
+              {warehouseSssignments.allocation_proposal.suggested_quantity} bao
+              <span className="text-base font-medium text-slate-500 pl-1"></span>
             </p>
-            <p className="mt-1 text-xs text-slate-500">
-              Kho đủ tồn — xuất và đóng gói một lần
-            </p>
-          </div>
+            <p className="mt-1 text-xs text-slate-500">{warehouseSssignments.allocation_proposal.suggested_finished_goods_quantity} bao thành phẩm · {warehouseSssignments.allocation_proposal.suggested_pack_new_quantity} bao đóng mới</p>
+          </div> 
+        </div>
         </div>
       )}
 
