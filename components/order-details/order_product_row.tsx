@@ -24,7 +24,7 @@ function LineFulfillmentStatus({ waiting }: { waiting: number | undefined }) {
 function ProductCapacityPanel({ capacity , line }: { capacity?: OrderFulfillmentWarehouse, line: OrderLine }) {
   if (!capacity) {
     return (
-      <div className="px-4 py-3 text-sm text-slate-500">
+      <div className="px-4 py-3 text-sm text-theme-muted">
         Chọn kho để xem năng lực đối chiếu cho dòng này.
       </div>
     );

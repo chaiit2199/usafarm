@@ -7,9 +7,9 @@ import { TableHead } from "@/components/core_component";
 import { Icon } from "@/components/icon";
 import { SelectField } from "@/components/form-fields";
 import { OrderProductRow } from "@/components/order-details/order_product_row";
+import { OrderStatus } from "@/components/order-details/order_status";
 import type {
-  Order,
-  OrderFulfillmentAllocationProposal,
+  Order, 
   OrderFulfillmentCapacity,
   OrderFulfillmentWarehouse,
 } from "@/lib/api/types";
@@ -108,94 +108,99 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-6">
-        <section className="section-container mb-6">
-          <h6 className="mb-3 text-base font-semibold flex items-center gap-2">
+      <OrderStatus
+        status={order.status}
+        createdAt={order.created_at}
+        updatedAt={order.updated_at}
+      />
+      <div className="grid grid-cols-3 gap-6">
+        <section className="section-container mb-6 col-span-2">
+          <h6 className="mb-4 text-base font-semibold flex items-center gap-2">
             <Icon name="hero-clipboard-document-list" className="size-5 text-theme-primary" />
             Thông tin đơn hàng
           </h6>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs text-slate-500 mb-0.5">Mã đơn hàng</p>
-              <p className="font-semibold text-slate-900">{order.code}</p>
+              <p className="text-theme-muted text-xs mb-0.5">Mã đơn hàng</p>
+              <p className="font-semibold text-slate-900 text-sm">{order.code}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 mb-0.5">Ngày tạo đơn</p>
-              <p className="font-semibold text-slate-900">
+              <p className="text-theme-muted text-xs mb-0.5">Ngày tạo đơn</p>
+              <p className="font-semibold text-slate-900 text-sm">
                 {formatDateTimeVi(order.created_at)}
               </p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 mb-0.5">Trạng thái</p>
-              <p className="font-semibold text-slate-900">
+              <p className="text-theme-muted text-xs mb-0.5">Trạng thái</p>
+              <p className="font-semibold text-slate-900 text-sm">
                 <OrderStatusBadge status={order.status} />
               </p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 mb-0.5">Nhân viên tạo đơn</p>
-              <p className="font-semibold text-slate-900">{order.created_by.name}</p>
+              <p className="text-theme-muted text-xs mb-0.5">Nhân viên tạo đơn</p>
+              <p className="font-semibold text-slate-900 text-sm">{order.created_by.name}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 mb-0.5">Mã nhân viên</p>
-              <p className="font-semibold text-slate-900">{order.created_by.code}</p>
+              <p className="text-theme-muted text-xs mb-0.5">Mã nhân viên</p>
+              <p className="font-semibold text-slate-900 text-sm">{order.created_by.code}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 mb-0.5">Tổng tiền</p>
-              <p className="font-semibold text-slate-900">
+              <p className="text-theme-muted text-xs mb-0.5">Tổng tiền</p>
+              <p className="font-semibold text-slate-900 text-sm">
                 {formatMoney(orderAmount(order.total_amount))}
               </p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 mb-0.5">Công nợ đã thu</p>
-              <p className="font-semibold text-slate-900">
+              <p className="text-theme-muted text-xs mb-0.5">Công nợ đã thu</p>
+              <p className="font-semibold text-slate-900 text-sm">
                 {formatMoney(orderReceived(order))}
               </p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 mb-0.5">Công nợ còn lại</p>
-              <p className="font-semibold text-slate-900">{formatMoney(remainingDebt)}</p>
+              <p className="text-theme-muted text-xs mb-0.5">Công nợ còn lại</p>
+              <p className="font-semibold text-slate-900 text-sm">{formatMoney(remainingDebt)}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 mb-0.5">Thời gian cập nhật</p>
-              <p className="font-semibold text-slate-900">
+              <p className="text-theme-muted text-xs mb-0.5">Thời gian cập nhật</p>
+              <p className="font-semibold text-slate-900 text-sm">
                 {formatDateTimeVi(order.updated_at)}
               </p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 mb-0.5">Số lượng sản phẩm</p>
-              <p className="font-semibold text-slate-900">{order.lines.length}</p>
+              <p className="text-theme-muted text-xs mb-0.5">Số lượng sản phẩm</p>
+              <p className="font-semibold text-slate-900 text-sm">{order.lines.length}</p>
             </div>
           </div>
         </section>
 
         <section className="section-container mb-6">
-          <h6 className="mb-3 text-base font-semibold flex items-center gap-2">
+          <h6 className="mb-4 text-base font-semibold flex items-center gap-2">
             <Icon name="hero-users" className="size-5 text-theme-primary" />
             Thông tin đại lý
           </h6>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-4">
             <div>
-              <p className="text-xs text-slate-500 mb-0.5">Tên đại lý</p>
-              <p className="font-semibold text-slate-900">{order.agency.name}</p>
+              <p className="text-theme-muted text-xs mb-0.5">Tên đại lý</p>
+              <p className="font-semibold text-slate-900 text-sm">{order.agency.name}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 mb-0.5">Mã đại lý</p>
-              <p className="font-semibold text-slate-900">{order.agency.code}</p>
+              <p className="text-theme-muted text-xs mb-0.5">Mã đại lý</p>
+              <p className="font-semibold text-slate-900 text-sm">{order.agency.code}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 mb-0.5">Số điện thoại</p>
-              <p className="font-semibold text-slate-900">{order.agency.phone ?? "—"}</p>
+              <p className="text-theme-muted text-xs mb-0.5">Số điện thoại</p>
+              <p className="font-semibold text-slate-900 text-sm">{order.agency.phone ?? "0123456789"}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 mb-0.5">Người liên hệ</p>
-              <p className="font-semibold text-slate-900">
-                {order.agency.contact_name ?? "—"}
+              <p className="text-theme-muted text-xs mb-0.5">Người liên hệ</p>
+              <p className="font-semibold text-slate-900 text-sm">
+                {order.agency.contact_name ?? "Nguyễn Lê Huỳnh Đức"}
               </p>
             </div>
             <div className="col-span-2">
-              <p className="text-xs text-slate-500 mb-0.5">Địa chỉ đại lý</p>
-              <p className="font-semibold text-slate-900">{order.delivery_address.address}</p>
+              <p className="text-theme-muted text-xs mb-0.5">Địa chỉ đại lý</p>
+              <p className="font-semibold text-slate-900 text-sm">{order.delivery_address.address}</p>
             </div>
           </div>
         </section>
@@ -292,19 +297,19 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
         <div className="grid grid-cols-2 gap-6">
           <div className="rounded-xl border border-theme-primary-border p-4">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="font-medium text-slate-500">Đơn 1</span>
+              <span className="font-medium text-theme-muted">Đơn 1</span>
               <span className="status status--active">Sẵn sàng phân kho</span>
             </div>
-            <p className="text-2xl font-semibold text-slate-900">
+            <p className="text-2xl font-semibold text-slate-900 text-sm">
               {warehouseSssignments.allocation_proposal.suggested_quantity} bao
-              <span className="text-base font-medium text-slate-500 pl-1"></span>
+              <span className="text-base font-medium text-theme-muted pl-1"></span>
             </p>
-            <p className="mt-1 text-xs text-slate-500">{warehouseSssignments.allocation_proposal.suggested_finished_goods_quantity} bao thành phẩm · {warehouseSssignments.allocation_proposal.suggested_pack_new_quantity} bao đóng mới</p>
+            <p className="mt-1 text-xs text-theme-muted">{warehouseSssignments.allocation_proposal.suggested_finished_goods_quantity} bao thành phẩm · {warehouseSssignments.allocation_proposal.suggested_pack_new_quantity} bao đóng mới</p>
           </div>
 
           <div className="rounded-xl border border-theme-primary-border p-4">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="font-medium text-slate-500">Đơn 2</span>
+              <span className="font-medium text-theme-muted">Đơn 2</span>
               <span
                 className="status"
                 style={{
@@ -316,10 +321,10 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
                 Chờ bổ sung
               </span>
             </div>
-            <p className="text-2xl font-semibold text-slate-900">
+            <p className="text-2xl font-semibold text-slate-900 text-sm">
               {warehouseSssignments.allocation_proposal.waiting_quantity} bao
             </p>
-            <p className="mt-1 text-xs text-slate-500">Chờ bổ sung tồn kho</p>
+            <p className="mt-1 text-xs text-theme-muted">Chờ bổ sung tồn kho</p>
           </div>
         </div>
       </div>
@@ -332,14 +337,14 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
           <div className="grid grid-cols-2 gap-6">
           <div className="rounded-xl border border-theme-primary-border p-4">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="font-medium text-slate-500">Đơn 1</span>
+              <span className="font-medium text-theme-muted">Đơn 1</span>
               <span className="status status--active">Sẵn sàng phân kho</span>
             </div>
-            <p className="text-2xl font-semibold text-slate-900">
+            <p className="text-2xl font-semibold text-slate-900 text-sm">
               {warehouseSssignments.allocation_proposal.suggested_quantity} bao
-              <span className="text-base font-medium text-slate-500 pl-1"></span>
+              <span className="text-base font-medium text-theme-muted pl-1"></span>
             </p>
-            <p className="mt-1 text-xs text-slate-500">{warehouseSssignments.allocation_proposal.suggested_finished_goods_quantity} bao thành phẩm · {warehouseSssignments.allocation_proposal.suggested_pack_new_quantity} bao đóng mới</p>
+            <p className="mt-1 text-xs text-theme-muted">{warehouseSssignments.allocation_proposal.suggested_finished_goods_quantity} bao thành phẩm · {warehouseSssignments.allocation_proposal.suggested_pack_new_quantity} bao đóng mới</p>
           </div> 
         </div>
         </div>

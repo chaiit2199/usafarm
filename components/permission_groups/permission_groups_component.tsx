@@ -328,7 +328,7 @@ export function PermissionGroupsComponent({
               </div>
 
               {isPermissionsLoading ? (
-                <p className="text-sm text-slate-500">Đang tải danh sách quyền...</p>
+                <p className="text-sm text-theme-muted">Đang tải danh sách quyền...</p>
               ) : userPermissionIds ? (
                 <SelectRoles
                   permissions={permissions}
