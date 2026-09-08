@@ -73,13 +73,12 @@ export const roleStatusMeta = recordStatusMeta;
 export const ORDER_STATUSES = [
   { id: 0, semantic: "DRAFT", label: "Đơn mới", color: "#64748B" },
   { id: 1, semantic: "WAITING_FOR_APPROVAL", label: "Chờ duyệt", color: "#E8A45A" },
-  { id: 2, semantic: "APPROVED_WAITING_ALLOCATION", label: "Đã duyệt — chờ phân kho", color: "#F97316" },
+  { id: 2, semantic: "APPROVED_WAITING_ALLOCATION", label: "Chờ phân kho", color: "#F97316" },
   { id: 3, semantic: "REJECTED", label: "Từ chối", color: "#B91C1C" },
   { id: 4, semantic: "WAITING_WAREHOUSE_ACCEPTANCE", label: "Chờ kho tiếp nhận", color: "#C4A35A" },
   { id: 5, semantic: "PROCESSING", label: "Đang xử lý", color: "#7C3AED" },
   { id: 6, semantic: "CANCELLING", label: "Đang xử lý hủy", color: "#EA580C" },
   { id: 7, semantic: "COMPLETED", label: "Hoàn thành", color: "#3B7A57" },
-  { id: 8, semantic: "COMPLETED_PARTIAL_CANCELLATION", label: "Hoàn thành, có hủy một phần", color: "#0D9488" },
   { id: 9, semantic: "CANCELLED", label: "Đã hủy", color: "#DC2626" },
 ] as const;
 
@@ -117,15 +116,8 @@ export function isOrderCancelled(status: OrderStatusInput) {
   return resolveOrderStatus(status)?.semantic === "CANCELLED";
 }
 
-/** Stepper fulfillment: đã duyệt (không phải đơn mới / chờ duyệt / từ chối). */
-export function isOrderApproved(status: OrderStatusInput) {
-  const semantic = resolveOrderStatus(status)?.semantic;
-  return (
-    semantic != null &&
-    semantic !== "DRAFT" &&
-    semantic !== "WAITING_FOR_APPROVAL" &&
-    semantic !== "REJECTED"
-  );
+export function isWaitingForApproval(status: OrderStatusInput) {
+  return resolveOrderStatus(status)?.semantic === "WAITING_FOR_APPROVAL";
 }
 
 /** Fake series for overview pie chart — status key = id string. */

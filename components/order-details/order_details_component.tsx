@@ -82,10 +82,16 @@ const CAN_REQUEST_CANCEL: OrderStatusSemantic[] = [
 function OrderDetailActions({
   semantic,
   canFulfillRemaining,
+  isCoreAvailable,
+  isFinishedGoodsAvailable,
+  isPackagingAvailable,
   onBack,
 }: {
   semantic?: OrderStatusSemantic;
   canFulfillRemaining: boolean;
+  isCoreAvailable: boolean;
+  isFinishedGoodsAvailable: boolean;
+  isPackagingAvailable: boolean;
   onBack: () => void;
 }) {
   const canCancel = semantic != null && CAN_REQUEST_CANCEL.includes(semantic);
@@ -119,9 +125,10 @@ function OrderDetailActions({
         </button>
       )}
 
-      {semantic === "DRAFT" && (
-        <button type="button" className="core_button core_button--primary">
-          Gửi duyệt
+      {/* Nếu ở đơn mới và có đủ hàng KL, tồn kho và đóng mới */}
+      {semantic === "DRAFT"  && (
+        <button type="button" className="core_button core_button--primary" disabled={!isCoreAvailable || !isFinishedGoodsAvailable || !isPackagingAvailable}>
+          Chuẩn bị đóng gói
         </button>
       )}
       {semantic === "WAITING_FOR_APPROVAL" && (
@@ -143,12 +150,7 @@ function OrderDetailActions({
         <button type="button" className="core_button core_button--primary">
           Tiếp nhận kho
         </button>
-      )}
-      {semantic === "PROCESSING" && (
-        <button type="button" className="core_button core_button--primary">
-          Chuẩn bị đóng gói
-        </button>
-      )}
+      )} 
       {semantic === "CANCELLING" && (
         <button type="button" className="core_button core_button--primary">
           Duyệt hủy
@@ -173,19 +175,34 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
 
   const warehouseSssignments = {
     can_fulfill_remaining: false,
+    is_core_available: false,
+    is_finished_goods_available: false,
+    is_packaging_available: false,
     allocation_proposal: {
       suggested_finished_goods_quantity: 0,
       suggested_pack_new_quantity: 0,
       suggested_quantity: 0,
       waiting_quantity: 0,
-    }
+    },
   };
 
   // warehouseAvailable Map từng item trong order.lines tìm warehouseId tương ứng với line sản phẩm
+  let matchedWarehouses = 0;
   for (const line of order.lines) {
     const warehouse = getWarehouse(fulfillmentCapacity, line.id, warehouseId);
     if (!warehouse) continue;
-    warehouseSssignments.can_fulfill_remaining = warehouse.can_fulfill_remaining;
+    if (matchedWarehouses === 0) {
+      warehouseSssignments.can_fulfill_remaining = warehouse.can_fulfill_remaining;
+      warehouseSssignments.is_core_available = warehouse.is_core_available;
+      warehouseSssignments.is_finished_goods_available = warehouse.is_finished_goods_available;
+      warehouseSssignments.is_packaging_available = warehouse.is_packaging_available;
+    } else {
+      warehouseSssignments.can_fulfill_remaining &&= warehouse.can_fulfill_remaining;
+      warehouseSssignments.is_core_available &&= warehouse.is_core_available;
+      warehouseSssignments.is_finished_goods_available &&= warehouse.is_finished_goods_available;
+      warehouseSssignments.is_packaging_available &&= warehouse.is_packaging_available;
+    }
+    matchedWarehouses += 1;
     warehouseSssignments.allocation_proposal.suggested_finished_goods_quantity += warehouse.allocation_proposal.suggested_finished_goods_quantity;
     warehouseSssignments.allocation_proposal.suggested_pack_new_quantity += warehouse.allocation_proposal.suggested_pack_new_quantity;
     warehouseSssignments.allocation_proposal.suggested_quantity += warehouse.allocation_proposal.suggested_quantity;
@@ -342,8 +359,8 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
           <table className="overview-table min-w-full" id="order-details-table">
             <colgroup>
               <col style={{ width: "4%" }} />
-              <col style={{ width: "18%" }} />
-              <col style={{ width: "26%" }} />
+              <col style={{ width: "16%" }} />
+              <col style={{ width: "28%" }} />
               <col style={{ width: "8%" }} />
               <col style={{ width: "12%" }} />
               <col style={{ width: "12%" }} />
@@ -429,9 +446,26 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
       </div>
       )}
 
+      {(!warehouseSssignments.is_core_available ||
+        !warehouseSssignments.is_packaging_available ||
+        !warehouseSssignments.is_finished_goods_available) && (
+        <div className="section-container mb-6 rounded-xl border border-theme-primary-border p-4">
+          <h6 className="mb-3 text-base font-semibold flex items-center gap-2 text-amber-800">
+            <Icon name="hero-exclamation-triangle" className="size-5 text-amber-600" />
+            Cảnh báo không đủ hàng
+          </h6>
+          <p className="text-sm text-theme-muted">
+          Vui lòng chọn kho hàng khác để đối chiếu.
+          </p>
+        </div>
+      )}
+
       <OrderDetailActions
         semantic={getOrderStatusMeta(order.status)?.semantic}
         canFulfillRemaining={warehouseSssignments.can_fulfill_remaining}
+        isCoreAvailable={warehouseSssignments.is_core_available}
+        isFinishedGoodsAvailable={warehouseSssignments.is_finished_goods_available}
+        isPackagingAvailable={warehouseSssignments.is_packaging_available}
         onBack={() => router.push("/orders")}
       />
     </>
