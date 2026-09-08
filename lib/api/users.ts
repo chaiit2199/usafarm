@@ -8,7 +8,7 @@ import {
   createUserSchema,
   updateUserSchema,
   userIdSchema,
-  rejectUserSchema,
+  rejectSchema,
   type AssignUserAccessInput,
   type ChangePasswordInput,
   type CreateUserInput,
@@ -62,7 +62,7 @@ export async function approveUser(payload: { id: number }) {
 }
 
 export async function rejectUser(payload: { id: number; reason: string }) {
-  return runServerAction(rejectUserSchema, payload, "Không thể từ chối nhân viên", async ({ id, reason }) => {
+  return runServerAction(rejectSchema, payload, "Không thể từ chối nhân viên", async ({ id, reason }) => {
     await client.post(`/api/v1/users/${id}/reject`, { reason });
     revalidatePath("/users");
     return { ok: true as const };

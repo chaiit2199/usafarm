@@ -35,7 +35,7 @@ export const userIdSchema = z.object({
   id: positiveInt,
 });
 
-export const rejectUserSchema = z.object({
+export const rejectSchema = z.object({
   id: positiveInt,
   reason: trimmed.min(1, "Vui lòng nhập lý do từ chối").max(1000),
 });
@@ -68,6 +68,6 @@ export const assignUserAccessSchema = z.object({
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 export type UserIdInput = z.infer<typeof userIdSchema>;
-export type RejectUserInput = z.infer<typeof rejectUserSchema>;
+export type RejectUserInput = z.infer<typeof rejectSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type AssignUserAccessInput = z.infer<typeof assignUserAccessSchema>;

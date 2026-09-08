@@ -1,11 +1,15 @@
 "use server";
 
 import { client, HttpError } from "@/lib/http/client";
+import { revalidatePath } from "next/cache";
 import type {
   OrderFulfillmentCapacityResponse,
   OrderResponse,
   OrdersResponse,
 } from "@/lib/api/types";
+
+import { runServerAction } from "@/lib/server-actions";
+import { rejectSchema } from "@/lib/validate/users";
 
 export type FilterOrdersParams = {
   search?: string;
@@ -83,4 +87,12 @@ export async function getOrderDetail(code: string) {
     ok: true as const,
     data: { order: order.data, fulfillment: fulfillment.data },
   };
+}
+
+export async function rejectOrder(payload: { id: number; reason: string }) {
+  return runServerAction(rejectSchema, payload, "Không thể từ chối nhân viên", async ({ id, reason }) => {
+    await client.post(`/api/v1/orders/${id}/reject`, { reason });
+    revalidatePath("/orders");
+    return { ok: true as const };
+  });
 }
