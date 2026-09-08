@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
 
-const SITE_NAME = "USA FARM AGRI";
-const SITE_DESCRIPTION =
-  "USA FARM AGRI - Công ty phân bón, đồng hành cùng nhà nông";
-const SITE_URL = "https://usafarm-agri.com";
+const meta_name = "USA FARM AGRI";
+const meta_title = "Hệ thống quản lý phân phối phân bón";
+const meta_description =
+  "Nền tảng quản lý kho, đơn hàng, đại lý và sản phẩm cho USA FARM AGRI.";
+const meta_url = "https://usafarm-agri.com";
 
 export const customViewport: Viewport = {
   width: "device-width",
@@ -13,30 +14,30 @@ export const customViewport: Viewport = {
 };
 
 export const customMetadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  metadataBase: new URL(meta_url),
   title: {
-    default: SITE_NAME,
-    template: `%s · ${SITE_NAME}`,
+    default: meta_title,
+    template: `%s · ${meta_name}`,
   },
-  description: SITE_DESCRIPTION,
-  authors: [{ name: SITE_NAME, url: SITE_URL }],
-  creator: SITE_NAME,
-  publisher: SITE_NAME,
-  applicationName: SITE_NAME,
+  description: meta_description,
+  authors: [{ name: meta_name, url: meta_url }],
+  creator: meta_name,
+  publisher: meta_name,
+  applicationName: meta_name,
   robots: {
     index: false,
     follow: false,
     googleBot: { index: false, follow: false },
   },
   appleWebApp: {
-    title: SITE_NAME,
+    title: meta_name,
     statusBarStyle: "default",
   },
   openGraph: {
-    title: SITE_NAME,
-    description: SITE_DESCRIPTION,
-    url: SITE_URL,
-    siteName: SITE_NAME,
+    title: meta_title,
+    description: meta_description,
+    url: meta_url,
+    siteName: meta_name,
     locale: "vi_VN",
     type: "website",
     images: [
@@ -44,15 +45,15 @@ export const customMetadata: Metadata = {
         url: "/images/thumbnail.jpg",
         width: 222,
         height: 180,
-        alt: SITE_NAME,
+        alt: meta_name,
         type: "image/jpeg",
       },
     ],
   },
   twitter: {
     card: "summary",
-    title: SITE_NAME,
-    description: SITE_DESCRIPTION,
+    title: meta_title,
+    description: meta_description,
     images: ["/images/thumbnail.jpg"],
   },
   icons: {
