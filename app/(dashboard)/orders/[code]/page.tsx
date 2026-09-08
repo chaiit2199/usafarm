@@ -24,7 +24,6 @@ export default async function Page({ params }: PageProps) {
       <HeaderPageMeta
         href="/orders"
         subpage={result.ok ? result.data.order.code : code}
-        export={true}
       />
       <Dashboard id="order-detail-main">
         {result.ok && (

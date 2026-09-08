@@ -16,7 +16,7 @@ function LineFulfillmentStatus({ waiting }: { waiting: number | undefined }) {
     return <span className="status">—</span>;
   }
   if (waiting <= 0) {
-    return <span className="status status--active">Đủ</span>;
+    return <span className="status status--active">Đủ hàng</span>;
   }
   return <span className="status status--rejected">Thiếu {waiting} bao</span>;
 }
@@ -66,7 +66,7 @@ function ProductCapacityPanel({ capacity , line }: { capacity?: OrderFulfillment
                     <td>{capacity.packaging_available} cái</td>
                     <td>
                       {capacity.is_packaging_available ? (
-                        <span className="status status--active">Đủ</span>
+                        <span className="status status--active">Đủ hàng</span>
                       ) : (
                         <span className="status status--rejected">Thiếu</span>
                       )}
@@ -85,7 +85,7 @@ function ProductCapacityPanel({ capacity , line }: { capacity?: OrderFulfillment
                     </td>
                     <td>
                       {capacity.is_core_available ? (
-                        <span className="status status--active">Đủ</span>
+                        <span className="status status--active">Đủ hàng</span>
                       ) : (
                         <span className="status status--rejected">Thiếu</span>
                       )}
@@ -96,12 +96,12 @@ function ProductCapacityPanel({ capacity , line }: { capacity?: OrderFulfillment
                     <td>{line.sales_sku_code}</td>
                     <td>Công ty</td>
                     <td className="overview-table__muted">
-                        {line.quantity} Bao
+                        {line.quantity} bao
                     </td>
-                    <td>{capacity.finished_goods_available} Bao</td>
+                    <td>{capacity.finished_goods_available} bao</td>
                     <td>
                       {capacity.is_finished_goods_available ? (
-                        <span className="status status--active">Có thể xuất thẳng</span>
+                        <span className="status status--active">Đi hàng tồn kho</span>
                       ) : (
                         <span className="status status--rejected">Cần đóng mới</span>
                       )}

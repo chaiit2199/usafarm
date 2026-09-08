@@ -52,7 +52,7 @@ export function OrdersTableComponent({ orders }: { orders: Order[] }) {
     <>
       <section className="section" id="admin-orders-section">
         <div className="section-container section-table style-2 mb-6">
-          <Tab tabs={ORDER_STATUS_TABS} activeTab="all" />
+          <Tab tabs={ORDER_STATUS_TABS} activeTab="all" isScroll />
 
           <div className="overview-table-wrap style-2">
             <div className="overview-table-inner cursor-e-resize">

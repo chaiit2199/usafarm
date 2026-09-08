@@ -14,7 +14,13 @@ import type {
   OrderFulfillmentWarehouse,
 } from "@/lib/api/types";
 import { orderAmount, orderReceived, orderRemaining } from "@/lib/api/types";
-import { getOrderStatusLabel, orderColor, type OrderStatusInput } from "@/lib/constants";
+import {
+  getOrderStatusLabel,
+  getOrderStatusMeta,
+  orderColor,
+  type OrderStatusInput,
+  type OrderStatusSemantic,
+} from "@/lib/constants";
 import { formatDateTimeVi } from "@/lib/format/date";
 
 type OrderDetailsComponentProps = {
@@ -63,6 +69,92 @@ function OrderStatusBadge({ status }: { status: OrderStatusInput }) {
     >
       {label}
     </span>
+  );
+}
+
+const CAN_REQUEST_CANCEL: OrderStatusSemantic[] = [
+  "DRAFT",
+  "APPROVED_WAITING_ALLOCATION",
+  "WAITING_WAREHOUSE_ACCEPTANCE",
+  "PROCESSING",
+];
+
+function OrderDetailActions({
+  semantic,
+  canFulfillRemaining,
+  onBack,
+}: {
+  semantic?: OrderStatusSemantic;
+  canFulfillRemaining: boolean;
+  onBack: () => void;
+}) {
+  const canCancel = semantic != null && CAN_REQUEST_CANCEL.includes(semantic);
+
+  return (
+    <div className="flex items-center justify-end gap-3 pt-2 mb-30">
+      <button type="button" className="core_button core_button--secondary" onClick={onBack}>
+        Quay lại
+      </button>
+
+      {semantic === "WAITING_FOR_APPROVAL" && (
+        <button type="button" className="core_button core_button--danger">
+          Từ chối
+        </button>
+      )}
+
+      {semantic === "CANCELLING" && (
+        <>
+          <button type="button" className="core_button core_button--secondary">
+            Rút yêu cầu hủy
+          </button>
+          <button type="button" className="core_button core_button--danger">
+            Từ chối hủy
+          </button>
+        </>
+      )}
+
+      {canCancel && (
+        <button type="button" className="core_button core_button--danger">
+          Huỷ đơn
+        </button>
+      )}
+
+      {semantic === "DRAFT" && (
+        <button type="button" className="core_button core_button--primary">
+          Gửi duyệt
+        </button>
+      )}
+      {semantic === "WAITING_FOR_APPROVAL" && (
+        <button type="button" className="core_button core_button--primary">
+          Duyệt
+        </button>
+      )}
+      {semantic === "APPROVED_WAITING_ALLOCATION" && (
+        <button type="button" className="core_button core_button--primary">
+          {canFulfillRemaining ? "Xác nhận phân kho" : "Tách đơn & phân kho"}
+        </button>
+      )}
+      {semantic === "REJECTED" && (
+        <button type="button" className="core_button core_button--primary">
+          Gửi duyệt lại
+        </button>
+      )}
+      {semantic === "WAITING_WAREHOUSE_ACCEPTANCE" && (
+        <button type="button" className="core_button core_button--primary">
+          Tiếp nhận kho
+        </button>
+      )}
+      {semantic === "PROCESSING" && (
+        <button type="button" className="core_button core_button--primary">
+          Chuẩn bị đóng gói
+        </button>
+      )}
+      {semantic === "CANCELLING" && (
+        <button type="button" className="core_button core_button--primary">
+          Duyệt hủy
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -121,29 +213,33 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
           </h6>
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-theme-muted text-xs mb-0.5">Mã đơn hàng</p>
-              <p className="font-semibold text-slate-900 text-sm">{order.code}</p>
-            </div>
-            <div>
-              <p className="text-theme-muted text-xs mb-0.5">Ngày tạo đơn</p>
-              <p className="font-semibold text-slate-900 text-sm">
-                {formatDateTimeVi(order.created_at)}
-              </p>
-            </div>
-            <div>
+            <div className="col-span-2">
               <p className="text-theme-muted text-xs mb-0.5">Trạng thái</p>
               <p className="font-semibold text-slate-900 text-sm">
                 <OrderStatusBadge status={order.status} />
               </p>
             </div>
             <div>
+              <p className="text-theme-muted text-xs mb-0.5">Mã đơn hàng</p>
+              <p className="font-semibold text-slate-900 text-sm">{order.code}</p>
+            </div>
+            <div>
               <p className="text-theme-muted text-xs mb-0.5">Nhân viên tạo đơn</p>
               <p className="font-semibold text-slate-900 text-sm">{order.created_by.name}</p>
             </div>
             <div>
+              <p className="text-theme-muted text-xs mb-0.5">Số điện thoại</p>
+              <p className="font-semibold text-slate-900 text-sm">-</p>
+            </div>
+           
+            
+            <div>
               <p className="text-theme-muted text-xs mb-0.5">Mã nhân viên</p>
               <p className="font-semibold text-slate-900 text-sm">{order.created_by.code}</p>
+            </div>
+            <div>
+              <p className="text-theme-muted text-xs mb-0.5">Số lượng sản phẩm</p>
+              <p className="font-semibold text-slate-900 text-sm">{order.lines.length}</p>
             </div>
             <div>
               <p className="text-theme-muted text-xs mb-0.5">Tổng tiền</p>
@@ -162,15 +258,18 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
               <p className="font-semibold text-slate-900 text-sm">{formatMoney(remainingDebt)}</p>
             </div>
             <div>
+              <p className="text-theme-muted text-xs mb-0.5">Ngày tạo đơn</p>
+              <p className="font-semibold text-slate-900 text-sm">
+                {formatDateTimeVi(order.created_at)}
+              </p>
+            </div>
+            <div>
               <p className="text-theme-muted text-xs mb-0.5">Thời gian cập nhật</p>
               <p className="font-semibold text-slate-900 text-sm">
                 {formatDateTimeVi(order.updated_at)}
               </p>
             </div>
-            <div>
-              <p className="text-theme-muted text-xs mb-0.5">Số lượng sản phẩm</p>
-              <p className="font-semibold text-slate-900 text-sm">{order.lines.length}</p>
-            </div>
+          
           </div>
         </section>
 
@@ -278,7 +377,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
             </tbody>
           </table>
 
-          <div className="rounded-b-xl bg-theme-primary-border py-4 text-right pr-8">
+          <div className="rounded-b-xl bg-theme-primary-border py-4 text-right pr-22">
             Tổng thành tiền các sản phẩm:{" "}
             <strong className="pl-1">
               {formatMoney(orderAmount(order.subtotal_amount))}
@@ -287,7 +386,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
         </div>
       </section>
 
-      {!warehouseSssignments.can_fulfill_remaining ? (
+      {!warehouseSssignments.can_fulfill_remaining && (
         <div className="section-container mb-6">
         <h6 className="mb-4 text-base font-semibold flex items-center gap-2">
           <Icon name="hero-rectangle-stack" className="size-5 text-theme-primary" />
@@ -328,45 +427,13 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
           </div>
         </div>
       </div>
-      ) : (
-        <div className="section-container mb-6">
-          <h6 className="mb-4 text-base font-semibold flex items-center gap-2">
-            <Icon name="hero-rectangle-stack" className="size-5 text-theme-primary" />
-            Đóng gói toàn bộ
-          </h6>
-          <div className="grid grid-cols-2 gap-6">
-          <div className="rounded-xl border border-theme-primary-border p-4">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="font-medium text-theme-muted">Đơn 1</span>
-              <span className="status status--active">Sẵn sàng phân kho</span>
-            </div>
-            <p className="text-2xl font-semibold text-slate-900 text-sm">
-              {warehouseSssignments.allocation_proposal.suggested_quantity} bao
-              <span className="text-base font-medium text-theme-muted pl-1"></span>
-            </p>
-            <p className="mt-1 text-xs text-theme-muted">{warehouseSssignments.allocation_proposal.suggested_finished_goods_quantity} bao thành phẩm · {warehouseSssignments.allocation_proposal.suggested_pack_new_quantity} bao đóng mới</p>
-          </div> 
-        </div>
-        </div>
       )}
 
-      <div className="flex items-center justify-end gap-3 pt-2 mb-12">
-        <button
-          type="button"
-          className="core_button core_button--secondary"
-          onClick={() => router.push("/orders")}
-        >
-          Quay lại
-        </button>
-
-        <button type="button" className="core_button core_button--danger">
-          Huỷ đơn
-        </button>
-
-        <button type="button" className="core_button core_button--primary">
-          Chuẩn bị đóng gói
-        </button>
-      </div>
+      <OrderDetailActions
+        semantic={getOrderStatusMeta(order.status)?.semantic}
+        canFulfillRemaining={warehouseSssignments.can_fulfill_remaining}
+        onBack={() => router.push("/orders")}
+      />
     </>
   );
 }

@@ -257,6 +257,7 @@ export type PackagingGroupsResponse = {
 export type OrderStatusRef = {
   code: number;
   semantic: string;
+  label?: string;
 };
 
 export type OrderAgency = {

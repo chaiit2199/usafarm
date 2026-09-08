@@ -143,6 +143,7 @@ export const MENU: Navbar[] = [
     view: true,
     filter: true,
     search: true,
+    export: true,
   },
   {
     id: "agents",
