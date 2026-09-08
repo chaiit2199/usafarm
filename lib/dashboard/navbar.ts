@@ -146,6 +146,35 @@ export const MENU: Navbar[] = [
     export: true,
   },
   {
+    id: "production",
+    label: "Quản lý sản xuất",
+    title: "Quản lý sản xuất",
+    icon: "hero-circle-stack",
+    children: [
+      {
+        id: "packaging-tracking",
+        label: "Dành riêng cho xưởng đóng bao — xem trọn vẹn đơn hàng, đóng gói & kiểm đếm từng sản phẩm",
+        href: "/production/packaging",
+        icon: "hero-shopping-bag",
+        title: "Theo dõi đóng gói",
+      },
+      {
+        id: "stock-export",
+        label: "Đơn đã đóng gói xong 100% sản phẩm, chờ lập phiếu xuất kho Mẫu 02-VT",
+        href: "/production/export",
+        icon: "hero-document-plus",
+        title: "Lập phiếu xuất kho",
+      },
+      {
+        id: "handover-pod",
+        label: "Đơn đã xuất kho, chờ xác nhận bàn giao và upload chứng từ ký nhận",
+        href: "/production/handover",
+        icon: "hero-truck",
+        title: "Bàn giao ĐVVC / POD",
+      },
+    ],
+  },
+  {
     id: "agents",
     resource: "agency",
     label: "Quản lý đại lý",
