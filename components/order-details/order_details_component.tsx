@@ -104,7 +104,7 @@ function OrderDetailActions({
 
   async function handleSubmit() {
     if (!semantic || warehouseId == null) return;
-    if (isPreparePackagingConfirmOpen === "DRAFT") {
+    if (isPreparePackagingConfirmOpen === "DRAFT" || isPreparePackagingConfirmOpen === "SPLIT_ORDER") {
       await confirmPreparePackaging();
     } else if (isPreparePackagingConfirmOpen === "WAITING_FOR_APPROVAL") {
       await handleApproveOrder();
@@ -172,19 +172,19 @@ function OrderDetailActions({
         )}
 
         {/* Nếu ở đơn mới và có đủ hàng KL, tồn kho và đóng mới */}
-        {semantic === "DRAFT" || semantic === "APPROVED_WAITING_ALLOCATION" && (
+        {semantic === "DRAFT" || semantic === "APPROVED_WAITING_ALLOCATION" || semantic === "SPLIT_ORDER" && (
           <button
             type="button"
             className="core_button core_button--primary"
             disabled={!canPreparePackaging}
-            onClick={() => setIsPreparePackagingConfirmOpen("DRAFT")}
+            onClick={() => setIsPreparePackagingConfirmOpen(semantic)}
           >
             Chuẩn bị đóng gói
           </button>
         )}
         {semantic === "WAITING_FOR_APPROVAL" && (
           <button type="button" className="core_button core_button--primary" 
-            onClick={() => setIsPreparePackagingConfirmOpen("WAITING_FOR_APPROVAL")}>
+            onClick={() => setIsPreparePackagingConfirmOpen(semantic)}>
             Duyệt
           </button>
         )} 
@@ -448,20 +448,20 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
               <col style={{ width: "4%" }} />
               <col style={{ width: "16%" }} />
               <col style={{ width: "28%" }} />
+              <col style={{ width: "14%" }} />
               <col style={{ width: "8%" }} />
               <col style={{ width: "12%" }} />
               <col style={{ width: "12%" }} />
-              <col style={{ width: "14%" }} />
             </colgroup>
             <thead>
               <tr>
                 <TableHead />
                 <TableHead>SKU</TableHead>
                 <TableHead icon="hero-cube">Tên sản phẩm</TableHead>
+                <TableHead>Trạng thái</TableHead>
                 <TableHead>Số lượng</TableHead>
                 <TableHead icon="hero-banknotes">Đơn giá</TableHead>
                 <TableHead icon="hero-banknotes">Thành tiền</TableHead>
-                <TableHead>Trạng thái</TableHead>
               </tr>
             </thead>
             <tbody>

@@ -337,6 +337,7 @@ export type Order = {
   financial_summary: OrderFinancialSummary;
   warehouse_assignments: unknown[];
   lines: OrderLine[];
+  children: Order[];
 }; 
 
 export type OrdersResponse = {

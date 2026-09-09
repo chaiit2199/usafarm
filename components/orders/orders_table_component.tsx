@@ -59,24 +59,24 @@ export function OrdersTableComponent({ orders }: { orders: Order[] }) {
               <table className="overview-table min-w-[1800px]" id="orders-table">
                 <colgroup>
                   <col style={{ width: "14%" }} />
+                  <col style={{ width: "10%" }} />
                   <col style={{ width: "18%" }} />
                   <col style={{ width: "10%" }} />
                   <col style={{ width: "10%" }} />
                   <col style={{ width: "12%" }} />
                   <col style={{ width: "12%" }} />
                   <col style={{ width: "10%" }} />
-                  <col style={{ width: "10%" }} />
                   <col style={{ width: "4%" }} /> 
                 </colgroup>
                 <thead>
                   <tr>
                     <TableHead icon="hero-clipboard-document-list">Mã đơn</TableHead>
+                    <TableHead icon="hero-tag">Trạng thái</TableHead>
                     <TableHead icon="hero-building-storefront">Đại lý</TableHead>
                     <TableHead icon="hero-calendar-days">Ngày tạo</TableHead>
                     <TableHead icon="hero-banknotes">Tổng tiền</TableHead>
                     <TableHead icon="hero-banknotes">Công nợ đã thu</TableHead>
                     <TableHead icon="hero-banknotes">Công nợ còn lại</TableHead>
-                    <TableHead icon="hero-tag">Trạng thái</TableHead>
                     <TableHead icon="hero-calendar-days">Thời gian cập nhật</TableHead>
                     <th className="actions" />
                   </tr>
@@ -90,14 +90,15 @@ export function OrdersTableComponent({ orders }: { orders: Order[] }) {
                       onClick={() => router.push(`/orders/${order.id}`)}
                     >
                       <td className="overview-table__code">{order.code}</td>
+                      <td>
+                        <OrderStatusBadge status={order.status} />
+                      </td>
                       <td>{order.agency.name}</td>
                       <td className="overview-table__muted">{formatDateTimeVi(order.created_at)}</td>
                       <td className="is-num overview-table__money">{formatMoney(orderTotal(order))}</td>
                       <td className="is-num overview-table__money">{formatMoney(orderReceived(order))}</td>
                       <td className="is-num overview-table__money">{formatMoney(orderRemaining(order))}</td>
-                      <td>
-                        <OrderStatusBadge status={order.status} />
-                      </td>
+                    
                       <td className="overview-table__muted">{formatDateTimeVi(order.updated_at)}</td>
                       <td className="actions">
                         <div className="admin-actions">
@@ -115,7 +116,7 @@ export function OrdersTableComponent({ orders }: { orders: Order[] }) {
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  ))}  
                 </tbody>
               </table>
             </div>

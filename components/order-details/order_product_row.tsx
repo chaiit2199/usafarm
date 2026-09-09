@@ -139,6 +139,11 @@ export function OrderProductRow({ item, capacity, expanded, onToggle }: OrderPro
           <span className="overview-table__muted">{item.sales_sku_code}</span>
         </td>
         <td>{item.product_name}</td>
+        <td className="font-semibold">
+          <LineFulfillmentStatus
+            waiting={capacity?.allocation_proposal.waiting_quantity}
+          />
+        </td>
         <td className="overview-table__muted">{item.quantity}</td>
         <td className="is-num overview-table__money">
           {formatMoney(orderAmount(item.unit_price))}
@@ -146,11 +151,7 @@ export function OrderProductRow({ item, capacity, expanded, onToggle }: OrderPro
         <td className="is-num overview-table__money">
           {formatMoney(orderAmount(item.total_amount))}
         </td>
-        <td className="font-semibold">
-          <LineFulfillmentStatus
-            waiting={capacity?.allocation_proposal.waiting_quantity}
-          />
-        </td>
+        
       </tr>
 
       {expanded && (
