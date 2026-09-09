@@ -4,51 +4,51 @@ import { Icon, type IconName } from "@/components/icon";
 import {
   ORDER_STATUSES,
   getOrderStatusMeta,
-  isWaitingForApproval,
+  orderStatus,
+  type OrderStatusId,
   type OrderStatusInput,
-  type OrderStatusSemantic,
 } from "@/lib/constants";
 import { formatDateTimeVi } from "@/lib/format/date";
 
-const STEP_ICONS: Record<OrderStatusSemantic, IconName> = {
-  DRAFT: "hero-document-plus",
-  WAITING_FOR_APPROVAL: "hero-clock",
-  APPROVED_WAITING_ALLOCATION: "hero-inbox-stack",
-  REJECTED: "hero-x-mark",
-  WAITING_WAREHOUSE_ACCEPTANCE: "hero-building-storefront",
-  PROCESSING: "hero-cube",
-  CANCELLING: "hero-hand-raised",
-  COMPLETED: "hero-clipboard-document-check",
-  COMPLETED_PARTIAL_CANCEL: "hero-clipboard-document-check",
-  CANCELLED: "hero-x-mark",
-  SPLIT_ORDER: "hero-document-duplicate",
+const STEP_ICONS: Record<OrderStatusId, IconName> = {
+  [orderStatus.draft]: "hero-document-plus",
+  [orderStatus.waitingForApproval]: "hero-clock",
+  [orderStatus.approvedWaitingAllocation]: "hero-inbox-stack",
+  [orderStatus.rejected]: "hero-x-mark",
+  [orderStatus.waitingWarehouseAcceptance]: "hero-building-storefront",
+  [orderStatus.processing]: "hero-cube",
+  [orderStatus.cancelling]: "hero-hand-raised",
+  [orderStatus.completed]: "hero-clipboard-document-check",
+  [orderStatus.completedPartialCancel]: "hero-clipboard-document-check",
+  [orderStatus.cancelled]: "hero-x-mark",
+  [orderStatus.splitOrder]: "hero-document-duplicate",
 };
 
-const TERMINALS = new Set<OrderStatusSemantic>([
-  "REJECTED",
-  "CANCELLING",
-  "COMPLETED",
-  "COMPLETED_PARTIAL_CANCEL",
-  "CANCELLED",
-  "SPLIT_ORDER",
+const TERMINALS = new Set<OrderStatusId>([
+  orderStatus.rejected,
+  orderStatus.cancelling,
+  orderStatus.completed,
+  orderStatus.completedPartialCancel,
+  orderStatus.cancelled,
+  orderStatus.splitOrder,
 ]);
 
-const ALERTS = new Set<OrderStatusSemantic>(["REJECTED", "CANCELLING", "CANCELLED"]);
+const ALERTS = new Set<OrderStatusId>([
+  orderStatus.rejected,
+  orderStatus.cancelling,
+  orderStatus.cancelled,
+]);
 
-function orderCode(status: OrderStatusInput) {
-  return typeof status === "number" ? status : status.code;
-}
-
-function stepsFor(semantic?: OrderStatusSemantic) {
-  const terminal = semantic && TERMINALS.has(semantic) ? semantic : "COMPLETED";
+function stepsFor(statusId?: OrderStatusId) {
+  const terminal = statusId != null && TERMINALS.has(statusId) ? statusId : orderStatus.completed;
 
   return ORDER_STATUSES.filter((item) => {
-    if (item.semantic === "WAITING_FOR_APPROVAL") return false;
-    if (TERMINALS.has(item.semantic)) return item.semantic === terminal;
+    if (item.id === orderStatus.waitingForApproval) return false;
+    if (TERMINALS.has(item.id)) return item.id === terminal;
     return true;
   }).map((item) => ({
     ...item,
-    icon: STEP_ICONS[item.semantic],
+    icon: STEP_ICONS[item.id],
   }));
 }
 
@@ -66,12 +66,15 @@ type OrderStatusProps = {
 };
 
 export function OrderStatus({ status, createdAt, updatedAt }: OrderStatusProps) {
-  if (isWaitingForApproval(status)) return null;
+  const statusId = getOrderStatusMeta(status)?.id;
+  if (statusId === orderStatus.waitingForApproval) return null;
 
-  const semantic = getOrderStatusMeta(status)?.semantic;
-  const isAlert = semantic != null && ALERTS.has(semantic);
-  const steps = stepsFor(semantic);
-  const currentIndex = Math.max(0, steps.findIndex((step) => step.id === orderCode(status)));
+  const isAlert = statusId != null && ALERTS.has(statusId);
+  const steps = stepsFor(statusId);
+  const currentIndex = Math.max(
+    0,
+    steps.findIndex((step) => step.id === statusId),
+  );
   const current = steps[currentIndex] ?? steps[0];
   const createdLabel = formatDateTimeVi(createdAt);
   const updatedLabel = formatDateTimeVi(updatedAt);

@@ -8,14 +8,13 @@ import { Tab } from "@/components/tab";
 import { getWarehouseOrders } from "@/lib/api/production";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import type { WarehouseOrder } from "@/lib/api/types";
-import { getOrderStatusLabel, orderColor } from "@/lib/constants";
+import { getOrderStatusLabel, orderColor, orderStatus } from "@/lib/constants";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 import { formatDateTimeVi } from "@/lib/format/date";
 
 const ORDER_STATUS_TABS = [
   {
-    id: 4,
-    semantic: "WAITING_WAREHOUSE_ACCEPTANCE",
+    id: orderStatus.waitingWarehouseAcceptance,
     label: "Danh sách đơn đang chờ / đang đóng gói tại phân xưởng",
     color: "#7C3AED",
   },

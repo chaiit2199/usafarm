@@ -20,8 +20,9 @@ import {
   getOrderStatusLabel,
   getOrderStatusMeta,
   orderColor,
+  orderStatus,
+  type OrderStatusId,
   type OrderStatusInput,
-  type OrderStatusSemantic,
 } from "@/lib/constants";
 import { formatDateTimeVi } from "@/lib/format/date";
 import { putFlash } from "@/lib/flash/flash";
@@ -73,43 +74,50 @@ function OrderStatusBadge({ status }: { status: OrderStatusInput }) {
   );
 }
 
-const CAN_REQUEST_CANCEL: OrderStatusSemantic[] = [
-  "DRAFT",
-  "APPROVED_WAITING_ALLOCATION",
-  "WAITING_WAREHOUSE_ACCEPTANCE",
-  "PROCESSING",
+const CAN_REQUEST_CANCEL: OrderStatusId[] = [
+  orderStatus.draft,
+  orderStatus.approvedWaitingAllocation,
+  orderStatus.waitingWarehouseAcceptance,
+  orderStatus.processing,
 ];
 
 function OrderDetailActions({
   orderId,
   warehouseId,
-  semantic,
+  statusId,
   canFulfillRemaining,
   onBack,
 }: {
   orderId: number;
   warehouseId: number | null;
-  semantic?: OrderStatusSemantic;
+  statusId?: OrderStatusId;
   canFulfillRemaining: boolean;
   onBack: () => void;
 }) {
   const router = useRouter();
-  const [isPreparePackagingConfirmOpen, setIsPreparePackagingConfirmOpen] = useState("");
-  const canCancel = semantic != null && CAN_REQUEST_CANCEL.includes(semantic);
+  const [confirmAction, setConfirmAction] = useState<OrderStatusId | "">("");
+  const canCancel = statusId != null && CAN_REQUEST_CANCEL.includes(statusId);
   const canPreparePackaging = warehouseId != null;
+  const canShowPreparePackaging =
+    statusId === orderStatus.draft ||
+    statusId === orderStatus.approvedWaitingAllocation
 
-  function closePreparePackagingConfirm() {
-    setIsPreparePackagingConfirmOpen("");
+  function closeConfirm() {
+    setConfirmAction("");
   }
 
   async function handleSubmit() {
-    if (!semantic || warehouseId == null) return;
-    if (isPreparePackagingConfirmOpen === "DRAFT" || isPreparePackagingConfirmOpen === "SPLIT_ORDER") {
+    if (statusId == null || warehouseId == null) return;
+    if (
+      confirmAction === orderStatus.draft ||
+      confirmAction === orderStatus.splitOrder ||
+      confirmAction === orderStatus.approvedWaitingAllocation
+    ) {
       await confirmPreparePackaging();
-    } else if (isPreparePackagingConfirmOpen === "WAITING_FOR_APPROVAL") {
+    } else if (confirmAction === orderStatus.waitingForApproval) {
       await handleApproveOrder();
     }
-    closePreparePackagingConfirm();
+    closeConfirm();
   }
 
   async function handleApproveOrder() {
@@ -119,13 +127,13 @@ function OrderDetailActions({
       return;
     }
 
-    closePreparePackagingConfirm();
+    closeConfirm();
     putFlash("success", "Đã duyệt đơn hàng", 1500);
     router.refresh();
   }
 
   async function confirmPreparePackaging() {
-    if (!semantic || warehouseId == null) return;
+    if (statusId == null || warehouseId == null) return;
 
     const result = await assignOrderWarehouse(orderId, {
       warehouse_id: warehouseId,
@@ -136,7 +144,7 @@ function OrderDetailActions({
       return;
     }
 
-    closePreparePackagingConfirm();
+    closeConfirm();
     putFlash("success", "Đã chuẩn bị đóng gói", 1500);
     router.refresh();
   }
@@ -148,13 +156,13 @@ function OrderDetailActions({
           Quay lại
         </button>
 
-        {semantic === "WAITING_FOR_APPROVAL" && (
+        {statusId === orderStatus.waitingForApproval && (
           <button type="button" className="core_button core_button--danger">
             Từ chối
           </button>
         )}
 
-        {semantic === "CANCELLING" && (
+        {statusId === orderStatus.cancelling && (
           <>
             <button type="button" className="core_button core_button--secondary">
               Rút yêu cầu hủy
@@ -172,33 +180,31 @@ function OrderDetailActions({
         )}
 
         {/* Nếu ở đơn mới và có đủ hàng KL, tồn kho và đóng mới */}
-        {semantic === "DRAFT" || semantic === "APPROVED_WAITING_ALLOCATION" || semantic === "SPLIT_ORDER" && (
+        {canShowPreparePackaging && (
           <button
             type="button"
             className="core_button core_button--primary"
             disabled={!canPreparePackaging}
-            onClick={() => setIsPreparePackagingConfirmOpen(semantic)}
+            onClick={() => setConfirmAction(statusId)}
           >
             Chuẩn bị đóng gói
           </button>
         )}
-        {semantic === "WAITING_FOR_APPROVAL" && (
-          <button type="button" className="core_button core_button--primary" 
-            onClick={() => setIsPreparePackagingConfirmOpen(semantic)}>
+        {statusId === orderStatus.waitingForApproval && (
+          <button
+            type="button"
+            className="core_button core_button--primary"
+            onClick={() => setConfirmAction(statusId)}
+          >
             Duyệt
           </button>
-        )} 
-        {semantic === "REJECTED" && (
+        )}
+        {statusId === orderStatus.rejected && (
           <button type="button" className="core_button core_button--primary">
             Gửi duyệt lại
           </button>
-        )}
-        {semantic === "WAITING_WAREHOUSE_ACCEPTANCE" && (
-          <button type="button" className="core_button core_button--primary">
-            Tiếp nhận kho
-          </button>
-        )}
-        {semantic === "CANCELLING" && (
+        )} 
+        {statusId === orderStatus.cancelling && (
           <button type="button" className="core_button core_button--primary">
             Duyệt hủy
           </button>
@@ -207,33 +213,30 @@ function OrderDetailActions({
 
       <Modal
         id="prepare-packaging-confirm-modal"
-        show={isPreparePackagingConfirmOpen !== ""}
-        title="Xác nhận chuẩn bị đóng gói"
+        show={confirmAction !== ""}
+        title={
+          confirmAction === orderStatus.waitingForApproval
+            ? "Xác nhận duyệt đơn hàng"
+            : "Xác nhận chuẩn bị đóng gói"
+        }
         width="md"
         className="core_modal--stacked"
-        onClose={closePreparePackagingConfirm}
+        onClose={closeConfirm}
       >
-        {isPreparePackagingConfirmOpen === "DRAFT" || isPreparePackagingConfirmOpen === "APPROVED_WAITING_ALLOCATION" && (
-          <p className="text-sm text-theme-muted">
-            Bạn có chắc muốn chuẩn bị đóng gói cho đơn hàng này?
-          </p>
-        )}
-        {isPreparePackagingConfirmOpen === "WAITING_FOR_APPROVAL" ? (
-          <p className="text-sm text-theme-muted">
-            Bạn có chắc muốn duyệt đơn hàng này?
-          </p>
+        {confirmAction === orderStatus.waitingForApproval ? (
+          <p className="text-sm text-theme-muted">Bạn có chắc muốn duyệt đơn hàng này?</p>
         ) : (
           <p className="text-sm text-theme-muted">
             Bạn có chắc muốn chuẩn bị đóng gói cho đơn hàng này?
           </p>
         )}
-      
+
         <form className="core_modal__form" action={handleSubmit}>
           <div className="core_modal__actions">
             <button
               type="button"
               className="core_button core_button--secondary"
-              onClick={() => setIsPreparePackagingConfirmOpen("")}
+              onClick={closeConfirm}
             >
               Hủy
             </button>
@@ -249,6 +252,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
   const router = useRouter();
   const [expandedIds, setExpandedIds] = useState<number[]>([]);
   const remainingDebt = orderRemaining(order);
+  const statusId = getOrderStatusMeta(order.status)?.id;
 
   const warehouses = listWarehouses(fulfillmentCapacity);
 
@@ -304,11 +308,14 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
 
   return (
     <>
-      <OrderStatus
-        status={order.status}
-        createdAt={order.created_at}
-        updatedAt={order.updated_at}
-      />
+      {statusId !== orderStatus.splitOrder && (
+        <OrderStatus
+          status={order.status}
+          createdAt={order.created_at}
+          updatedAt={order.updated_at}
+        />
+      )}
+
       <div className="grid grid-cols-3 gap-6">
         <section className="section-container mb-6 col-span-2">
           <h6 className="mb-4 text-base font-semibold flex items-center gap-2">
@@ -409,33 +416,35 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
         </section>
       </div>
 
-      <div className="section-container mb-6">
-        <h6 className="mb-3 text-base font-semibold flex items-center gap-2">
-          <Icon name="hero-building-storefront" className="size-5 text-theme-primary" />
-          Chọn kho hàng đối chiếu
-        </h6>
+      {statusId !== orderStatus.splitOrder && (
+        <div className="section-container mb-6">
+          <h6 className="mb-3 text-base font-semibold flex items-center gap-2">
+            <Icon name="hero-building-storefront" className="size-5 text-theme-primary" />
+            Chọn kho hàng đối chiếu
+          </h6>
 
-        <SelectField
-          id="order-fulfillment-warehouse"
-          name="warehouse_id"
-          label=""
-          value={warehouseId != null ? String(warehouseId) : ""}
-          required
-          onChange={(event) => {
-            const next = Number(event.target.value);
-            setWarehouseId(Number.isFinite(next) ? next : null);
-          }}
-        >
-          <option value="" disabled>
-            Chọn kho hàng
-          </option>
-          {warehouses.map((warehouse) => (
-            <option key={warehouse.warehouse_id} value={warehouse.warehouse_id}>
-              {warehouse.warehouse_name}
+          <SelectField
+            id="order-fulfillment-warehouse"
+            name="warehouse_id"
+            label=""
+            value={warehouseId != null ? String(warehouseId) : ""}
+            required
+            onChange={(event) => {
+              const next = Number(event.target.value);
+              setWarehouseId(Number.isFinite(next) ? next : null);
+            }}
+          >
+            <option value="" disabled>
+              Chọn kho hàng
             </option>
-          ))}
-        </SelectField>
-      </div>
+            {warehouses.map((warehouse) => (
+              <option key={warehouse.warehouse_id} value={warehouse.warehouse_id}>
+                {warehouse.warehouse_name}
+              </option>
+            ))}
+          </SelectField>
+        </div>
+      )}
 
       <section className="section-container mb-6">
         <h6 className="mb-3 text-base font-semibold flex items-center gap-2">
@@ -536,7 +545,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
       <OrderDetailActions
         orderId={order.id}
         warehouseId={warehouseId}
-        semantic={getOrderStatusMeta(order.status)?.semantic}
+        statusId={statusId}
         canFulfillRemaining={warehouseAvailable.can_fulfill_remaining}
         onBack={() => router.push("/orders")}
       />

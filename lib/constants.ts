@@ -69,7 +69,7 @@ export const userStatusMeta = recordStatusMeta;
 /** Role dùng cùng 0/1/2/3 với user & department. */
 export const roleStatusMeta = recordStatusMeta;
 
-/** API order.status 0–9. */
+/** API order.status 0–10. */
 export const ORDER_STATUSES = [
   { id: 0, semantic: "DRAFT", label: "Đơn mới", color: "#64748B" },
   { id: 1, semantic: "WAITING_FOR_APPROVAL", label: "Chờ duyệt", color: "#E8A45A" },
@@ -87,13 +87,29 @@ export const ORDER_STATUSES = [
 export type OrderStatusId = (typeof ORDER_STATUSES)[number]["id"];
 export type OrderStatusSemantic = (typeof ORDER_STATUSES)[number]["semantic"];
 
+/** Dùng thay magic number khi so sánh status (vd. `status === orderStatus.draft`). */
+export const orderStatus = {
+  draft: 0,
+  waitingForApproval: 1,
+  approvedWaitingAllocation: 2,
+  rejected: 3,
+  waitingWarehouseAcceptance: 4,
+  processing: 5,
+  cancelling: 6,
+  completed: 7,
+  completedPartialCancel: 8,
+  cancelled: 9,
+  splitOrder: 10,
+} as const satisfies Record<string, OrderStatusId>;
+
 export type OrderStatusInput = number | { code: number; semantic?: string; label?: string };
 
 function resolveOrderStatus(status: OrderStatusInput) {
-  const code = typeof status === "number" ? status : status.code;
+  const raw = typeof status === "number" ? status : status.code;
+  const code = Number(raw);
   const semantic = typeof status === "number" ? undefined : status.semantic;
   return (
-    ORDER_STATUSES.find((s) => s.id === code) ??
+    (Number.isFinite(code) ? ORDER_STATUSES.find((s) => s.id === code) : undefined) ??
     ORDER_STATUSES.find((s) => s.semantic === semantic) ??
     null
   );
@@ -112,16 +128,7 @@ export function orderColor(status: OrderStatusInput) {
 
 export function getOrderStatusMeta(status: OrderStatusInput) {
   return resolveOrderStatus(status);
-}
-
-export function isOrderCancelled(status: OrderStatusInput) {
-  return resolveOrderStatus(status)?.semantic === "CANCELLED";
-}
-
-export function isWaitingForApproval(status: OrderStatusInput) {
-  return resolveOrderStatus(status)?.semantic === "WAITING_FOR_APPROVAL";
-}
-
+}  
 /** Fake series for overview pie chart — status key = id string. */
 export const ORDER_SERIES = ORDER_STATUSES.map((status, index) => ({
   status: String(status.id),

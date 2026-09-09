@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Fragment } from "react";
 
 import { Pagination, TableHead } from "@/components/core_component";
 import { Tab } from "@/components/tab";
@@ -56,11 +57,11 @@ export function OrdersTableComponent({ orders }: { orders: Order[] }) {
 
           <div className="overview-table-wrap style-2">
             <div className="overview-table-inner cursor-e-resize">
-              <table className="overview-table min-w-[1800px]" id="orders-table">
+              <table className="overview-table min-w-[2000px]" id="orders-table">
                 <colgroup>
-                  <col style={{ width: "14%" }} />
+                  <col style={{ width: "16%" }} />
                   <col style={{ width: "10%" }} />
-                  <col style={{ width: "18%" }} />
+                  <col style={{ width: "16%" }} />
                   <col style={{ width: "10%" }} />
                   <col style={{ width: "10%" }} />
                   <col style={{ width: "12%" }} />
@@ -82,7 +83,9 @@ export function OrdersTableComponent({ orders }: { orders: Order[] }) {
                   </tr>
                 </thead>
                 <tbody>
+                  
                   {orders.map((order) => (
+                    <Fragment key={order.id}>
                     <tr
                       key={order.code}
                       id={`order-row-${order.code}`}
@@ -116,6 +119,50 @@ export function OrdersTableComponent({ orders }: { orders: Order[] }) {
                         </div>
                       </td>
                     </tr>
+
+                    {order.children.length > 0 &&
+                        order.children.map((child) => (
+                      <tr
+                          key={child.code}
+                          id={`order-row-${child.code}`}
+                          className="cursor-pointer"
+                          onClick={() => router.push(`/orders/${child.id}`)}
+                        >
+                          <td className="overview-table__code">
+                            <span className="inline-flex items-center gap-2 pl-2">
+                              <Icon name="hero-arrow-turn-down-right" className="size-6 shrink-0 text-theme-muted" />
+                              {child.code}
+                            </span>
+                          </td>
+                          <td>
+                            <OrderStatusBadge status={child.status} />
+                          </td>
+                          <td>{child.agency.name}</td>
+                          <td className="overview-table__muted">{formatDateTimeVi(child.created_at)}</td>
+                          <td className="is-num overview-table__money">{formatMoney(orderTotal(child))}</td>
+                          <td className="is-num overview-table__money">{formatMoney(orderReceived(child))}</td>
+                          <td className="is-num overview-table__money">{formatMoney(orderRemaining(child))}</td>
+                        
+                          <td className="overview-table__muted">{formatDateTimeVi(child.updated_at)}</td>
+                          <td className="actions">
+                            <div className="admin-actions">
+                              <button
+                                type="button"
+                                className="admin-actions__btn"
+                                aria-label="Chỉnh sửa"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  router.push(`/orders/${child.id}`);
+                                }}
+                              >
+                                <Icon name="hero-pencil-square" className="size-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                    ))}
+
+                    </Fragment>
                   ))}  
                 </tbody>
               </table>
