@@ -21,6 +21,7 @@ const STEP_ICONS: Record<OrderStatusSemantic, IconName> = {
   COMPLETED: "hero-clipboard-document-check",
   COMPLETED_PARTIAL_CANCEL: "hero-clipboard-document-check",
   CANCELLED: "hero-x-mark",
+  SPLIT_ORDER: "hero-document-duplicate",
 };
 
 const TERMINALS = new Set<OrderStatusSemantic>([
@@ -29,6 +30,7 @@ const TERMINALS = new Set<OrderStatusSemantic>([
   "COMPLETED",
   "COMPLETED_PARTIAL_CANCEL",
   "CANCELLED",
+  "SPLIT_ORDER",
 ]);
 
 const ALERTS = new Set<OrderStatusSemantic>(["REJECTED", "CANCELLING", "CANCELLED"]);

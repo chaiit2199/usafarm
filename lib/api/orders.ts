@@ -9,7 +9,11 @@ import type {
 } from "@/lib/api/types";
 
 import { runServerAction } from "@/lib/server-actions";
-import { assignWarehouseSchema, type AssignWarehouseInput } from "@/lib/validate/orders";
+import {
+  assignWarehouseSchema,
+  orderIdSchema,
+  type AssignWarehouseInput,
+} from "@/lib/validate/orders";
 import { rejectSchema } from "@/lib/validate/users";
 
 export type { AssignWarehouseInput };
@@ -92,8 +96,23 @@ export async function getOrderDetail(code: string) {
 }
 
 export async function rejectOrder(payload: { id: number; reason: string }) {
-  return runServerAction(rejectSchema, payload, "Không thể từ chối nhân viên", async ({ id, reason }) => {
+  return runServerAction(rejectSchema, payload, "Không thể từ chối đơn hàng", async ({ id, reason }) => {
     await client.post(`/api/v1/orders/${id}/reject`, { reason });
+    revalidatePath("/orders");
+    return { ok: true as const };
+  });
+}
+
+export async function approveOrder(payload: { id: number }) {
+  return runServerAction(orderIdSchema, payload, "Không thể duyệt đơn hàng", async ({ id }) => {
+    await client.post(`/api/v1/orders/${id}/approve`, 
+      undefined,
+      {
+        headers: {
+          "Idempotency-Key": crypto.randomUUID(),
+        },
+      }
+    );
     revalidatePath("/orders");
     return { ok: true as const };
   });

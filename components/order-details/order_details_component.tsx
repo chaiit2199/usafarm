@@ -9,7 +9,7 @@ import { Icon } from "@/components/icon";
 import { SelectField } from "@/components/form-fields";
 import { OrderProductRow } from "@/components/order-details/order_product_row";
 import { OrderStatus } from "@/components/order-details/order_status";
-import { assignOrderWarehouse } from "@/lib/api/orders";
+import { approveOrder, assignOrderWarehouse } from "@/lib/api/orders";
 import type {
   Order,
   OrderFulfillmentCapacity,
@@ -94,12 +94,34 @@ function OrderDetailActions({
   onBack: () => void;
 }) {
   const router = useRouter();
-  const [isPreparePackagingConfirmOpen, setIsPreparePackagingConfirmOpen] = useState(false);
+  const [isPreparePackagingConfirmOpen, setIsPreparePackagingConfirmOpen] = useState("");
   const canCancel = semantic != null && CAN_REQUEST_CANCEL.includes(semantic);
   const canPreparePackaging = warehouseId != null;
 
   function closePreparePackagingConfirm() {
-    setIsPreparePackagingConfirmOpen(false);
+    setIsPreparePackagingConfirmOpen("");
+  }
+
+  async function handleSubmit() {
+    if (!semantic || warehouseId == null) return;
+    if (isPreparePackagingConfirmOpen === "DRAFT") {
+      await confirmPreparePackaging();
+    } else if (isPreparePackagingConfirmOpen === "WAITING_FOR_APPROVAL") {
+      await handleApproveOrder();
+    }
+    closePreparePackagingConfirm();
+  }
+
+  async function handleApproveOrder() {
+    const result = await approveOrder({ id: orderId });
+    if (!result.ok) {
+      putFlash("error", result.message, 1500);
+      return;
+    }
+
+    closePreparePackagingConfirm();
+    putFlash("success", "Đã duyệt đơn hàng", 1500);
+    router.refresh();
   }
 
   async function confirmPreparePackaging() {
@@ -150,26 +172,22 @@ function OrderDetailActions({
         )}
 
         {/* Nếu ở đơn mới và có đủ hàng KL, tồn kho và đóng mới */}
-        {semantic === "DRAFT" && (
+        {semantic === "DRAFT" || semantic === "APPROVED_WAITING_ALLOCATION" && (
           <button
             type="button"
             className="core_button core_button--primary"
             disabled={!canPreparePackaging}
-            onClick={() => setIsPreparePackagingConfirmOpen(true)}
+            onClick={() => setIsPreparePackagingConfirmOpen("DRAFT")}
           >
             Chuẩn bị đóng gói
           </button>
         )}
         {semantic === "WAITING_FOR_APPROVAL" && (
-          <button type="button" className="core_button core_button--primary">
+          <button type="button" className="core_button core_button--primary" 
+            onClick={() => setIsPreparePackagingConfirmOpen("WAITING_FOR_APPROVAL")}>
             Duyệt
           </button>
-        )}
-        {semantic === "APPROVED_WAITING_ALLOCATION" && (
-          <button type="button" className="core_button core_button--primary">
-            {canFulfillRemaining ? "Xác nhận phân kho" : "Tách đơn & phân kho"}
-          </button>
-        )}
+        )} 
         {semantic === "REJECTED" && (
           <button type="button" className="core_button core_button--primary">
             Gửi duyệt lại
@@ -189,21 +207,33 @@ function OrderDetailActions({
 
       <Modal
         id="prepare-packaging-confirm-modal"
-        show={isPreparePackagingConfirmOpen}
+        show={isPreparePackagingConfirmOpen !== ""}
         title="Xác nhận chuẩn bị đóng gói"
         width="md"
         className="core_modal--stacked"
         onClose={closePreparePackagingConfirm}
       >
-        <p className="text-sm text-theme-muted">
-          Bạn có chắc muốn chuẩn bị đóng gói cho đơn hàng này?
-        </p>
-        <form className="core_modal__form" action={confirmPreparePackaging}>
+        {isPreparePackagingConfirmOpen === "DRAFT" || isPreparePackagingConfirmOpen === "APPROVED_WAITING_ALLOCATION" && (
+          <p className="text-sm text-theme-muted">
+            Bạn có chắc muốn chuẩn bị đóng gói cho đơn hàng này?
+          </p>
+        )}
+        {isPreparePackagingConfirmOpen === "WAITING_FOR_APPROVAL" ? (
+          <p className="text-sm text-theme-muted">
+            Bạn có chắc muốn duyệt đơn hàng này?
+          </p>
+        ) : (
+          <p className="text-sm text-theme-muted">
+            Bạn có chắc muốn chuẩn bị đóng gói cho đơn hàng này?
+          </p>
+        )}
+      
+        <form className="core_modal__form" action={handleSubmit}>
           <div className="core_modal__actions">
             <button
               type="button"
               className="core_button core_button--secondary"
-              onClick={closePreparePackagingConfirm}
+              onClick={() => setIsPreparePackagingConfirmOpen("")}
             >
               Hủy
             </button>
@@ -228,16 +258,18 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
     () => warehouses[0]?.warehouse_id ?? null,
   );
 
-  const warehouseSssignments = {
-    can_fulfill_remaining: false,
-    is_core_available: false,
-    is_finished_goods_available: false,
-    is_packaging_available: false,
+  const warehouseAvailable = {
+    line_name: "",
+    line_name_available: 0,
+    can_fulfill_remaining: false, // kho đủ giao hết, không tách đơn
+    is_core_available: false, // đủ ruột / cốt
+    is_finished_goods_available: false, // đủ thành phẩm
+    is_packaging_available: false, // đủ vỏ bao
     allocation_proposal: {
-      suggested_finished_goods_quantity: 0,
-      suggested_pack_new_quantity: 0,
-      suggested_quantity: 0,
-      waiting_quantity: 0,
+      suggested_finished_goods_quantity: 0, // xuất từ tồn thành phẩm
+      suggested_pack_new_quantity: 0, // đóng mới
+      suggested_quantity: 0, // tổng có thể giao
+      waiting_quantity: 0, // chờ bổ sung
     },
   };
 
@@ -247,21 +279,21 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
     const warehouse = getWarehouse(fulfillmentCapacity, line.id, warehouseId);
     if (!warehouse) continue;
     if (matchedWarehouses === 0) {
-      warehouseSssignments.can_fulfill_remaining = warehouse.can_fulfill_remaining;
-      warehouseSssignments.is_core_available = warehouse.is_core_available;
-      warehouseSssignments.is_finished_goods_available = warehouse.is_finished_goods_available;
-      warehouseSssignments.is_packaging_available = warehouse.is_packaging_available;
+      warehouseAvailable.can_fulfill_remaining = warehouse.can_fulfill_remaining;
+      warehouseAvailable.is_core_available = warehouse.is_core_available;
+      warehouseAvailable.is_finished_goods_available = warehouse.is_finished_goods_available;
+      warehouseAvailable.is_packaging_available = warehouse.is_packaging_available;
     } else {
-      warehouseSssignments.can_fulfill_remaining &&= warehouse.can_fulfill_remaining;
-      warehouseSssignments.is_core_available &&= warehouse.is_core_available;
-      warehouseSssignments.is_finished_goods_available &&= warehouse.is_finished_goods_available;
-      warehouseSssignments.is_packaging_available &&= warehouse.is_packaging_available;
+      warehouseAvailable.can_fulfill_remaining &&= warehouse.can_fulfill_remaining;
+      warehouseAvailable.is_core_available &&= warehouse.is_core_available;
+      warehouseAvailable.is_finished_goods_available &&= warehouse.is_finished_goods_available;
+      warehouseAvailable.is_packaging_available &&= warehouse.is_packaging_available;
     }
     matchedWarehouses += 1;
-    warehouseSssignments.allocation_proposal.suggested_finished_goods_quantity += warehouse.allocation_proposal.suggested_finished_goods_quantity;
-    warehouseSssignments.allocation_proposal.suggested_pack_new_quantity += warehouse.allocation_proposal.suggested_pack_new_quantity;
-    warehouseSssignments.allocation_proposal.suggested_quantity += warehouse.allocation_proposal.suggested_quantity;
-    warehouseSssignments.allocation_proposal.waiting_quantity += warehouse.allocation_proposal.waiting_quantity;
+    warehouseAvailable.allocation_proposal.suggested_finished_goods_quantity += warehouse.allocation_proposal.suggested_finished_goods_quantity;
+    warehouseAvailable.allocation_proposal.suggested_pack_new_quantity += warehouse.allocation_proposal.suggested_pack_new_quantity;
+    warehouseAvailable.allocation_proposal.suggested_quantity += warehouse.allocation_proposal.suggested_quantity;
+    warehouseAvailable.allocation_proposal.waiting_quantity += warehouse.allocation_proposal.waiting_quantity;
   }
 
   function toggleExpanded(id: number) {
@@ -458,7 +490,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
         </div>
       </section>
 
-      {!warehouseSssignments.can_fulfill_remaining && (
+      {!warehouseAvailable.can_fulfill_remaining && (
         <div className="section-container mb-6">
         <h6 className="mb-4 text-base font-semibold flex items-center gap-2">
           <Icon name="hero-rectangle-stack" className="size-5 text-theme-primary" />
@@ -472,10 +504,10 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
               <span className="status status--active">Sẵn sàng phân kho</span>
             </div>
             <p className="text-2xl font-semibold text-slate-900 text-sm">
-              {warehouseSssignments.allocation_proposal.suggested_quantity} bao
+              {warehouseAvailable.allocation_proposal.suggested_quantity} bao
               <span className="text-base font-medium text-theme-muted pl-1"></span>
             </p>
-            <p className="mt-1 text-xs text-theme-muted">{warehouseSssignments.allocation_proposal.suggested_finished_goods_quantity} bao thành phẩm · {warehouseSssignments.allocation_proposal.suggested_pack_new_quantity} bao đóng mới</p>
+            <p className="mt-1 text-xs text-theme-muted">{warehouseAvailable.allocation_proposal.suggested_finished_goods_quantity} bao thành phẩm · {warehouseAvailable.allocation_proposal.suggested_pack_new_quantity} bao đóng mới</p>
           </div>
 
           <div className="rounded-xl border border-theme-primary-border p-4">
@@ -493,7 +525,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
               </span>
             </div>
             <p className="text-2xl font-semibold text-slate-900 text-sm">
-              {warehouseSssignments.allocation_proposal.waiting_quantity} bao
+              {warehouseAvailable.allocation_proposal.waiting_quantity} bao
             </p>
             <p className="mt-1 text-xs text-theme-muted">Chờ bổ sung tồn kho</p>
           </div>
@@ -505,7 +537,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
         orderId={order.id}
         warehouseId={warehouseId}
         semantic={getOrderStatusMeta(order.status)?.semantic}
-        canFulfillRemaining={warehouseSssignments.can_fulfill_remaining}
+        canFulfillRemaining={warehouseAvailable.can_fulfill_remaining}
         onBack={() => router.push("/orders")}
       />
     </>
