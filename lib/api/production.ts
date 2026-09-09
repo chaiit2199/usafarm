@@ -8,7 +8,7 @@ import type {
   WarehouseOrdersResponse,
 } from "@/lib/api/types";
 import { runServerAction } from "@/lib/server-actions";
-import { orderIdSchema } from "@/lib/validate/orders";
+import { orderIdSchema, completeWarehousePackingSchema } from "@/lib/validate/orders";
 
 export type WarehouseOrdersParams = {
   search?: string;
@@ -61,6 +61,30 @@ export async function startWarehouseOrder(payload: { id: number }) {
           "Idempotency-Key": crypto.randomUUID(),
         },
       });
+      revalidatePath("/production/packaging");
+      return { ok: true as const };
+    },
+  );
+}
+
+export async function completeWarehouseOrderPacking(payload: {
+  id: number;
+  lines: Array<{ order_line_id: number; actual_packed_quantity: number }>;
+}) {
+  return runServerAction(
+    completeWarehousePackingSchema,
+    payload,
+    "Không thể hoàn thành đóng gói",
+    async ({ id, lines }) => {
+      await client.patch(
+        `/api/v1/warehouse/orders/${id}/packing`,
+        { lines },
+        {
+          headers: {
+            "Idempotency-Key": crypto.randomUUID(),
+          },
+        },
+      );
       revalidatePath("/production/packaging");
       return { ok: true as const };
     },

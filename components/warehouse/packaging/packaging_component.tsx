@@ -2,12 +2,12 @@
 
 import { Fragment, useEffect, useState } from "react";
 
-import { EmptyData, Dropdown, Modal, Pagination, TableHead, TableLoading, useDropdownClose } from "@/components/core_component";
+import { EmptyData, Modal, Pagination, TableHead, TableLoading } from "@/components/core_component";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { Icon } from "@/components/icon";
 import { LoadError } from "@/components/load_error";
 import { Tab } from "@/components/tab";
-import { getWarehouseOrders, startWarehouseOrder } from "@/lib/api/production";
+import { getWarehouseOrders, startWarehouseOrder, completeWarehouseOrderPacking } from "@/lib/api/production";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import type { WarehouseOrder, WarehouseOrderLine } from "@/lib/api/types";
 import { getOrderStatusLabel, orderColor, orderStatus } from "@/lib/constants";
@@ -30,14 +30,23 @@ const ORDER_STATUS_TABS = [
 
 type StatusTabId = (typeof ORDER_STATUS_TABS)[number]["id"];
 
-function remainingQuantity(order: WarehouseOrder) {
-  return Math.max(0, order.total_quantity - order.packed_quantity);
+function lineRemaining(line: WarehouseOrderLine) {
+  return Math.max(0, line.quantity - line.packed_quantity);
 }
 
-function normalizePackedQty(raw: number, remaining: number) {
-  if (!Number.isFinite(raw) || raw <= 0) return 0;
-  return Math.min(Math.floor(raw), remaining);
+function normalizePackedQty(raw: number, max: number) {
+  if (!Number.isFinite(raw) || raw < 0) return 0;
+  return Math.min(Math.floor(raw), max);
 }
+
+type CompletePackLinePayload = {
+  order_line_id: number;
+  actual_packed_quantity: number;
+};
+
+type CompletePackPayload = {
+  lines: CompletePackLinePayload[];
+};
 
 function OrderStatusBadge({ status }: { status: number }) {
   const label = getOrderStatusLabel(status);
@@ -57,72 +66,118 @@ function OrderStatusBadge({ status }: { status: number }) {
   );
 }
 
-function CompletePackForm({ order }: { order: WarehouseOrder }) {
-  const closeDropdown = useDropdownClose();
-  const remaining = remainingQuantity(order);
+function PackingDetailsModalForm({
+  order,
+  onClose,
+  onRequestComplete,
+}: {
+  order: WarehouseOrder;
+  onClose: () => void;
+  onRequestComplete: (payload: CompletePackPayload) => void;
+}) {
+  const [qtys, setQtys] = useState<Record<number, number>>(() =>
+    Object.fromEntries(order.lines.map((line) => [line.id, lineRemaining(line)])),
+  );
 
-  function clampInput(event: React.ChangeEvent<HTMLInputElement>) {
-    const next = Number(event.target.value);
-    if (Number.isFinite(next) && next > remaining) {
-      event.target.value = String(remaining);
-    }
+
+  function setLineQty(line: WarehouseOrderLine, raw: number) {
+    const max = lineRemaining(line);
+    setQtys((current) => ({
+      ...current,
+      [line.id]: normalizePackedQty(raw, max),
+    }));
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const qty = normalizePackedQty(Number(formData.get("packed_quantity")), remaining);
-    if (qty <= 0) return;
 
-    console.log("packed_quantity", qty, "order", order.id, "code", order.code);
-    closeDropdown?.();
+    const lines: CompletePackLinePayload[] = order.lines.map((line) => ({
+      order_line_id: line.id,
+      actual_packed_quantity: normalizePackedQty(qtys[line.id] ?? 0, lineRemaining(line)),
+    }));
+
+    if (lines.every((line) => line.actual_packed_quantity <= 0)) return;
+
+    onRequestComplete({ lines });
   }
 
   return (
-    <li className="px-3 py-3 min-w-64" onClick={(event) => event.stopPropagation()}>
-      <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
-        <label htmlFor={`packed-qty-${order.id}`} className="core_label text-xs">
-          Nhập số lượng đã đóng gói
-        </label>
-        <p className="text-xs text-theme-muted mb-0">Còn lại tối đa: {remaining}</p>
-        <input
-          id={`packed-qty-${order.id}`}
-          name="packed_quantity"
-          type="number"
-          min={1}
-          max={remaining}
-          required
-          disabled={remaining <= 0}
-          defaultValue={remaining > 0 ? remaining : undefined}
-          className="core_input w-full"
-          placeholder="Nhập số lượng"
-          onChange={clampInput}
-        />
+    <form className="core_modal__form" onSubmit={handleSubmit}>
+      <p className="text-sm text-theme-muted mb-3">
+        Chi tiết đóng gói đơn{" "}
+        <span className="font-semibold text-slate-900">{order.code}</span>. Số lượng đóng
+        thêm mỗi sản phẩm không được vượt quá số còn lại (cần − đã đóng).
+      </p>
+
+      {order.lines.length === 0 ? (
+        <p className="text-sm text-theme-muted">Không có sản phẩm trong đơn.</p>
+      ) : (
+        <div className="overview-table-inner theme-primary-border">
+          <table className="overview-table min-w-full">
+            <colgroup>
+              <col style={{ width: "4%" }} />
+              <col style={{ width: "18%" }} />
+              <col style={{ width: "32%" }} />
+              <col style={{ width: "12%" }} />
+              <col style={{ width: "12%" }} />
+              <col style={{ width: "12%" }} />
+              <col style={{ width: "10%" }} />
+            </colgroup>
+            <thead>
+              <tr>
+                <TableHead />
+                <TableHead>SKU</TableHead>
+                <TableHead icon="hero-cube">Tên sản phẩm</TableHead>
+                <TableHead className="is-num">Cần</TableHead>
+                <TableHead className="is-num">Đã đóng</TableHead>
+                <TableHead className="is-num">Còn lại</TableHead>
+                <TableHead className="is-num">Đóng thêm</TableHead>
+              </tr>
+            </thead>
+            <tbody>
+              {order.lines.map((line, index) => {
+                const remaining = lineRemaining(line);
+                return (
+                  <tr key={line.id}>
+                    <td>{index + 1}</td>
+                    <td className="overview-table__muted">{line.sales_sku_code}</td>
+                    <td>{line.sku_name}</td>
+                    <td className="is-num overview-table__muted">{line.quantity}</td>
+                    <td className="is-num overview-table__muted">{line.packed_quantity}</td>
+                    <td className="is-num overview-table__muted">{remaining}</td>
+                    <td className="is-num">
+                      <input
+                        id={`complete-pack-qty-${order.id}-${line.id}`}
+                        type="number"
+                        min={0}
+                        max={remaining}
+                        disabled={remaining <= 0}
+                        value={qtys[line.id] ?? 0}
+                        className="core_input w-full text-right"
+                        onChange={(event) => setLineQty(line, Number(event.target.value))}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div className="core_modal__actions">
+        <button type="button" className="core_button core_button--secondary" onClick={onClose}>
+          Đóng
+        </button>
         <button
           type="submit"
-          className="core_button core_button--primary w-full"
-          disabled={remaining <= 0}
+          className="core_button core_button--primary"
+          disabled={order.lines.every((line) => lineRemaining(line) <= 0)}
         >
-          Xác nhận
+          Hoàn thành
         </button>
-      </form>
-    </li>
-  );
-}
-
-function CompletePackDropdown({ order }: { order: WarehouseOrder }) {
-  return (
-    <Dropdown
-      placement="bottom-right"
-      label={
-        <span className="btn btn--primary inline-flex items-center gap-1.5">
-          <Icon name="hero-forward" className="size-4 shrink-0" />
-          <span>Hoàn thành</span>
-        </span>
-      }
-    >
-      <CompletePackForm order={order} />
-    </Dropdown>
+      </div>
+    </form>
   );
 }
 
@@ -149,7 +204,7 @@ function PackagingOrderLines({ lines }: { lines: WarehouseOrderLine[] }) {
               <TableHead>SKU</TableHead>
               <TableHead icon="hero-cube">Tên sản phẩm</TableHead>
               <TableHead>Số lượng cần</TableHead>
-              <TableHead>Tồn kho</TableHead>
+              <TableHead>Đã đóng</TableHead>
               <TableHead icon="hero-circle-stack">Đóng mới</TableHead>
             </tr>
           </thead>
@@ -184,6 +239,8 @@ export function PackagingComponent() {
   const [reloadAt, setReloadAt] = useState(0);
   const [expandedIds, setExpandedIds] = useState<number[]>([]);
   const [confirmOrder, setConfirmOrder] = useState<WarehouseOrder | null>(null);
+  const [detailsOrder, setDetailsOrder] = useState<WarehouseOrder | null>(null);
+  const [completePayload, setCompletePayload] = useState<CompletePackPayload | null>(null);
 
   useEffect(() => {
     return subscribeHeaderAction("/production/packaging", (detail) => {
@@ -229,6 +286,44 @@ export function PackagingComponent() {
 
   function closePackConfirm() {
     setConfirmOrder(null);
+  }
+
+  function closePackingDetails() {
+    setDetailsOrder(null);
+    setCompletePayload(null);
+  }
+
+  function closeCompleteConfirm() {
+    setCompletePayload(null);
+  }
+
+  function openOrderAction(order: WarehouseOrder) {
+    if (order.status === orderStatus.waitingWarehouseAcceptance) {
+      setConfirmOrder(order);
+      return;
+    }
+    setDetailsOrder(order);
+  }
+
+  function requestCompletePack(payload: CompletePackPayload) {
+    setCompletePayload(payload);
+  }
+
+  async function confirmCompletePackaging() {
+    if (!detailsOrder || !completePayload) return;
+
+    const result = await completeWarehouseOrderPacking({
+      id: detailsOrder.id,
+      lines: completePayload.lines,
+    });
+    if (!result.ok) {
+      putFlash("error", result.message, 1500);
+      return;
+    }
+
+    closePackingDetails();
+    putFlash("success", "Đã hoàn thành đóng gói", 1500);
+    setReloadAt((value) => value + 1);
   }
 
   async function confirmStartPackaging() {
@@ -340,16 +435,19 @@ export function PackagingComponent() {
                               <td className="overview-table__muted">
                                 {formatDateTimeVi(order.started_at || order.created_at)}
                               </td>
-                              <td className="actions"> 
-                                {order.status === orderStatus.waitingWarehouseAcceptance ? (
-                                  <button onClick={() => setConfirmOrder(order)}
-                                  className="btn btn--primary">
-                                    <Icon name="hero-forward" className="size-4 shrink-0" />
-                                    <span>Đóng gói</span>
-                                  </button>
-                                ) : (
-                                  <CompletePackDropdown order={order} />
-                                )}
+                              <td className="actions">
+                                <button
+                                  type="button"
+                                  className="admin-actions__btn"
+                                  aria-label={
+                                    order.status === orderStatus.waitingWarehouseAcceptance
+                                      ? "Bắt đầu đóng gói"
+                                      : "Hoàn thành đóng gói"
+                                  }
+                                  onClick={() => openOrderAction(order)}
+                                >
+                                  <Icon name="hero-pencil-square" className="size-4" />
+                                </button>
                               </td>
                             </tr>
 
@@ -401,6 +499,49 @@ export function PackagingComponent() {
               type="button"
               className="core_button core_button--secondary"
               onClick={closePackConfirm}
+            >
+              Hủy
+            </button>
+            <FormSubmitButton>Xác nhận</FormSubmitButton>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        id="packaging-complete-confirm-modal"
+        show={detailsOrder != null}
+        title="Chi tiết đóng gói"
+        width="3xl"
+        onClose={closePackingDetails}
+      >
+        {detailsOrder ? (
+          <PackingDetailsModalForm
+            key={detailsOrder.id}
+            order={detailsOrder}
+            onClose={closePackingDetails}
+            onRequestComplete={requestCompletePack}
+          />
+        ) : null}
+      </Modal>
+
+      <Modal
+        id="packaging-complete-submit-confirm-modal"
+        show={completePayload != null}
+        title="Xác nhận hoàn thành"
+        width="md"
+        className="core_modal--stacked"
+        onClose={closeCompleteConfirm}
+      >
+        <form className="core_modal__form" action={confirmCompletePackaging}>
+          <p className="text-sm text-theme-muted">
+            Bạn có chắc muốn hoàn thành đóng gói đơn{" "}
+            <span className="font-semibold text-slate-900">{detailsOrder?.code}</span>?
+          </p>
+          <div className="core_modal__actions">
+            <button
+              type="button"
+              className="core_button core_button--secondary"
+              onClick={closeCompleteConfirm}
             >
               Hủy
             </button>

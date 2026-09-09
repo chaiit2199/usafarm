@@ -6,10 +6,16 @@ import { useEffect, useState } from "react";
 import { CreateOrderComponent } from "@/components/orders/create_order_component";
 import { OrdersTableComponent } from "@/components/orders/orders_table_component";
 import { OrdersSummaryComponent } from "@/components/orders/orders_summary_component";
-import type { Order , OrdersResponse } from "@/lib/api/types";
+import type { Order, OrderSummary } from "@/lib/api/types";
 
 
-export function OrdersComponent({ orders }: { orders: Order[] }) {
+export function OrdersComponent({
+  orders,
+  summary,
+}: {
+  orders: Order[];
+  summary: OrderSummary | null;
+}) {
  
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
@@ -21,7 +27,7 @@ export function OrdersComponent({ orders }: { orders: Order[] }) {
 
   return (
     <>
-      <OrdersSummaryComponent />
+      <OrdersSummaryComponent summary={summary} />
       <OrdersTableComponent orders={orders} />
       {isCreateOpen && <CreateOrderComponent />}
     </>

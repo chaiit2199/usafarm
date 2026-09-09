@@ -19,7 +19,7 @@ export function TableHead({
 
   return (
     <th className={className}>
-      <span className={["inline-flex items-center gap-1.5", justify && "w-full", justify].filter(Boolean).join(" ")}>
+      <span className="inline-flex items-center gap-1.5">
         {icon ? <Icon name={icon} className="size-4 shrink-0" /> : null}
         {children}
       </span>

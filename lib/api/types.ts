@@ -350,6 +350,19 @@ export type OrderResponse = {
   meta?: ApiListMeta;
 };
 
+export type OrderSummary = {
+  currency: string;
+  total_orders: number;
+  revenue_amount: number;
+  collected_amount: number;
+  debt_amount: number;
+};
+
+export type OrderSummaryResponse = {
+  data: OrderSummary;
+  meta?: ApiListMeta;
+};
+
 export type OrderFulfillmentAllocationProposal = {
   suggested_finished_goods_quantity: number; // Gợi ý xuất từ thành phẩm sẵn
   suggested_pack_new_quantity: number; // Gợi ý đóng mới từ vỏ + ruột

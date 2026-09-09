@@ -30,6 +30,7 @@ export async function runServerAction<TSchema extends z.ZodType, TResult extends
   try {
     return await handler(parsed.data);
   } catch (error) {
+    console.error("error", actionErrorMessage(error, fallbackMessage));
     return { ok: false, message: actionErrorMessage(error, fallbackMessage) };
   }
 }
