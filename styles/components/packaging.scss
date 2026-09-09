@@ -1,5 +1,5 @@
 .packaging-thumb {
-  @apply block w-16 h-16 flex-shrink-0 rounded-lg border border-theme-primary-border object-cover bg-white; 
+  @apply block w-16 h-16 flex-shrink-0 rounded-xl border border-theme-primary-border object-cover bg-white; 
 }
 
 .packaging-images {
@@ -9,7 +9,7 @@
 }
 
 .packaging-images__item { 
-  @apply block w-32 h-32 flex-shrink-0 rounded-lg border border-theme-primary-border object-cover bg-white; 
+  @apply block w-32 h-32 flex-shrink-0 rounded-xl border border-theme-primary-border object-cover bg-white; 
 }
 
 .packaging-images__empty {

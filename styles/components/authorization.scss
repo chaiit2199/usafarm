@@ -76,7 +76,7 @@
 }
 
 .auth-permission__check {
-  @apply inline-grid place-items-center w-4 h-4 border border-theme-primary-border rounded-sm bg-white text-white flex-none;
+  @apply inline-grid place-items-center w-4 h-4 border border-theme-primary-border rounded-xl bg-white text-white flex-none;
 }
 
 .auth-permission__page.is-checked .auth-permission__check,

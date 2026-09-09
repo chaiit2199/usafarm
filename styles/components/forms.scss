@@ -14,7 +14,7 @@
 }
 
 .core_input {
-  @apply border border-theme-primary-border rounded-lg bg-white text-theme-muted font-normal leading-6 outline-none transition-all;
+  @apply border border-theme-primary-border rounded-xl bg-white text-theme-muted font-normal leading-6 outline-none transition-all;
   @apply px-4 py-2 h-11;
   font-size: 16px; 
 }

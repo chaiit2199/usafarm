@@ -415,3 +415,56 @@ export type ProductComponent = {
   stock: string;
   status: string;
 };
+
+// Production — warehouse packing orders
+export type WarehouseOrderLine = {
+  id: number;
+  sales_sku_id: number;
+  sales_sku_code: string;
+  sku_name: string;
+  quantity: number;
+  finished_goods_quantity: number;
+  pack_new_quantity: number;
+  packed_quantity: number;
+  /** Present on detail endpoint */
+  packaging_id?: number;
+  packaging_name?: string;
+  core_material_id?: number;
+  core_material_name?: string;
+  packaging_weight_kg?: number;
+  unit?: string;
+};
+
+export type WarehouseOrder = {
+  id: number;
+  code: string;
+  parent_order_id: number;
+  parent_order_code: string;
+  status: number;
+  warehouse_id: number;
+  warehouse_name: string;
+  agency_id: number;
+  agency_name: string;
+  total_items: number;
+  completed_items: number;
+  total_quantity: number;
+  finished_goods_quantity: number;
+  pack_new_quantity: number;
+  packed_quantity: number;
+  started_at: string;
+  created_at: string;
+  /** Present on detail endpoint */
+  completed_at?: string | null;
+  updated_at?: string;
+  lines: WarehouseOrderLine[];
+};
+
+export type WarehouseOrdersResponse = {
+  data: WarehouseOrder[];
+  meta?: ApiListMeta;
+};
+
+export type WarehouseOrderResponse = {
+  data: WarehouseOrder;
+  meta?: ApiListMeta;
+};

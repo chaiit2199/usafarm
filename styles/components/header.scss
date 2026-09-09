@@ -76,7 +76,7 @@
 }
 
 .header__search-submit {
-  @apply inline-flex items-center gap-1.5 shrink-0 h-8 w-[32px] max-w-[32px] px-2 rounded-lg bg-theme-primary text-white text-sm font-medium border-0 cursor-pointer;
+  @apply inline-flex items-center gap-1.5 shrink-0 h-8 w-[32px] max-w-[32px] px-2 rounded-xl bg-theme-primary text-white text-sm font-medium border-0 cursor-pointer;
 }
 
 .header__search-submit:hover {
@@ -95,7 +95,7 @@
 }
 
 .header__user-menu .core_dropdown__list {
-  @apply min-w-[16.5rem] p-0 overflow-hidden rounded-lg bg-white;
+  @apply min-w-[16.5rem] p-0 overflow-hidden rounded-xl bg-white;
 }
 
 .header-menu {

@@ -12,13 +12,13 @@
 
 * {
   &::-webkit-scrollbar {
-    @apply rounded-lg;
+    @apply rounded-xl;
     @apply w-1 h-1 bg-transparent;
 
   }
 
   &::-webkit-scrollbar-thumb {
-    @apply rounded-lg;
+    @apply rounded-xl;
     background-color: rgba(128, 128, 128, 0.3);
   }
 }
@@ -190,7 +190,7 @@ $sidebar-label-delay: 0.15s;
 }
 
 .dash-sidebar__item {
-  @apply relative flex items-center gap-2 p-2.5 text-theme-muted rounded-lg bg-transparent font-medium;
+  @apply relative flex items-center gap-2 p-2.5 text-theme-muted rounded-md bg-transparent font-medium;
   transition:
     color 0.15s ease,
     background-color 0.15s ease,
@@ -294,7 +294,7 @@ $sidebar-label-delay: 0.15s;
 }
 
 .dash-sidebar__subitem {
-  @apply flex items-center gap-2 p-2.5 rounded-lg text-sm font-medium text-theme-muted relative;
+  @apply flex items-center gap-2 p-2.5 rounded-md text-sm font-medium text-theme-muted relative;
   transition:
     color 0.15s ease,
     background-color 0.15s ease,
@@ -406,7 +406,7 @@ $sidebar-label-delay: 0.15s;
 }
 
 .profile {
-  @apply flex items-center gap-3 rounded-lg text-sm font-medium text-theme-muted relative;
+  @apply flex items-center gap-3 rounded-xl text-sm font-medium text-theme-muted relative;
   transition: gap $sidebar-duration $sidebar-ease, justify-content $sidebar-duration $sidebar-ease;
 }
 
@@ -917,7 +917,7 @@ $sidebar-label-delay: 0.15s;
 }
 
 .dash-tag {
-  @apply inline-flex px-1 py-0.5 rounded-md bg-theme-muted/10 text-theme-muted text-xs;
+  @apply inline-flex px-1 py-0.5 rounded-xl bg-theme-muted/10 text-theme-muted text-xs;
 }
 
 /* —— Tables —— */

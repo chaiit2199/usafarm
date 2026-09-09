@@ -94,7 +94,7 @@
 }
 
 .section-container {
-  @apply overflow-hidden rounded-2xl bg-white p-6 drop-shadow-xs relative;
+  @apply overflow-hidden rounded-xl bg-white p-6 drop-shadow-xs relative;
 }
 
 .section-table { 
@@ -142,7 +142,7 @@
 }
 
 .status {
-  @apply inline-flex items-center justify-center rounded-lg border px-2 py-0.75 text-sm font-medium min-w-16;
+  @apply inline-flex items-center justify-center rounded-xl border px-2 py-0.75 text-sm font-medium min-w-16;
 
   &--active {
     @apply border-emerald-200 bg-emerald-50 text-emerald-700;

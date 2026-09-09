@@ -16,7 +16,7 @@ export function ChartPeriodFilter() {
       label={
         <button
           type="button"
-          className="overview-card__select inline-flex items-center gap-2 border border-theme-primary-border rounded-md p-2"
+          className="overview-card__select inline-flex items-center gap-2 border border-theme-primary-border rounded-xl p-2"
           id="chart-period-filter"
         >
           {period}

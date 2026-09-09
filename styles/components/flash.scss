@@ -3,7 +3,7 @@
 }
 
 .core_flash {
-  @apply w-80 sm:w-96 rounded-2xl p-4 cursor-pointer;
+  @apply w-80 sm:w-96 rounded-xl p-4 cursor-pointer;
   @apply bg-white border border-theme-primary-border relative overflow-hidden;
 
   &--info {
