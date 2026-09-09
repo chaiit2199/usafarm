@@ -401,13 +401,13 @@
   padding-right: 32px;
 
   &:not(.style-2) {
-    height: calc(100vh - 305px);
-    min-height: calc(100vh - 305px); 
+    height: calc(100vh - 310px);
+    min-height: calc(100vh - 310px); 
   }
 
   &.style-2 {
-    height: calc(100vh - 415px);
-    min-height: calc(100vh - 415px); 
+    height: calc(100vh - 420px);
+    min-height: calc(100vh - 420px); 
   }
 }
 

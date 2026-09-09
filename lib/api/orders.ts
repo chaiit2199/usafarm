@@ -9,8 +9,10 @@ import type {
 } from "@/lib/api/types";
 
 import { runServerAction } from "@/lib/server-actions";
+import { assignWarehouseSchema, type AssignWarehouseInput } from "@/lib/validate/orders";
 import { rejectSchema } from "@/lib/validate/users";
 
+export type { AssignWarehouseInput };
 export type FilterOrdersParams = {
   search?: string;
   status?: number | string;
@@ -95,4 +97,21 @@ export async function rejectOrder(payload: { id: number; reason: string }) {
     revalidatePath("/orders");
     return { ok: true as const };
   });
+}
+
+export async function assignOrderWarehouse(orderId: number, payload: AssignWarehouseInput) {
+  return runServerAction(
+    assignWarehouseSchema,
+    payload,
+    "Không thể chuẩn bị đóng gói",
+    async (params) => {
+      await client.post(`/api/v1/orders/${orderId}/prepare`, params, {
+        headers: {
+          "Idempotency-Key": crypto.randomUUID(),
+        },
+      });
+      revalidatePath("/orders");
+      return { ok: true as const };
+    },
+  );
 }

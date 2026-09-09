@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { EmptyData, Pagination, TableHead, TableLoading } from "@/components/core_component";
 import { LoadError } from "@/components/load_error";
@@ -8,21 +8,20 @@ import { Tab } from "@/components/tab";
 import { getWarehouseOrders } from "@/lib/api/production";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import type { WarehouseOrder } from "@/lib/api/types";
-import {
-  ORDER_STATUSES,
-  getOrderStatusLabel,
-  orderColor,
-  type OrderStatusId,
-} from "@/lib/constants";
+import { getOrderStatusLabel, orderColor } from "@/lib/constants";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 import { formatDateTimeVi } from "@/lib/format/date";
 
 const ORDER_STATUS_TABS = [
-  { value: "all" as const, label: "Tất cả" },
-  ...ORDER_STATUSES.map((s) => ({ value: s.id, label: s.label })),
-];
+  {
+    id: 4,
+    semantic: "WAITING_WAREHOUSE_ACCEPTANCE",
+    label: "Danh sách đơn đang chờ / đang đóng gói tại phân xưởng",
+    color: "#7C3AED",
+  },
+] as const;
 
-type StatusTabValue = (typeof ORDER_STATUS_TABS)[number]["value"];
+type StatusTabId = (typeof ORDER_STATUS_TABS)[number]["id"];
 
 function OrderStatusBadge({ status }: { status: number }) {
   const label = getOrderStatusLabel(status);
@@ -42,22 +41,15 @@ function OrderStatusBadge({ status }: { status: number }) {
   );
 }
 
-export function PackagingComponent({
-  initialOrders,
-  initialTotalPages = 1,
-}: {
-  initialOrders: WarehouseOrder[];
-  initialTotalPages?: number;
-}) {
+export function PackagingComponent() {
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<StatusTabValue>("all");
+  const [activeTab, setActiveTab] = useState<StatusTabId>(ORDER_STATUS_TABS[0].id);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [totalPages, setTotalPages] = useState(initialTotalPages);
-  const [orders, setOrders] = useState<WarehouseOrder[] | null>(initialOrders);
+  const [totalPages, setTotalPages] = useState(1);
+  const [orders, setOrders] = useState<WarehouseOrder[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [reloadAt, setReloadAt] = useState(0);
-  const skipFirstFetch = useRef(true);
 
   useEffect(() => {
     return subscribeHeaderAction("/production/packaging", (detail) => {
@@ -67,32 +59,24 @@ export function PackagingComponent({
 
   useEffect(() => {
     setPage(1);
-  }, [search]);
+  }, [search, activeTab]);
 
   useEffect(() => {
-    if (skipFirstFetch.current) {
-      skipFirstFetch.current = false;
-      return;
-    }
-
     let cancelled = false;
+    setOrders(null);
+    setLoadError(null);
 
-    getWarehouseOrders({
-      search: search.trim() || undefined,
-      status: activeTab === "all" ? undefined : (activeTab as OrderStatusId),
-      page,
-      page_size: pageSize,
-    }).then((result) => {
-      if (cancelled) return;
-      if (!result.ok) {
-        setLoadError(result.message);
-        setOrders([]);
-        return;
-      }
-
-      setLoadError(null);
-      setOrders(result.data ?? []);
-      setTotalPages(totalPagesFromMeta(result.meta, result.data?.length ?? 0, pageSize));
+    getWarehouseOrders({ 
+            search: search.trim() || "", status: activeTab, page, page_size: pageSize 
+        }).then((result) => {
+            if (cancelled) return;
+            if (!result.ok) {
+                setLoadError(result.message);
+                setOrders([]);
+                return;
+            }
+            setOrders(result.data ?? []);
+            setTotalPages(totalPagesFromMeta(result.meta, result.data?.length ?? 0, pageSize));
     });
 
     return () => {
@@ -115,11 +99,11 @@ export function PackagingComponent({
         ) : (
           <>
             <Tab
-              tabs={ORDER_STATUS_TABS}
+              tabs={ORDER_STATUS_TABS.map((tab) => ({ value: tab.id, label: tab.label }))}
               activeTab={activeTab}
               isScroll
               onTabClick={(tab) => {
-                setActiveTab(tab.value);
+                setActiveTab(tab.value as StatusTabId);
                 setPage(1);
               }}
             />

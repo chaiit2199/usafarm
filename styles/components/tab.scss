@@ -1,7 +1,7 @@
 .core_tab {
     @apply mb-6;
     .menu_tab {
-        @apply flex gap-6 relative;
+        @apply flex gap-6 relative min-w-max;
         &::before {
             @apply content-[''] absolute left-0 bottom-0 w-full h-px bg-theme-primary-border;
             z-index: -1;
@@ -15,4 +15,10 @@
             }
         }
     }
+
+    &--scroll {
+        @apply overflow-x-auto;
+    }
+
+
 }   

@@ -3,13 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { TableHead } from "@/components/core_component";
+import { Modal, TableHead } from "@/components/core_component";
+import { FormSubmitButton } from "@/components/form-submit-button";
 import { Icon } from "@/components/icon";
 import { SelectField } from "@/components/form-fields";
 import { OrderProductRow } from "@/components/order-details/order_product_row";
 import { OrderStatus } from "@/components/order-details/order_status";
+import { assignOrderWarehouse } from "@/lib/api/orders";
 import type {
-  Order, 
+  Order,
   OrderFulfillmentCapacity,
   OrderFulfillmentWarehouse,
 } from "@/lib/api/types";
@@ -22,6 +24,7 @@ import {
   type OrderStatusSemantic,
 } from "@/lib/constants";
 import { formatDateTimeVi } from "@/lib/format/date";
+import { putFlash } from "@/lib/flash/flash";
 
 type OrderDetailsComponentProps = {
   order: Order;
@@ -41,8 +44,6 @@ function listWarehouses(capacity: OrderFulfillmentCapacity): OrderFulfillmentWar
     ).values(),
   );
 }
-
-
 
 function getWarehouse(
   capacity: OrderFulfillmentCapacity,
@@ -80,83 +81,137 @@ const CAN_REQUEST_CANCEL: OrderStatusSemantic[] = [
 ];
 
 function OrderDetailActions({
+  orderId,
+  warehouseId,
   semantic,
   canFulfillRemaining,
-  isCoreAvailable,
-  isFinishedGoodsAvailable,
-  isPackagingAvailable,
   onBack,
 }: {
+  orderId: number;
+  warehouseId: number | null;
   semantic?: OrderStatusSemantic;
   canFulfillRemaining: boolean;
-  isCoreAvailable: boolean;
-  isFinishedGoodsAvailable: boolean;
-  isPackagingAvailable: boolean;
   onBack: () => void;
 }) {
+  const router = useRouter();
+  const [isPreparePackagingConfirmOpen, setIsPreparePackagingConfirmOpen] = useState(false);
   const canCancel = semantic != null && CAN_REQUEST_CANCEL.includes(semantic);
+  const canPreparePackaging = warehouseId != null;
+
+  function closePreparePackagingConfirm() {
+    setIsPreparePackagingConfirmOpen(false);
+  }
+
+  async function confirmPreparePackaging() {
+    if (!semantic || warehouseId == null) return;
+
+    const result = await assignOrderWarehouse(orderId, {
+      warehouse_id: warehouseId,
+    });
+
+    if (!result.ok) {
+      putFlash("error", result.message, 1500);
+      return;
+    }
+
+    closePreparePackagingConfirm();
+    putFlash("success", "Đã chuẩn bị đóng gói", 1500);
+    router.refresh();
+  }
 
   return (
-    <div className="flex items-center justify-end gap-3 pt-2 mb-30">
-      <button type="button" className="core_button core_button--secondary" onClick={onBack}>
-        Quay lại
-      </button>
-
-      {semantic === "WAITING_FOR_APPROVAL" && (
-        <button type="button" className="core_button core_button--danger">
-          Từ chối
+    <>
+      <div className="flex items-center justify-end gap-3 pt-2 mb-30">
+        <button type="button" className="core_button core_button--secondary" onClick={onBack}>
+          Quay lại
         </button>
-      )}
 
-      {semantic === "CANCELLING" && (
-        <>
-          <button type="button" className="core_button core_button--secondary">
-            Rút yêu cầu hủy
-          </button>
+        {semantic === "WAITING_FOR_APPROVAL" && (
           <button type="button" className="core_button core_button--danger">
-            Từ chối hủy
+            Từ chối
           </button>
-        </>
-      )}
+        )}
 
-      {canCancel && (
-        <button type="button" className="core_button core_button--danger">
-          Huỷ đơn
-        </button>
-      )}
+        {semantic === "CANCELLING" && (
+          <>
+            <button type="button" className="core_button core_button--secondary">
+              Rút yêu cầu hủy
+            </button>
+            <button type="button" className="core_button core_button--danger">
+              Từ chối hủy
+            </button>
+          </>
+        )}
 
-      {/* Nếu ở đơn mới và có đủ hàng KL, tồn kho và đóng mới */}
-      {semantic === "DRAFT"  && (
-        <button type="button" className="core_button core_button--primary" disabled={!isCoreAvailable || !isFinishedGoodsAvailable || !isPackagingAvailable}>
-          Chuẩn bị đóng gói
-        </button>
-      )}
-      {semantic === "WAITING_FOR_APPROVAL" && (
-        <button type="button" className="core_button core_button--primary">
-          Duyệt
-        </button>
-      )}
-      {semantic === "APPROVED_WAITING_ALLOCATION" && (
-        <button type="button" className="core_button core_button--primary">
-          {canFulfillRemaining ? "Xác nhận phân kho" : "Tách đơn & phân kho"}
-        </button>
-      )}
-      {semantic === "REJECTED" && (
-        <button type="button" className="core_button core_button--primary">
-          Gửi duyệt lại
-        </button>
-      )}
-      {semantic === "WAITING_WAREHOUSE_ACCEPTANCE" && (
-        <button type="button" className="core_button core_button--primary">
-          Tiếp nhận kho
-        </button>
-      )} 
-      {semantic === "CANCELLING" && (
-        <button type="button" className="core_button core_button--primary">
-          Duyệt hủy
-        </button>
-      )}
-    </div>
+        {canCancel && (
+          <button type="button" className="core_button core_button--danger">
+            Huỷ đơn
+          </button>
+        )}
+
+        {/* Nếu ở đơn mới và có đủ hàng KL, tồn kho và đóng mới */}
+        {semantic === "DRAFT" && (
+          <button
+            type="button"
+            className="core_button core_button--primary"
+            disabled={!canPreparePackaging}
+            onClick={() => setIsPreparePackagingConfirmOpen(true)}
+          >
+            Chuẩn bị đóng gói
+          </button>
+        )}
+        {semantic === "WAITING_FOR_APPROVAL" && (
+          <button type="button" className="core_button core_button--primary">
+            Duyệt
+          </button>
+        )}
+        {semantic === "APPROVED_WAITING_ALLOCATION" && (
+          <button type="button" className="core_button core_button--primary">
+            {canFulfillRemaining ? "Xác nhận phân kho" : "Tách đơn & phân kho"}
+          </button>
+        )}
+        {semantic === "REJECTED" && (
+          <button type="button" className="core_button core_button--primary">
+            Gửi duyệt lại
+          </button>
+        )}
+        {semantic === "WAITING_WAREHOUSE_ACCEPTANCE" && (
+          <button type="button" className="core_button core_button--primary">
+            Tiếp nhận kho
+          </button>
+        )}
+        {semantic === "CANCELLING" && (
+          <button type="button" className="core_button core_button--primary">
+            Duyệt hủy
+          </button>
+        )}
+      </div>
+
+      <Modal
+        id="prepare-packaging-confirm-modal"
+        show={isPreparePackagingConfirmOpen}
+        title="Xác nhận chuẩn bị đóng gói"
+        width="md"
+        className="core_modal--stacked"
+        onClose={closePreparePackagingConfirm}
+      >
+        <p className="text-sm text-theme-muted">
+          Bạn có chắc muốn chuẩn bị đóng gói cho đơn hàng này?
+        </p>
+        <form className="core_modal__form" action={confirmPreparePackaging}>
+          <div className="core_modal__actions">
+            <button
+              type="button"
+              className="core_button core_button--secondary"
+              onClick={closePreparePackagingConfirm}
+            >
+              Hủy
+            </button>
+            <FormSubmitButton>Xác nhận</FormSubmitButton>
+          </div>
+        </form>
+      </Modal>
+    </>
   );
 }
 
@@ -444,28 +499,13 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
           </div>
         </div>
       </div>
-      )}
-
-      {(!warehouseSssignments.is_core_available ||
-        !warehouseSssignments.is_packaging_available ||
-        !warehouseSssignments.is_finished_goods_available) && (
-        <div className="section-container mb-6 rounded-xl border border-theme-primary-border p-4">
-          <h6 className="mb-3 text-base font-semibold flex items-center gap-2 text-amber-800">
-            <Icon name="hero-exclamation-triangle" className="size-5 text-amber-600" />
-            Cảnh báo không đủ hàng
-          </h6>
-          <p className="text-sm text-theme-muted">
-          Vui lòng chọn kho hàng khác để đối chiếu.
-          </p>
-        </div>
-      )}
+      )} 
 
       <OrderDetailActions
+        orderId={order.id}
+        warehouseId={warehouseId}
         semantic={getOrderStatusMeta(order.status)?.semantic}
         canFulfillRemaining={warehouseSssignments.can_fulfill_remaining}
-        isCoreAvailable={warehouseSssignments.is_core_available}
-        isFinishedGoodsAvailable={warehouseSssignments.is_finished_goods_available}
-        isPackagingAvailable={warehouseSssignments.is_packaging_available}
         onBack={() => router.push("/orders")}
       />
     </>
