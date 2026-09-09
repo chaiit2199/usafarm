@@ -7,18 +7,24 @@ import { FormSubmitButton } from "@/components/form-submit-button";
 import { Icon } from "@/components/icon";
 import { LoadError } from "@/components/load_error";
 import { Tab } from "@/components/tab";
-import { getWarehouseOrders } from "@/lib/api/production";
+import { getWarehouseOrders, startWarehouseOrder } from "@/lib/api/production";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import type { WarehouseOrder, WarehouseOrderLine } from "@/lib/api/types";
 import { getOrderStatusLabel, orderColor, orderStatus } from "@/lib/constants";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
+import { putFlash } from "@/lib/flash/flash";
 import { formatDateTimeVi } from "@/lib/format/date";
 
 const ORDER_STATUS_TABS = [
   {
     id: orderStatus.waitingWarehouseAcceptance,
-    label: "Chuẩn bị đóng gói",
+    label: "Chờ đóng gói",
     color: "#7C3AED",
+  },
+  {
+    id: orderStatus.processing,
+    label: "Đang đóng gói",
+    color: "#3B82F6",
   },
 ] as const; 
 
@@ -148,8 +154,17 @@ export function PackagingComponent() {
   }
 
   async function confirmStartPackaging() {
-    // TODO: gọi API bắt đầu đóng gói khi có endpoint
+    if (!confirmOrder) return;
+
+    const result = await startWarehouseOrder({ id: confirmOrder.id });
+    if (!result.ok) {
+      putFlash("error", result.message, 1500);
+      return;
+    }
+
     closePackConfirm();
+    putFlash("success", "Đã bắt đầu đóng gói", 1500);
+    setReloadAt((value) => value + 1);
   }
 
   return (

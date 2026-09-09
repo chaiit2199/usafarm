@@ -1,10 +1,14 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 import { client, HttpError } from "@/lib/http/client";
 import type {
   WarehouseOrderResponse,
   WarehouseOrdersResponse,
 } from "@/lib/api/types";
+import { runServerAction } from "@/lib/server-actions";
+import { orderIdSchema } from "@/lib/validate/orders";
 
 export type WarehouseOrdersParams = {
   search?: string;
@@ -44,4 +48,21 @@ export async function getWarehouseOrder(id: number | string) {
           : "Không thể tải chi tiết đơn đóng gói",
     };
   }
+}
+
+export async function startWarehouseOrder(payload: { id: number }) {
+  return runServerAction(
+    orderIdSchema,
+    payload,
+    "Không thể bắt đầu đóng gói",
+    async ({ id }) => {
+      await client.post(`/api/v1/warehouse/orders/${id}/start`, undefined, {
+        headers: {
+          "Idempotency-Key": crypto.randomUUID(),
+        },
+      });
+      revalidatePath("/production/packaging");
+      return { ok: true as const };
+    },
+  );
 }
