@@ -197,7 +197,7 @@ export function UsersComponent({
                     />
                 ) : (
                 <div className="overview-table-wrap">
-                    <div className="overview-table-inner cursor-e-resize">  
+                    <div className="overview-table-inner">  
                         <table className="overview-table min-w-[1400px]" id="users-table">
                             <colgroup>
                                 <col style={{ width: "21%" }} />

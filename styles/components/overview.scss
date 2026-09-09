@@ -397,22 +397,10 @@
 
 .overview-table-wrap { 
   @apply overflow-y-auto overflow-x-hidden rounded-xl; 
-  margin-right: -32px;
-  padding-right: 32px;
-
-  &:not(.style-2) {
-    height: calc(100vh - 310px);
-    min-height: calc(100vh - 310px); 
-  }
-
-  &.style-2 {
-    height: calc(100vh - 420px);
-    min-height: calc(100vh - 420px); 
-  }
 }
 
 .overview-table-inner {
-  @apply overflow-y-hidden overflow-x-auto mb-[15px] rounded-t-xl;
+  @apply overflow-x-auto pb-4 rounded-t-xl min-h-80;
 }
 
 .overview-table {

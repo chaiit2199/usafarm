@@ -56,7 +56,7 @@ export function OrdersTableComponent({ orders }: { orders: Order[] }) {
           <Tab tabs={ORDER_STATUS_TABS} activeTab="all" isScroll />
 
           <div className="overview-table-wrap style-2">
-            <div className="overview-table-inner cursor-e-resize">
+            <div className="overview-table-inner">
               <table className="overview-table min-w-[2000px]" id="orders-table">
                 <colgroup>
                   <col style={{ width: "16%" }} />
@@ -129,7 +129,7 @@ export function OrdersTableComponent({ orders }: { orders: Order[] }) {
                           onClick={() => router.push(`/orders/${child.id}`)}
                         >
                           <td className="overview-table__code">
-                            <span className="inline-flex items-center gap-2 pl-2">
+                            <span className="inline-flex items-center gap-2 pl-4">
                               <Icon name="hero-arrow-turn-down-right" className="size-6 shrink-0 text-theme-muted" />
                               {child.code}
                             </span>

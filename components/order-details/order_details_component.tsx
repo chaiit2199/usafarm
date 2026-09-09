@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 import { Modal, TableHead } from "@/components/core_component";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { Icon } from "@/components/icon";
-import { SelectField } from "@/components/form-fields";
+import { SelectField, RequiredLabel } from "@/components/form-fields";
 import { OrderProductRow } from "@/components/order-details/order_product_row";
 import { OrderStatus } from "@/components/order-details/order_status";
-import { approveOrder, assignOrderWarehouse } from "@/lib/api/orders";
+import { approveOrder, assignOrderWarehouse, rejectOrder } from "@/lib/api/orders";
 import type {
   Order,
   OrderFulfillmentCapacity,
@@ -95,29 +95,49 @@ function OrderDetailActions({
   onBack: () => void;
 }) {
   const router = useRouter();
-  const [confirmAction, setConfirmAction] = useState<OrderStatusId | "">("");
+  const [confirmAction, setConfirmAction] = useState<OrderStatusId | "reject" | "">("");
   const canCancel = statusId != null && CAN_REQUEST_CANCEL.includes(statusId);
   const canPreparePackaging = warehouseId != null;
   const canShowPreparePackaging =
     statusId === orderStatus.draft ||
-    statusId === orderStatus.approvedWaitingAllocation
+    statusId === orderStatus.approvedWaitingAllocation;
+  const isRejectConfirm = confirmAction === "reject";
+  const isApproveConfirm = confirmAction === orderStatus.waitingForApproval;
 
   function closeConfirm() {
     setConfirmAction("");
   }
 
-  async function handleSubmit() {
-    if (statusId == null || warehouseId == null) return;
+  async function handleSubmit(formData: FormData) {
+    if (isRejectConfirm) {
+      await handleRejectOrder(String(formData.get("reason") ?? ""));
+      return;
+    }
+
+    if (isApproveConfirm) {
+      await handleApproveOrder();
+      return;
+    }
+
     if (
       confirmAction === orderStatus.draft ||
       confirmAction === orderStatus.splitOrder ||
       confirmAction === orderStatus.approvedWaitingAllocation
     ) {
       await confirmPreparePackaging();
-    } else if (confirmAction === orderStatus.waitingForApproval) {
-      await handleApproveOrder();
     }
+  }
+
+  async function handleRejectOrder(reason: string) {
+    const result = await rejectOrder({ id: orderId, reason });
+    if (!result.ok) {
+      putFlash("error", result.message, 1500);
+      return;
+    }
+
     closeConfirm();
+    putFlash("success", "Đã từ chối đơn hàng", 1500);
+    router.refresh();
   }
 
   async function handleApproveOrder() {
@@ -157,7 +177,11 @@ function OrderDetailActions({
         </button>
 
         {statusId === orderStatus.waitingForApproval && (
-          <button type="button" className="core_button core_button--danger">
+          <button
+            type="button"
+            className="core_button core_button--danger"
+            onClick={() => setConfirmAction("reject")}
+          >
             Từ chối
           </button>
         )}
@@ -203,7 +227,7 @@ function OrderDetailActions({
           <button type="button" className="core_button core_button--primary">
             Gửi duyệt lại
           </button>
-        )} 
+        )}
         {statusId === orderStatus.cancelling && (
           <button type="button" className="core_button core_button--primary">
             Duyệt hủy
@@ -212,26 +236,42 @@ function OrderDetailActions({
       </div>
 
       <Modal
-        id="prepare-packaging-confirm-modal"
+        id="order-action-confirm-modal"
         show={confirmAction !== ""}
         title={
-          confirmAction === orderStatus.waitingForApproval
-            ? "Xác nhận duyệt đơn hàng"
-            : "Xác nhận chuẩn bị đóng gói"
+          isRejectConfirm
+            ? "Xác nhận từ chối đơn hàng"
+            : isApproveConfirm
+              ? "Xác nhận duyệt đơn hàng"
+              : "Xác nhận chuẩn bị đóng gói"
         }
         width="md"
         className="core_modal--stacked"
         onClose={closeConfirm}
       >
-        {confirmAction === orderStatus.waitingForApproval ? (
-          <p className="text-sm text-theme-muted">Bạn có chắc muốn duyệt đơn hàng này?</p>
-        ) : (
-          <p className="text-sm text-theme-muted">
-            Bạn có chắc muốn chuẩn bị đóng gói cho đơn hàng này?
-          </p>
-        )}
-
         <form className="core_modal__form" action={handleSubmit}>
+          {isRejectConfirm ? (
+            <div className="core_field">
+              <label htmlFor="reject-order-reason" className="core_label">
+                <RequiredLabel>Lý do từ chối</RequiredLabel>
+              </label>
+              <textarea
+                id="reject-order-reason"
+                name="reason"
+                rows={3}
+                required
+                placeholder="Nhập lý do từ chối"
+                className="core_input core_input--textarea w-full"
+              />
+            </div>
+          ) : isApproveConfirm ? (
+            <p className="text-sm text-theme-muted">Bạn có chắc muốn duyệt đơn hàng này?</p>
+          ) : (
+            <p className="text-sm text-theme-muted">
+              Bạn có chắc muốn chuẩn bị đóng gói cho đơn hàng này?
+            </p>
+          )}
+
           <div className="core_modal__actions">
             <button
               type="button"
@@ -240,7 +280,7 @@ function OrderDetailActions({
             >
               Hủy
             </button>
-            <FormSubmitButton>Xác nhận</FormSubmitButton>
+            <FormSubmitButton>{isRejectConfirm ? "Từ chối" : "Xác nhận"}</FormSubmitButton>
           </div>
         </form>
       </Modal>
@@ -308,7 +348,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
 
   return (
     <>
-      {statusId !== orderStatus.splitOrder && (
+      {(statusId === orderStatus.draft) && (
         <OrderStatus
           status={order.status}
           createdAt={order.created_at}
@@ -416,7 +456,6 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
         </section>
       </div>
 
-      {statusId !== orderStatus.splitOrder && (
         <div className="section-container mb-6">
           <h6 className="mb-3 text-base font-semibold flex items-center gap-2">
             <Icon name="hero-building-storefront" className="size-5 text-theme-primary" />
@@ -427,6 +466,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
             id="order-fulfillment-warehouse"
             name="warehouse_id"
             label=""
+            disabled={statusId !== orderStatus.draft}
             value={warehouseId != null ? String(warehouseId) : ""}
             required
             onChange={(event) => {
@@ -444,7 +484,6 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
             ))}
           </SelectField>
         </div>
-      )}
 
       <section className="section-container mb-6">
         <h6 className="mb-3 text-base font-semibold flex items-center gap-2">
