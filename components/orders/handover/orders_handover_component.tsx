@@ -247,7 +247,7 @@ export function OrdersHandoverComponent() {
                   <TableHead icon="hero-document-text">Số phiếu xuất</TableHead>
                   <TableHead icon="hero-truck">Xe nhận hàng</TableHead>
                   <TableHead icon="hero-tag">Trạng thái</TableHead>
-                  <TableHead className="actions">Thao tác</TableHead>
+                  <TableHead className="actions"></TableHead>
                 </tr>
               </thead>
               <tbody>

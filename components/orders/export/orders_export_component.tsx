@@ -288,7 +288,7 @@ export function OrdersExportComponent() {
                   <TableHead icon="hero-users">Khách hàng</TableHead>
                   <TableHead icon="hero-cube">Sản phẩm trong đơn</TableHead>
                   <TableHead>Tổng SL (bao)</TableHead>
-                  <TableHead className="actions">Thao tác</TableHead>
+                  <TableHead className="actions"></TableHead>
                 </tr>
               </thead>
               <tbody>

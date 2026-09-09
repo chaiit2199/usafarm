@@ -45,15 +45,19 @@ export const MENU: Navbar[] = [
         id: "warehouses",
         label: "Nền tảng gốc — cấu hình kho bãi để gán số dư độc lập cho các phân hệ sau",
         href: "/warehouse",
-        icon: "hero-building-office-2",
+        icon: "hero-inbox-stack",
         title: "Quản lý kho hàng",
+        create: true,
+        search: true,
       },
       {
-        id: "packaging-stock",
-        label: "Theo dõi tồn kho theo vị trí bãi chứa và quyền sở hữu bao bì",
+        id: "packaging",
+        label: "Thêm mới mẫu bao bì và gán vào nhóm hàng",
         href: "/warehouse/packaging",
         icon: "hero-archive-box",
-        title: "Quản lý vỏ bao",
+        title: "Quản lý bao bì",
+        create: true,
+        search: true,
       },
       {
         id: "raw-materials",
@@ -61,6 +65,8 @@ export const MENU: Navbar[] = [
         href: "/warehouse/ingredients",
         icon: "hero-beaker",
         title: "Quản lý nguyên liệu",
+        create: true,
+        search: true,
       },
       {
         id: "finished-goods",
@@ -68,6 +74,8 @@ export const MENU: Navbar[] = [
         href: "/warehouse/finished-goods",
         icon: "hero-cube",
         title: "Tồn kho thành phẩm",
+        search: true,
+        create: true,
       },
     ],
   },
@@ -76,14 +84,7 @@ export const MENU: Navbar[] = [
     label: "Sản phẩm",
     title: "Sản phẩm",
     icon: "hero-cube",
-    children: [
-      {
-        id: "cost-management",
-        label: "Thêm nguyên liệu vào kho",
-        href: "/products/cost-management",
-        icon: "hero-puzzle-piece",
-        title: "Quản lý nguyên liệu",
-      },
+    children: [ 
       {
         id: "quantification",
         label: "Định lượng nguyên liệu",
@@ -111,16 +112,7 @@ export const MENU: Navbar[] = [
         href: "/products/seeds",
         icon: "hero-swatch",
         title: "Quản lý loại hạt",
-      },
-      {
-        id: "packaging",
-        label: "Thêm mới mẫu bao bì và gán vào nhóm hàng",
-        href: "/products/packaging",
-        icon: "hero-archive-box",
-        title: "Quản lý bao bì",
-        create: true,
-        search: true,
-      },
+      }, 
       {
         id: "product",
         label:
