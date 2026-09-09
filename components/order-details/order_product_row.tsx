@@ -31,10 +31,7 @@ function ProductCapacityPanel({ capacity , line }: { capacity?: OrderFulfillment
   } 
 
   return (
-    <div className="px-4 py-3">
-      <p className="mb-2 text-sm font-semibold text-theme-base-content">
-        Năng lực kho — {capacity.warehouse_name}
-      </p>
+    <div className="px-4 py-3"> 
       <div className="overview-table-inner theme-primary-border">
         <table className="overview-table min-w-full">
             <colgroup>
@@ -102,6 +99,8 @@ function ProductCapacityPanel({ capacity , line }: { capacity?: OrderFulfillment
                     <td>
                       {capacity.is_finished_goods_available ? (
                         <span className="status status--active">Đi hàng tồn kho</span>
+                      ) : capacity.finished_goods_available <= 0 ? (
+                        <span className="status status--active">Không đủ hàng</span>
                       ) : (
                         <span className="status status--rejected">Cần đóng mới</span>
                       )}

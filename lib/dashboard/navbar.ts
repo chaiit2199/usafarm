@@ -157,6 +157,7 @@ export const MENU: Navbar[] = [
         href: "/production/packaging",
         icon: "hero-shopping-bag",
         title: "Theo dõi đóng gói",
+        search: true,
       },
       {
         id: "stock-export",

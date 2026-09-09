@@ -19,6 +19,7 @@ const STEP_ICONS: Record<OrderStatusSemantic, IconName> = {
   PROCESSING: "hero-cube",
   CANCELLING: "hero-hand-raised",
   COMPLETED: "hero-clipboard-document-check",
+  COMPLETED_PARTIAL_CANCEL: "hero-clipboard-document-check",
   CANCELLED: "hero-x-mark",
 };
 
@@ -26,6 +27,7 @@ const TERMINALS = new Set<OrderStatusSemantic>([
   "REJECTED",
   "CANCELLING",
   "COMPLETED",
+  "COMPLETED_PARTIAL_CANCEL",
   "CANCELLED",
 ]);
 
@@ -101,7 +103,7 @@ export function OrderStatus({ status, createdAt, updatedAt }: OrderStatusProps) 
             const time = isDone || isCurrent ? (index === 0 ? createdLabel : updatedLabel) : "Chờ xử lý";
 
             return (
-              <div key={step.semantic} className="flex flex-col items-center text-center gap-2">
+              <div key={step.id} className="flex flex-col items-center text-center gap-2">
                 <div
                   className={`flex size-11 items-center justify-center rounded-xl ${iconBoxClass(isCurrent, isDone, isAlert)}`}
                 >

@@ -79,6 +79,7 @@ export const ORDER_STATUSES = [
   { id: 5, semantic: "PROCESSING", label: "Đang xử lý", color: "#7C3AED" },
   { id: 6, semantic: "CANCELLING", label: "Đang xử lý hủy", color: "#EA580C" },
   { id: 7, semantic: "COMPLETED", label: "Hoàn thành", color: "#3B7A57" },
+  { id: 8, semantic: "COMPLETED_PARTIAL_CANCEL", label: "Hoàn thành, có hủy một phần", color: "#3B7A57" },
   { id: 9, semantic: "CANCELLED", label: "Đã hủy", color: "#DC2626" },
 ] as const;
 
