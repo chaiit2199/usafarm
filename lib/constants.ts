@@ -81,6 +81,7 @@ export const ORDER_STATUSES = [
   { id: 7, semantic: "COMPLETED", label: "Hoàn thành", color: "#3B7A57" },
   { id: 8, semantic: "COMPLETED_PARTIAL_CANCEL", label: "Hoàn thành, có hủy một phần", color: "#3B7A57" },
   { id: 9, semantic: "CANCELLED", label: "Đã hủy", color: "#DC2626" },
+  { id: 10, semantic: "SPLIT_ORDER", label: "Tách đơn", color: "#64748B" },
 ] as const;
 
 export type OrderStatusId = (typeof ORDER_STATUSES)[number]["id"];
