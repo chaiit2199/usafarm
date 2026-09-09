@@ -30,7 +30,7 @@ export default function DashboardPage() {
       </section>
 
       <div className="flex gap-6">
-        <article className="overview-card overview-card--chart min-w-[500px] max-w-[500px]" id="overview-order-chart">
+        <article className="overview-card overview-card--chart min-w-[550px] max-w-[550px]" id="overview-order-chart">
           <div className="overview-card__head">
             <div className="overview-card__heading">
               <Icon name="hero-chart-pie" className="overview-card__icon" />
@@ -52,38 +52,40 @@ export default function DashboardPage() {
             </Link>
           </div>
           <div className="overview-table-wrap">
-            <table className="overview-table">
-              <thead>
-                <tr>
-                  <TableHead icon="hero-clipboard-document-list">Mã đơn hàng</TableHead>
-                  <TableHead icon="hero-building-storefront">Đại lý</TableHead>
-                  <TableHead icon="hero-banknotes" className="is-num">Tổng tiền</TableHead>
-                  <TableHead icon="hero-tag" className="is-center">Trạng thái</TableHead>
-                  <TableHead icon="hero-calendar-days" className="is-muted">Ngày tạo</TableHead>
-                </tr>
-              </thead>
-              <tbody>
-                {RECENT_ORDERS.map((order) => (
-                  <tr key={order.code} id={`order-${order.code}`}>
-                    <td className="overview-table__code">{order.code}</td>
-                    <td>{order.agent}</td>
-                    <td className="is-num overview-table__money">{order.total}</td>
-                    <td className="is-center">
-                      <span className={`orders-badge orders-badge--${order.status}`}>
-                        {order.status === "completed"
-                          ? "Hoàn thành"
-                          : order.status === "processing"
-                            ? "Đang xử lý"
-                            : order.status === "shipping"
-                              ? "Đang giao"
-                              : "Hủy"}
-                      </span>
-                    </td>
-                    <td className="overview-table__muted">{order.date}</td>
+            <div className="overview-table-inner">
+              <table className="overview-table min-w-[1000px]">
+                <thead>
+                  <tr>
+                    <TableHead icon="hero-clipboard-document-list">Mã đơn hàng</TableHead>
+                    <TableHead icon="hero-building-storefront">Đại lý</TableHead>
+                    <TableHead icon="hero-banknotes" className="is-num">Tổng tiền</TableHead>
+                    <TableHead icon="hero-tag" className="is-center">Trạng thái</TableHead>
+                    <TableHead icon="hero-calendar-days" className="is-muted">Ngày tạo</TableHead>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {RECENT_ORDERS.map((order) => (
+                    <tr key={order.code} id={`order-${order.code}`}>
+                      <td className="overview-table__code">{order.code}</td>
+                      <td>{order.agent}</td>
+                      <td className="is-num overview-table__money">{order.total}</td>
+                      <td className="is-center">
+                        <span className={`orders-badge orders-badge--${order.status}`}>
+                          {order.status === "completed"
+                            ? "Hoàn thành"
+                            : order.status === "processing"
+                              ? "Đang xử lý"
+                              : order.status === "shipping"
+                                ? "Đang giao"
+                                : "Hủy"}
+                        </span>
+                      </td>
+                      <td className="overview-table__muted">{order.date}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </article>
       </div>
@@ -110,42 +112,51 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="overview-table-wrap">
-            <table className="overview-table overview-table--sellers">
-              <thead>
-                <tr>
-                  <TableHead icon="hero-chart-bar" className="is-center">Hạng</TableHead>
-                  <TableHead icon="hero-users">Nhân viên</TableHead>
-                  <TableHead icon="hero-map-pin">Khu vực</TableHead>
-                  <TableHead icon="hero-shopping-cart" className="is-num">Số đơn</TableHead>
-                  <TableHead icon="hero-currency-dollar" className="is-num">Doanh thu</TableHead>
-                </tr>
-              </thead>
-              <tbody>
-                {TOP_SALES.map((staff) => (
-                  <tr key={staff.code} id={`top-sales-${staff.code}`}>
-                    <td className="is-center">
-                      <span className={["overview-rank", staff.rank <= 3 && "overview-rank--top"].filter(Boolean).join(" ")}>
-                        {staff.rank}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="overview-seller">
-                        <span className="overview-seller__avatar" style={{ background: staff.avatar }}>
-                          {staff.initials}
-                        </span>
-                        <div className="overview-seller__meta">
-                          <span className="overview-seller__name">{staff.name}</span>
-                          <span className="overview-seller__code">{staff.code}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td>{staff.region}</td>
-                    <td className="is-num">{staff.orders}</td>
-                    <td className="is-num overview-table__money">{staff.revenue}</td>
+            <div className="overview-table-inner">
+              <table className="overview-table overview-table--sellers min-w-[800px]">
+                <colgroup>
+                  <col style={{ width: "10%" }} />
+                  <col style={{ width: "30%" }} />
+                  <col style={{ width: "20%" }} />
+                  <col style={{ width: "20%" }} />
+                  <col style={{ width: "20%" }} />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <TableHead icon="hero-chart-bar" className="is-center">Hạng</TableHead>
+                    <TableHead icon="hero-users">Nhân viên</TableHead>
+                    <TableHead icon="hero-map-pin">Khu vực</TableHead>
+                    <TableHead icon="hero-shopping-cart" className="is-num">Số đơn</TableHead>
+                    <TableHead icon="hero-currency-dollar" className="is-num">Doanh thu</TableHead>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {TOP_SALES.map((staff) => (
+                    <tr key={staff.code} id={`top-sales-${staff.code}`}>
+                      <td className="is-center">
+                        <span className={["overview-rank", staff.rank <= 3 && "overview-rank--top"].filter(Boolean).join(" ")}>
+                          {staff.rank}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="overview-seller">
+                          <span className="overview-seller__avatar" style={{ background: staff.avatar }}>
+                            {staff.initials}
+                          </span>
+                          <div className="overview-seller__meta">
+                            <span className="overview-seller__name">{staff.name}</span>
+                            <span className="overview-seller__code">{staff.code}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{staff.region}</td>
+                      <td className="is-num">{staff.orders}</td>
+                      <td className="is-num overview-table__money">{staff.revenue}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </article>
       </div>

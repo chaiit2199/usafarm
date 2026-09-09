@@ -9,7 +9,7 @@ type Slice = {
   color: string;
 };
 
-const PIE = { size: 220, rOuter: 95, rInner: 58 };
+const PIE = { size: 200, rOuter: 95, rInner: 58 };
 
 function polar(cx: number, cy: number, r: number, angleDeg: number) {
   const rad = ((angleDeg - 90) * Math.PI) / 180;
