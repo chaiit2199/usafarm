@@ -20,9 +20,7 @@ const ORDER_STATUS_TABS = [
     label: "Chuẩn bị đóng gói",
     color: "#7C3AED",
   },
-] as const;
-
-const ORDER_TABLE_COL_SPAN = 10;
+] as const; 
 
 type StatusTabId = (typeof ORDER_STATUS_TABS)[number]["id"];
 
@@ -67,8 +65,8 @@ function PackagingOrderLines({ lines }: { lines: WarehouseOrderLine[] }) {
               <TableHead>SKU</TableHead>
               <TableHead icon="hero-cube">Tên sản phẩm</TableHead>
               <TableHead>Số lượng cần</TableHead>
-              <TableHead>Đã đóng</TableHead>
-              <TableHead icon="hero-circle-stack">TP / Đóng mới</TableHead>
+              <TableHead>Tồn kho</TableHead>
+              <TableHead icon="hero-circle-stack">Đóng mới</TableHead>
             </tr>
           </thead>
           <tbody>
@@ -80,7 +78,7 @@ function PackagingOrderLines({ lines }: { lines: WarehouseOrderLine[] }) {
                 <td className="is-num overview-table__muted">{line.quantity}</td>
                 <td className="is-num overview-table__muted">{line.packed_quantity}</td>
                 <td className="is-num overview-table__muted">
-                  {line.finished_goods_quantity} / {line.pack_new_quantity}
+                  {line.pack_new_quantity}
                 </td>
               </tr>
             ))}
@@ -197,7 +195,6 @@ export function PackagingComponent() {
                       <col style={{ width: "10%" }} />
                       <col style={{ width: "14%" }} />
                       <col style={{ width: "14%" }} />
-                      <col style={{ width: "10%" }} />
                       <col style={{ width: "8%" }} />
                       <col style={{ width: "8%" }} />
                     </colgroup>
@@ -210,7 +207,6 @@ export function PackagingComponent() {
                         <TableHead icon="hero-tag">Trạng thái</TableHead>
                         <TableHead icon="hero-building-storefront">Kho</TableHead>
                         <TableHead icon="hero-users">Đại lý</TableHead>
-                        <TableHead icon="hero-circle-stack">TP / Đóng mới</TableHead>
                         <TableHead icon="hero-calendar-days">Bắt đầu</TableHead>
                         <TableHead className="actions" />
                       </tr>
@@ -247,10 +243,7 @@ export function PackagingComponent() {
                                 <OrderStatusBadge status={order.status} />
                               </td>
                               <td>{order.warehouse_name}</td>
-                              <td className="overview-table__muted">{order.agency_name}</td>
-                              <td className="is-num overview-table__muted">
-                                {order.finished_goods_quantity} / {order.pack_new_quantity}
-                              </td>
+                              <td className="overview-table__muted">{order.agency_name}</td> 
                               <td className="overview-table__muted">
                                 {formatDateTimeVi(order.started_at || order.created_at)}
                               </td>
@@ -265,7 +258,7 @@ export function PackagingComponent() {
 
                             {expanded && (
                               <tr className="td-collapse">
-                                <td colSpan={ORDER_TABLE_COL_SPAN}>
+                                <td colSpan={9}>
                                   <PackagingOrderLines lines={order.lines} />
                                 </td>
                               </tr>
