@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { Dashboard, TableSkeleton } from "@/components/dashboard";
 import { pageMetadata } from "@/lib/dashboard/navbar";
 import { OrdersComponent } from "@/components/orders/orders_component";
-import { getOrders, getOrderSummary } from "@/lib/api/orders";
+import { getOrderSummary } from "@/lib/api/orders";
 
 import { catchPageLoadError } from "@/lib/catch-page-load";
 
@@ -25,12 +25,9 @@ export default async function Page() {
 
 async function OrdersData() {
   try {
-    const [orders, summary] = await Promise.all([getOrders(), getOrderSummary()]);
+    const summary = await getOrderSummary();
     return (
-      <OrdersComponent
-        orders={orders.ok ? (orders.data ?? []) : []}
-        summary={summary.ok ? (summary.data ?? null) : null}
-      />
+      <OrdersComponent summary={summary.ok ? (summary.data ?? null) : null} />
     );
   } catch (error) {
     return catchPageLoadError(error);

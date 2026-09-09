@@ -47,6 +47,7 @@
 }
 
 .header__search-input {
+  padding-right: 24px;
   flex: 1;
   min-width: 0;
   border: 0;
@@ -68,7 +69,7 @@
 }
 
 .header__search-clear {
-  @apply flex items-center justify-center size-6 shrink-0 rounded-full border-0 bg-white rounded-xl text-theme-primary-content cursor-pointer transition-colors;
+  @apply flex items-center justify-center size-4 shrink-0 rounded-full border-0 bg-white rounded-xl text-theme-primary-content cursor-pointer transition-colors;
 }
 
 .header__search-clear:hover {

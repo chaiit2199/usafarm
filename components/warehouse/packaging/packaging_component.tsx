@@ -91,12 +91,14 @@ function PackingDetailsModalForm({
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const lines: CompletePackLinePayload[] = order.lines.map((line) => ({
-      order_line_id: line.id,
-      actual_packed_quantity: normalizePackedQty(qtys[line.id] ?? 0, lineRemaining(line)),
-    }));
+    const lines: CompletePackLinePayload[] = order.lines
+      .map((line) => ({
+        order_line_id: line.id,
+        actual_packed_quantity: normalizePackedQty(qtys[line.id] ?? 0, lineRemaining(line)),
+      }))
+      .filter((line) => line.actual_packed_quantity > 0);
 
-    if (lines.every((line) => line.actual_packed_quantity <= 0)) return;
+    if (lines.length === 0) return;
 
     onRequestComplete({ lines });
   }
@@ -117,11 +119,11 @@ function PackingDetailsModalForm({
             <colgroup>
               <col style={{ width: "4%" }} />
               <col style={{ width: "18%" }} />
-              <col style={{ width: "32%" }} />
+              <col style={{ width: "30%" }} />
               <col style={{ width: "12%" }} />
               <col style={{ width: "12%" }} />
               <col style={{ width: "12%" }} />
-              <col style={{ width: "10%" }} />
+              <col style={{ width: "12%" }} />
             </colgroup>
             <thead>
               <tr>
@@ -146,16 +148,20 @@ function PackingDetailsModalForm({
                     <td className="is-num overview-table__muted">{line.packed_quantity}</td>
                     <td className="is-num overview-table__muted">{remaining}</td>
                     <td className="is-num">
-                      <input
-                        id={`complete-pack-qty-${order.id}-${line.id}`}
-                        type="number"
-                        min={0}
-                        max={remaining}
-                        disabled={remaining <= 0}
-                        value={qtys[line.id] ?? 0}
-                        className="core_input w-full text-right"
-                        onChange={(event) => setLineQty(line, Number(event.target.value))}
-                      />
+                      {remaining == 0 ? (
+                        <span className="status status--active">Đủ hàng</span>
+                      ) : (
+                        <input
+                          id={`complete-pack-qty-${order.id}-${line.id}`}
+                          type="number"
+                          min={0}
+                          max={remaining}
+                          disabled={remaining <= 0}
+                          value={qtys[line.id] ?? 0}
+                          className="core_input w-full text-right"
+                          onChange={(event) => setLineQty(line, Number(event.target.value))}
+                        />
+                      )} 
                     </td>
                   </tr>
                 );
@@ -312,9 +318,12 @@ export function PackagingComponent() {
   async function confirmCompletePackaging() {
     if (!detailsOrder || !completePayload) return;
 
+    const lines = completePayload.lines.filter((line) => line.actual_packed_quantity > 0);
+    if (lines.length === 0) return;
+
     const result = await completeWarehouseOrderPacking({
       id: detailsOrder.id,
-      lines: completePayload.lines,
+      lines,
     });
     if (!result.ok) {
       putFlash("error", result.message, 1500);
