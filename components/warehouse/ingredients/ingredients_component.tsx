@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Modal, Pagination, TableHead } from "@/components/core_component";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
-import { OrdersSummaryComponent } from "@/components/warehouse/ingredients/ingredients_summary_component";
+import { IngredientsSummaryComponent } from "@/components/warehouse/ingredients/ingredients_summary_component";
 import { Icon } from "@/components/icon";
 
 type Ingredient = {
@@ -168,7 +168,7 @@ export function IngredientsComponent() {
 
   return (
     <>
-      <OrdersSummaryComponent />
+      <IngredientsSummaryComponent />
       <section className="section" id="warehouse-ingredients-section">
         <div className="section-container section-table mb-6">
           <div className="overview-table-wrap">

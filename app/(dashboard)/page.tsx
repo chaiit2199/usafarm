@@ -29,7 +29,7 @@ export default function DashboardPage() {
         ))}
       </section>
 
-      {/* <div className="flex gap-6">
+      <div className="flex gap-6">
         <article className="overview-card overview-card--chart min-w-[500px] max-w-[500px]" id="overview-order-chart">
           <div className="overview-card__head">
             <div className="overview-card__heading">
@@ -86,9 +86,9 @@ export default function DashboardPage() {
             </table>
           </div>
         </article>
-      </div> */}
+      </div>
 
-      {/* <div className="overview__grid">
+      <div className="overview__grid">
         <article className="overview-card overview-card--sales" id="overview-sales-chart">
           <div className="overview-card__head">
             <div className="overview-card__heading">
@@ -148,7 +148,7 @@ export default function DashboardPage() {
             </table>
           </div>
         </article>
-      </div> */}
+      </div>
     </main>
   );
 }
