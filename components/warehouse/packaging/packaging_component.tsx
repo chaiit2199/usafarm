@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useState } from "react";
 
-import { EmptyData, Modal, Pagination, TableHead, TableLoading } from "@/components/core_component";
+import { EmptyData, Dropdown, Modal, Pagination, TableHead, TableLoading, useDropdownClose } from "@/components/core_component";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { Icon } from "@/components/icon";
 import { LoadError } from "@/components/load_error";
@@ -26,9 +26,18 @@ const ORDER_STATUS_TABS = [
     label: "Đang đóng gói",
     color: "#3B82F6",
   },
-] as const; 
+] as const;
 
 type StatusTabId = (typeof ORDER_STATUS_TABS)[number]["id"];
+
+function remainingQuantity(order: WarehouseOrder) {
+  return Math.max(0, order.total_quantity - order.packed_quantity);
+}
+
+function normalizePackedQty(raw: number, remaining: number) {
+  if (!Number.isFinite(raw) || raw <= 0) return 0;
+  return Math.min(Math.floor(raw), remaining);
+}
 
 function OrderStatusBadge({ status }: { status: number }) {
   const label = getOrderStatusLabel(status);
@@ -45,6 +54,75 @@ function OrderStatusBadge({ status }: { status: number }) {
     >
       {label}
     </span>
+  );
+}
+
+function CompletePackForm({ order }: { order: WarehouseOrder }) {
+  const closeDropdown = useDropdownClose();
+  const remaining = remainingQuantity(order);
+
+  function clampInput(event: React.ChangeEvent<HTMLInputElement>) {
+    const next = Number(event.target.value);
+    if (Number.isFinite(next) && next > remaining) {
+      event.target.value = String(remaining);
+    }
+  }
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const qty = normalizePackedQty(Number(formData.get("packed_quantity")), remaining);
+    if (qty <= 0) return;
+
+    console.log("packed_quantity", qty, "order", order.id, "code", order.code);
+    closeDropdown?.();
+  }
+
+  return (
+    <li className="px-3 py-3 min-w-64" onClick={(event) => event.stopPropagation()}>
+      <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
+        <label htmlFor={`packed-qty-${order.id}`} className="core_label text-xs">
+          Nhập số lượng đã đóng gói
+        </label>
+        <p className="text-xs text-theme-muted mb-0">Còn lại tối đa: {remaining}</p>
+        <input
+          id={`packed-qty-${order.id}`}
+          name="packed_quantity"
+          type="number"
+          min={1}
+          max={remaining}
+          required
+          disabled={remaining <= 0}
+          defaultValue={remaining > 0 ? remaining : undefined}
+          className="core_input w-full"
+          placeholder="Nhập số lượng"
+          onChange={clampInput}
+        />
+        <button
+          type="submit"
+          className="core_button core_button--primary w-full"
+          disabled={remaining <= 0}
+        >
+          Xác nhận
+        </button>
+      </form>
+    </li>
+  );
+}
+
+function CompletePackDropdown({ order }: { order: WarehouseOrder }) {
+  return (
+    <Dropdown
+      placement="bottom-right"
+      label={
+        <span className="btn btn--primary inline-flex items-center gap-1.5">
+          <Icon name="hero-forward" className="size-4 shrink-0" />
+          <span>Hoàn thành</span>
+        </span>
+      }
+    >
+      <CompletePackForm order={order} />
+    </Dropdown>
   );
 }
 
@@ -252,7 +330,7 @@ export function PackagingComponent() {
                               <td className="overview-table__code">{order.code}</td>
                               <td className="overview-table__muted">{order.total_quantity}</td>
                               <td className="is-num overview-table__muted">
-                                {order.packed_quantity}
+                                {order.packed_quantity} / {order.total_quantity}
                               </td>
                               <td>
                                 <OrderStatusBadge status={order.status} />
@@ -263,11 +341,15 @@ export function PackagingComponent() {
                                 {formatDateTimeVi(order.started_at || order.created_at)}
                               </td>
                               <td className="actions"> 
-                                <button onClick={() => setConfirmOrder(order)}
-                                className="btn btn--primary">
-                                  <Icon name="hero-forward" className="size-4 shrink-0" />
-                                  <span>Đóng gói</span>
-                                </button>
+                                {order.status === orderStatus.waitingWarehouseAcceptance ? (
+                                  <button onClick={() => setConfirmOrder(order)}
+                                  className="btn btn--primary">
+                                    <Icon name="hero-forward" className="size-4 shrink-0" />
+                                    <span>Đóng gói</span>
+                                  </button>
+                                ) : (
+                                  <CompletePackDropdown order={order} />
+                                )}
                               </td>
                             </tr>
 
