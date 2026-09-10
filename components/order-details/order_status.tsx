@@ -22,6 +22,8 @@ const STEP_ICONS: Record<OrderStatusId, IconName> = {
   [orderStatus.completedPartialCancel]: "hero-clipboard-document-check",
   [orderStatus.cancelled]: "hero-x-mark",
   [orderStatus.splitOrder]: "hero-document-duplicate",
+  [orderStatus.approvedWaitingShipment]: "hero-truck",
+  [orderStatus.approvedWaitingGoodsIssue]: "hero-archive-box-arrow-down",
 };
 
 const TERMINALS = new Set<OrderStatusId>([

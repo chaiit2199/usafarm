@@ -102,6 +102,8 @@ export const orderStatus = {
   completedPartialCancel: 8,
   cancelled: 9,
   splitOrder: 10,
+  approvedWaitingShipment: 11,
+  approvedWaitingGoodsIssue: 12,
 } as const satisfies Record<string, OrderStatusId>;
 
 export type OrderStatusInput = number | { code: number; semantic?: string; label?: string };
