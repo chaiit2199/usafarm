@@ -105,7 +105,7 @@ export class Client {
         headers: {
           ...headers,
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          ...(isFormData ? { "Content-Type": false as unknown as string } : {}),
+          ...(isFormData ? {} : { "Content-Type": "application/json" }),
         },
       });
 
@@ -195,7 +195,7 @@ export const client = new Client({
   timeout: 10_000,
   headers: {
     Accept: "application/json",
-    "Content-Type": "application/json",
     "Cache-Control": "no-store",
+    "X-Client-Via": "W",
   },
 });

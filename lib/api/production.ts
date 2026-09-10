@@ -144,9 +144,11 @@ export async function uploadGoodsIssueImages(formData: FormData) {
       for (const file of files) {
         const body = new FormData();
         body.append("file", file);
-        console.log("formDataformData", formData);
+        const ok = await client.post(`/api/v1/warehouse/goods-issues/${id}/images`, body, {
+          timeout: 60_000,
+        });
         await client.post(`/api/v1/warehouse/goods-issues/${id}/images`, body, {
-          timeout: 60_000, 
+          timeout: 60_000,
         });
       }
       revalidatePath("/production/handover");
