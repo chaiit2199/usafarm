@@ -34,9 +34,17 @@ function lineRemaining(line: WarehouseOrderLine) {
   return Math.max(0, line.quantity - line.packed_quantity);
 }
 
-function normalizePackedQty(raw: number, max: number) {
+function clampQty(raw: number, max: number) {
   if (!Number.isFinite(raw) || raw < 0) return 0;
   return Math.min(Math.floor(raw), max);
+}
+
+function addedQty(line: WarehouseOrderLine, raw: number) {
+  return clampQty(raw, lineRemaining(line));
+}
+
+function actualPackedQuantity(line: WarehouseOrderLine, added: number) {
+  return clampQty(line.packed_quantity + added, line.quantity);
 }
 
 type CompletePackLinePayload = {
@@ -79,24 +87,26 @@ function PackingDetailsModalForm({
     Object.fromEntries(order.lines.map((line) => [line.id, lineRemaining(line)])),
   );
 
-
   function setLineQty(line: WarehouseOrderLine, raw: number) {
-    const max = lineRemaining(line);
     setQtys((current) => ({
       ...current,
-      [line.id]: normalizePackedQty(raw, max),
+      [line.id]: addedQty(line, raw),
     }));
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const lines: CompletePackLinePayload[] = order.lines
-      .map((line) => ({
+    const lines: CompletePackLinePayload[] = [];
+    for (const line of order.lines) {
+      const added = addedQty(line, qtys[line.id] ?? 0);
+      if (added <= 0) continue;
+
+      lines.push({
         order_line_id: line.id,
-        actual_packed_quantity: normalizePackedQty(qtys[line.id] ?? 0, lineRemaining(line)),
-      }))
-      .filter((line) => line.actual_packed_quantity > 0);
+        actual_packed_quantity: actualPackedQuantity(line, added),
+      });
+    }
 
     if (lines.length === 0) return;
 
@@ -148,7 +158,7 @@ function PackingDetailsModalForm({
                     <td className="is-num overview-table__muted">{line.packed_quantity}</td>
                     <td className="is-num overview-table__muted">{remaining}</td>
                     <td className="is-num">
-                      {remaining == 0 ? (
+                      {remaining === 0 ? (
                         <span className="status status--active">Đủ hàng</span>
                       ) : (
                         <input
