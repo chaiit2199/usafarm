@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
+import { Dashboard, TableSkeleton } from "@/components/dashboard";
 import { HeaderPageMeta } from "@/components/header_meta";
+import { PageLoadError } from "@/components/load_error";
 import { OrderDetailsComponent } from "@/components/order-details/order_details_component";
 import { getOrderDetail } from "@/lib/api/orders";
+import { catchPageLoadError } from "@/lib/catch-page-load";
 import { pageMetadata } from "@/lib/dashboard/navbar";
-import { Suspense } from "react";
-import { Dashboard, TableSkeleton } from "@/components/dashboard";
 
 type PageProps = {
   params: Promise<{ code: string }>;
@@ -18,25 +20,33 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Page({ params }: PageProps) {
   const { code } = await params;
-  const result = await getOrderDetail(code);
 
   return (
     <>
-      <HeaderPageMeta
-        href="/orders"
-        subpage={result.ok ? result.data.order.code : code}
-      />
+      <HeaderPageMeta href="/orders" subpage={code} />
       <Dashboard id="order-detail-main">
-        <Suspense fallback={<TableSkeleton />}> 
-          {result.ok && (
-            <OrderDetailsComponent
-              order={result.data.order}
-              fulfillmentCapacity={result.data.fulfillment}
-            />
-          )}
+        <Suspense fallback={<TableSkeleton />}>
+          <OrderDetailData code={code} />
         </Suspense>
-       
       </Dashboard>
     </>
   );
+}
+
+async function OrderDetailData({ code }: { code: string }) {
+  try {
+    const result = await getOrderDetail(code);
+    if (!result.ok) {
+      return <PageLoadError message={result.message} />;
+    }
+
+    return (
+      <OrderDetailsComponent
+        order={result.data.order}
+        fulfillmentCapacity={result.data.fulfillment}
+      />
+    );
+  } catch (error) {
+    return catchPageLoadError(error);
+  }
 }

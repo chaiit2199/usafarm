@@ -1,37 +1,37 @@
 "use client";
 
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 
-import { Modal, Pagination, TableHead } from "@/components/core_component";
+import {
+  EmptyData,
+  Modal,
+  Pagination,
+  TableHead,
+  TableLoading,
+} from "@/components/core_component";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { Icon } from "@/components/icon";
 import { RequiredLabel } from "@/components/form-fields";
+import { LoadError } from "@/components/load_error";
+import { getWarehouseOrders, uploadGoodsIssueImages } from "@/lib/api/production";
+import { totalPagesFromMeta } from "@/lib/api/pagination";
+import type { GoodsIssue, WarehouseOrder } from "@/lib/api/types";
+import { getOrderStatusLabel, orderColor } from "@/lib/constants";
+import { putFlash } from "@/lib/flash/flash";
 
-type HandoverOrder = {
-  id: number;
-  code: string;
-  exportSlipCode: string;
-  vehicle: string;
-  driver: string;
-  productCount: number;
-  statusLabel: string;
-  statusColor: string;
-};
+function latestGoodsIssue(order: WarehouseOrder): GoodsIssue | undefined {
+  return order.goods_issues.at(-1);
+}
 
-const MOCK_ORDERS: HandoverOrder[] = [
-  {
-    id: 1,
-    code: "DH-CASE-01",
-    exportSlipCode: "XK-20260909-028",
-    vehicle: "123123",
-    driver: "Tài xế 123",
-    productCount: 1,
-    statusLabel: "Chuẩn bị xuất kho",
-    statusColor: "#2563EB",
-  },
-];
+function vehicleLabel(issue: GoodsIssue | undefined) {
+  if (!issue) return "—";
+  return [issue.vehicle_plate, issue.driver_name].filter(Boolean).join(" — ") || "—";
+}
 
-function StatusBadge({ label, color }: { label: string; color: string }) {
+function OrderStatusBadge({ status }: { status: number }) {
+  const label = getOrderStatusLabel(status);
+  const color = orderColor(status);
+
   return (
     <span
       className="status"
@@ -49,38 +49,58 @@ function StatusBadge({ label, color }: { label: string; color: string }) {
 function HandoverConfirmModal({
   order,
   onClose,
+  onSaved,
 }: {
-  order: HandoverOrder;
+  order: WarehouseOrder;
   onClose: () => void;
+  onSaved: () => void;
 }) {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [podFileName, setPodFileName] = useState("");
+  const [podFiles, setPodFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
 
-  const hasFile = podFileName !== "";
+  const issue = latestGoodsIssue(order);
+  const hasFile = podFiles.length > 0;
 
-  function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    setPodFileName(file?.name ?? "");
+  async function handleUploadImage(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []);
+    console.log("files", files);
+    setPodFiles(files);
+    if (files.length === 0) return;
+
+    if (!issue) {
+      putFlash("error", "Không tìm thấy phiếu xuất kho", 1500);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("id", String(issue.id));
+    for (const file of files) formData.append("file", file);
+
+    setUploading(true);
+    const result = await uploadGoodsIssueImages(formData);
+    setUploading(false);
+
+    if (!result.ok) {
+      putFlash("error", result.message, 1500);
+      setPodFiles([]);
+      event.target.value = "";
+      return;
+    }
+
+    putFlash("success", "Đã tải ảnh chứng từ", 1500);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!hasFile) return;
+    if (!hasFile || uploading) return;
     setIsConfirmOpen(true);
   }
 
-  function confirmHandover() {
-    const form = document.getElementById("handover-pod-form") as HTMLFormElement | null;
-    const data = form ? Object.fromEntries(new FormData(form).entries()) : {};
-    console.log("confirm_handover", {
-      orderId: order.id,
-      orderCode: order.code,
-      exportSlipCode: order.exportSlipCode,
-      podFileName,
-      ...data,
-    });
+  async function confirmHandover() {
     setIsConfirmOpen(false);
-    onClose();
+    putFlash("success", "Đã xác nhận bàn giao", 1500);
+    onSaved();
   }
 
   return (
@@ -105,23 +125,21 @@ function HandoverConfirmModal({
                 <div>
                   <p className="text-theme-muted text-xs mb-0.5">Mã đơn hàng</p>
                   <p className="font-semibold text-slate-900 text-sm">
-                    {order.code} ({order.productCount} sản phẩm)
+                    {order.code} ({order.total_items} sản phẩm)
                   </p>
                 </div>
                 <div>
                   <p className="text-theme-muted text-xs mb-0.5">Số phiếu xuất</p>
-                  <p className="font-semibold text-slate-900 text-sm">{order.exportSlipCode}</p>
+                  <p className="font-semibold text-slate-900 text-sm">{issue?.code ?? "—"}</p>
                 </div>
                 <div>
                   <p className="text-theme-muted text-xs mb-0.5">Xe nhận hàng</p>
-                  <p className="font-semibold text-slate-900 text-sm">
-                    {order.vehicle} — {order.driver}
-                  </p>
+                  <p className="font-semibold text-slate-900 text-sm">{vehicleLabel(issue)}</p>
                 </div>
                 <div>
                   <p className="text-theme-muted text-xs mb-0.5">Trạng thái</p>
                   <p className="font-semibold text-slate-900 text-sm">
-                    <StatusBadge label={order.statusLabel} color={order.statusColor} />
+                    <OrderStatusBadge status={order.status} />
                   </p>
                 </div>
               </div>
@@ -141,8 +159,11 @@ function HandoverConfirmModal({
                 </span>
                 <span className="min-w-0">
                   <span className="block text-sm font-medium text-slate-900">
-                    {podFileName ||
-                      "Chụp ảnh từ điện thoại hoặc bấm vào đây để tải file biên bản"}
+                    {uploading
+                      ? "Đang tải ảnh..."
+                      : podFiles.length > 0
+                        ? podFiles.map((file) => file.name).join(", ")
+                        : "Chụp ảnh từ điện thoại hoặc bấm vào đây để tải file biên bản"}
                   </span>
                   <span className="mt-0.5 block text-xs text-theme-muted">
                     Bắt buộc phải có ảnh chứng từ mới kích hoạt được nút xác nhận
@@ -153,9 +174,11 @@ function HandoverConfirmModal({
                   name="pod_file"
                   type="file"
                   accept="image/*"
+                  multiple
                   className="sr-only"
                   required
-                  onChange={handleFileChange}
+                  disabled={uploading}
+                  onChange={handleUploadImage}
                 />
               </label>
             </div>
@@ -181,7 +204,7 @@ function HandoverConfirmModal({
             <button
               type="submit"
               className="core_button core_button--primary inline-flex items-center gap-1.5"
-              disabled={!hasFile}
+              disabled={!hasFile || uploading}
             >
               Xác nhận bàn giao
             </button>
@@ -222,75 +245,128 @@ function HandoverConfirmModal({
 export function OrdersHandoverComponent() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [selectedOrder, setSelectedOrder] = useState<HandoverOrder | null>(null);
-  const orders = MOCK_ORDERS;
-  const totalPages = 1;
+  const [totalPages, setTotalPages] = useState(1);
+  const [search] = useState("");
+  const [orders, setOrders] = useState<WarehouseOrder[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadAt, setReloadAt] = useState(0);
+  const [selectedOrder, setSelectedOrder] = useState<WarehouseOrder | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setOrders(null);
+    setLoadError(null);
+
+    getWarehouseOrders({
+      search: search.trim() || "",
+      status: 12,
+      page,
+      page_size: pageSize,
+    }).then((result) => {
+      if (cancelled) return;
+      if (!result.ok) {
+        setLoadError(result.message);
+        setOrders([]);
+        return;
+      }
+      setOrders(result.data ?? []);
+      setTotalPages(totalPagesFromMeta(result.meta, result.data?.length ?? 0, pageSize));
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [search, page, pageSize, reloadAt]);
 
   return (
     <section className="section" id="production-handover-section">
       <div className="section-container section-table mb-6">
-        <h6 className="mb-4 text-base font-semibold">Danh sách đơn chờ bàn giao</h6>
+        {loadError ? (
+          <LoadError
+            message={loadError}
+            onRetry={() => {
+              setLoadError(null);
+              setOrders(null);
+              setReloadAt((value) => value + 1);
+            }}
+          />
+        ) : (
+          <>
+            <div className="overview-table-wrap">
+              <div className="overview-table-inner">
+                <table className="overview-table min-w-[1200px]" id="handover-orders-table">
+                  <colgroup>
+                    <col style={{ width: "4%" }} />
+                    <col style={{ width: "24%" }} />
+                    <col style={{ width: "14%" }} />
+                    <col style={{ width: "14%" }} />
+                    <col style={{ width: "14%" }} />
+                    <col style={{ width: "14%" }} />
+                    <col style={{ width: "16%" }} />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <TableHead></TableHead>
+                      <TableHead>Mã đơn hàng</TableHead>
+                      <TableHead>Số phiếu xuất</TableHead> 
+                      <TableHead icon="hero-truck">Xe nhận hàng</TableHead>
+                      <TableHead icon="hero-tag">Người nhận hàng</TableHead>
+                      <TableHead>Trạng thái</TableHead>
+                      <TableHead className="actions"></TableHead>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders?.map((order, index) => (
+                      <tr key={order.code} id={`handover-order-row-${order.code}`}>
+                        <td className="overview-table__muted">{index + 1}</td>
+                        <td className="overview-table__muted">{order.code}</td>
+                        <td className="overview-table__muted">
+                          {order.goods_issues.at(-1)?.code ?? "—"}
+                        </td>
+                        <td>{order.goods_issues.at(-1)?.vehicle_plate ?? "—"}</td>
+                        <td>{order.goods_issues.at(-1)?.driver_name ?? "—"}</td>
+                        <td>
+                          <OrderStatusBadge status={order.status} />
+                        </td> 
+                        <td className="actions">
+                          <button
+                            type="button"
+                            className="btn btn--primary"
+                            onClick={() => setSelectedOrder(order)}
+                          >
+                            Xác nhận bàn giao
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
-        <div className="overview-table-wrap">
-          <div className="overview-table-inner">
-            <table className="overview-table min-w-full" id="handover-orders-table">
-              <colgroup>
-                <col style={{ width: "18%" }} />
-                <col style={{ width: "20%" }} />
-                <col style={{ width: "22%" }} />
-                <col style={{ width: "20%" }} />
-                <col style={{ width: "20%" }} />
-              </colgroup>
-              <thead>
-                <tr>
-                  <TableHead icon="hero-clipboard-document-list">Mã đơn con</TableHead>
-                  <TableHead icon="hero-document-text">Số phiếu xuất</TableHead>
-                  <TableHead icon="hero-truck">Xe nhận hàng</TableHead>
-                  <TableHead icon="hero-tag">Trạng thái</TableHead>
-                  <TableHead className="actions"></TableHead>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((order) => (
-                  <tr key={order.id} id={`handover-order-row-${order.id}`}>
-                    <td className="overview-table__code">{order.code}</td>
-                    <td className="overview-table__muted">{order.exportSlipCode}</td>
-                    <td>
-                      {order.vehicle} — {order.driver}
-                    </td>
-                    <td>
-                      <StatusBadge label={order.statusLabel} color={order.statusColor} />
-                    </td>
-                    <td className="actions">
-                      <button
-                        type="button"
-                        className="btn btn--primary"
-                        onClick={() => setSelectedOrder(order)}
-                      >
-                        Xác nhận bàn giao
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          pageSize={pageSize}
-          onPageChange={setPage}
-          onPageSizeChange={(size) => {
-            setPageSize(size);
-            setPage(1);
-          }}
-        />
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              onPageChange={setPage}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setPage(1);
+              }}
+            />
+          </>
+        )}
       </div>
 
       {selectedOrder && (
-        <HandoverConfirmModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
+        <HandoverConfirmModal
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+          onSaved={() => {
+            setSelectedOrder(null);
+            setReloadAt((value) => value + 1);
+          }}
+        />
       )}
     </section>
   );

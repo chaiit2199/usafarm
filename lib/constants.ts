@@ -74,6 +74,8 @@ export const ORDER_STATUSES = [
   { id: 0, semantic: "DRAFT", label: "Đơn mới", color: "#64748B" },
   { id: 1, semantic: "WAITING_FOR_APPROVAL", label: "Chờ duyệt", color: "#E8A45A" },
   { id: 2, semantic: "APPROVED_WAITING_ALLOCATION", label: "Chờ phân kho", color: "#F97316" },
+  { id: 11, semantic: "APPROVED_WAITING_SHIPMENT", label: "Chờ giao hàng", color: "#123123" },
+  { id: 12, semantic: "APPROVED_WAITING_GOODS_ISSUE", label: "Chờ xuất kho", color: "#123123" },
   { id: 3, semantic: "REJECTED", label: "Từ chối", color: "#B91C1C" },
   { id: 4, semantic: "WAITING_WAREHOUSE_ACCEPTANCE", label: "Chờ đóng gói", color: "#C4A35A" },
   { id: 5, semantic: "PROCESSING", label: "Đang đóng gói", color: "#7C3AED" },

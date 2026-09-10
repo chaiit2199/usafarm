@@ -1,63 +1,25 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { Fragment, useEffect, useState, type FormEvent } from "react";
 
 import {
+  EmptyData,
   Input,
   Modal,
   Pagination,
   TableHead,
+  TableLoading,
 } from "@/components/core_component";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel, SelectField } from "@/components/form-fields";
-
-type ExportOrder = {
-  id: number;
-  code: string;
-  customer: string;
-  productCount: number;
-  productSku: string;
-  productName: string;
-  packSpecKg: number;
-  totalBags: number;
-  note: string;
-};
-
-const MOCK_ORDERS: ExportOrder[] = [
-  {
-    id: 1,
-    code: "DH-CASE-01",
-    customer: "Đại lý Case 1 - Tồn Đủ / SX Đủ",
-    productCount: 1,
-    productSku: "NPK202015-B0201-C-M-003-50",
-    productName: "Bao minh họa Case 1",
-    packSpecKg: 50,
-    totalBags: 100,
-    note: "—",
-  },
-  {
-    id: 2,
-    code: "DH-CASE-02",
-    customer: "Đại lý Case 2 - Tồn Đủ / SX Một phần",
-    productCount: 1,
-    productSku: "NPK202015-B0201-C-M-003-50",
-    productName: "Bao minh họa Case 2",
-    packSpecKg: 50,
-    totalBags: 100,
-    note: "—",
-  },
-  {
-    id: 3,
-    code: "DH-CASE-08-A",
-    customer: "Đại lý Case 8 - Tồn Đủ / SX Đủ",
-    productCount: 1,
-    productSku: "NPK202015-B0201-C-M-003-50",
-    productName: "Bao minh họa Case 8",
-    packSpecKg: 50,
-    totalBags: 40,
-    note: "—",
-  },
-];
+import { Icon } from "@/components/icon";
+import { LoadError } from "@/components/load_error";
+import { getWarehouseOrders, createWarehouseOrderGoodsIssue } from "@/lib/api/production";
+import { totalPagesFromMeta } from "@/lib/api/pagination";
+import type { WarehouseOrder } from "@/lib/api/types";
+import { getOrderStatusLabel, orderColor } from "@/lib/constants";
+import { putFlash } from "@/lib/flash/flash";
+import { formatDateTimeVi } from "@/lib/format/date";
 
 const MOCK_CARRIERS = [
   { id: 1, name: "Công ty vận tải A" },
@@ -69,28 +31,69 @@ function formatWeightKg(bags: number, packSpecKg: number) {
   return new Intl.NumberFormat("en-US").format(bags * packSpecKg);
 }
 
+function OrderStatusBadge({ status }: { status: number }) {
+  const label = getOrderStatusLabel(status);
+  const color = orderColor(status);
+
+  return (
+    <span
+      className="status"
+      style={{
+        color,
+        borderColor: `${color}55`,
+        backgroundColor: `${color}1A`,
+      }}
+    >
+      {label}
+    </span>
+  );
+} 
+
 function ExportSlipModal({
   order,
   onClose,
+  onSaved,
 }: {
-  order: ExportOrder;
+  order: WarehouseOrder;
   onClose: () => void;
+  onSaved: () => void;
 }) {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const totalWeightKg = order.totalBags * order.packSpecKg;
-  const totalTons = (totalWeightKg / 1000).toFixed(1);
+  const [slip, setSlip] = useState<{
+    carrier_name: string;
+    vehicle_plate: string;
+    driver_name: string;
+    driver_identity_or_phone: string;
+  } | null>(null);
 
   function handleSave(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    setSlip({
+      carrier_name: String(data.get("carrier_name") ?? ""),
+      vehicle_plate: String(data.get("vehicle_plate") ?? ""),
+      driver_name: String(data.get("driver_name") ?? ""),
+      driver_identity_or_phone: String(data.get("driver_identity_or_phone") ?? ""),
+    });
     setIsConfirmOpen(true);
   }
 
-  function confirmSave() {
-    const form = document.getElementById("export-slip-form") as HTMLFormElement | null;
-    const data = form ? Object.fromEntries(new FormData(form).entries()) : {};
-    console.log("save_export_slip", { orderId: order.id, orderCode: order.code, ...data });
+  async function confirmSave() {
+    if (!slip) return;
+
+    const result = await createWarehouseOrderGoodsIssue({
+      id: order.id,
+      warehouse_id: order.warehouse_id,
+      ...slip,
+    });
+    if (!result.ok) {
+      putFlash("error", result.message, 1500);
+      return;
+    }
+
     setIsConfirmOpen(false);
-    onClose();
+    putFlash("success", "Đã lập phiếu xuất kho", 1500);
+    onSaved();
   }
 
   return (
@@ -98,8 +101,8 @@ function ExportSlipModal({
       <Modal
         id="export-slip-modal"
         show
-        title="Lập phiếu xuất kho giao hàng (Mẫu 02-VT)"
-        subtitle="Công ty TNHH nông nghiệp USA Farm — Thông tư 200/2014/TT-BTC."
+        title="Lập phiếu xuất kho giao hàng"
+        subtitle={"Đơn hàng: " + order.code}
         closeable={!isConfirmOpen}
         width="3xl"
         onBack={onClose}
@@ -110,22 +113,7 @@ function ExportSlipModal({
           className="core_modal__form overflow-hidden -mx-4"
           onSubmit={handleSave}
         >
-          <div className="flex-auto h-full overflow-y-auto px-4 flex flex-col gap-6">
-            <div className="grid grid-cols-1 gap-3 rounded-xl border border-theme-primary-border bg-slate-50 p-4 text-sm sm:grid-cols-3">
-              <div>
-                <p className="text-xs text-theme-muted mb-0.5">Mã đơn hàng</p>
-                <p className="font-semibold text-slate-900">{order.code}</p>
-              </div>
-              <div>
-                <p className="text-xs text-theme-muted mb-0.5">Số phiếu xuất (tự sinh)</p>
-                <p className="font-semibold text-slate-900">XK-20260909-028</p>
-              </div>
-              <div>
-                <p className="text-xs text-theme-muted mb-0.5">Ngày xuất</p>
-                <p className="font-semibold text-slate-900">2026-09-09 09:17 PM</p>
-              </div>
-            </div>
-
+          <div className="flex-auto h-full overflow-y-auto px-4 flex flex-col gap-6"> 
             <section>
               <h6 className="mb-3 text-base font-semibold">
                 Thông tin điều độ phương tiện vận tải
@@ -133,7 +121,7 @@ function ExportSlipModal({
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <SelectField
                   id="export-carrier"
-                  name="carrier_id"
+                  name="carrier_name"
                   label={<RequiredLabel>Đơn vị / nhà vận chuyển</RequiredLabel>}
                   defaultValue=""
                   required
@@ -142,7 +130,7 @@ function ExportSlipModal({
                     Chọn nhà vận chuyển
                   </option>
                   {MOCK_CARRIERS.map((carrier) => (
-                    <option key={carrier.id} value={carrier.id}>
+                    <option key={carrier.id} value={carrier.name}>
                       {carrier.name}
                     </option>
                   ))}
@@ -166,7 +154,7 @@ function ExportSlipModal({
 
                 <Input
                   id="export-driver-contact"
-                  name="driver_contact"
+                  name="driver_identity_or_phone"
                   label={<RequiredLabel>Số CCCD / điện thoại</RequiredLabel>}
                   placeholder="Số CCCD - SĐT"
                   required
@@ -180,42 +168,45 @@ function ExportSlipModal({
                 <table className="overview-table min-w-full">
                   <colgroup>
                     <col style={{ width: "6%" }} />
-                    <col style={{ width: "34%" }} />
+                    <col style={{ width: "22%" }} />
+                    <col style={{ width: "32%" }} />
                     <col style={{ width: "12%" }} />
                     <col style={{ width: "12%" }} />
-                    <col style={{ width: "18%" }} />
                     <col style={{ width: "18%" }} />
                   </colgroup>
                   <thead>
                     <tr>
                       <TableHead>STT</TableHead>
-                      <TableHead>Mã SKU & tên sản phẩm</TableHead>
+                      <TableHead>Mã SKU</TableHead>
+                      <TableHead>Tên sản phẩm</TableHead>
                       <TableHead>Quy cách</TableHead>
                       <TableHead>SL bao</TableHead>
                       <TableHead>Khối lượng (KG)</TableHead>
-                      <TableHead>Ghi chú</TableHead>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>
-                        <p className="mb-0.5 font-medium text-slate-900">{order.productSku}</p>
-                        <p className="text-xs text-theme-muted">{order.productName}</p>
-                      </td>
-                      <td>{order.packSpecKg} KG</td>
-                      <td className="is-num">{order.totalBags}</td>
-                      <td className="is-num">
-                        {formatWeightKg(order.totalBags, order.packSpecKg)} KG
-                      </td>
-                      <td className="overview-table__muted">{order.note}</td>
-                    </tr>
+                    {order.lines.map((line, index) => (
+                      <tr key={line.id}>
+                        <td>{index + 1}</td>
+                        <td>
+                          {line.sales_sku_code}
+                        </td>
+                        <td>
+                          {line.sku_name}
+                        </td>
+                        <td>{line.packaging_weight_kg ?? "—"} {line.unit ?? ""}</td>
+                        <td className="is-num">{line.quantity}</td>
+                        <td className="is-num">
+                          {formatWeightKg(line.quantity, line.packaging_weight_kg ?? 0)} KG
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
-                <div className="rounded-b-xl bg-theme-primary-border py-3 pr-4 text-right text-sm font-semibold text-slate-900">
-                  TỔNG CỘNG: {order.totalBags} Bao — {formatWeightKg(order.totalBags, order.packSpecKg)}{" "}
+                {/* <div className="rounded-b-xl bg-theme-primary-border py-3 pr-4 text-right text-sm font-semibold text-slate-900">
+                  TỔNG CỘNG: {totalBags} Bao — {new Intl.NumberFormat("en-US").format(totalWeightKg)}{" "}
                   KG ({totalTons} Tấn)
-                </div>
+                </div> */}
               </div>
             </section>
           </div>
@@ -259,80 +250,139 @@ function ExportSlipModal({
 }
 
 export function OrdersExportComponent() {
+  const [selectedOrder, setSelectedOrder] = useState<WarehouseOrder | null>(null);
+  const [search] = useState("");
+  const [orders, setOrders] = useState<WarehouseOrder[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadAt, setReloadAt] = useState(0);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [selectedOrder, setSelectedOrder] = useState<ExportOrder | null>(null);
-  const orders = MOCK_ORDERS;
-  const totalPages = 1;
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    setOrders(null);
+    setLoadError(null);
+
+    getWarehouseOrders({
+      search: search.trim().replace("script", "") || "",
+      status: 11,
+      page,
+      page_size: pageSize,
+    }).then((result) => {
+      if (!result.ok) {
+        setLoadError(result.message);
+        setOrders([]);
+        return;
+      }
+      setOrders(result.data ?? []);
+      setTotalPages(totalPagesFromMeta(result.meta, result.data?.length ?? 0, pageSize));
+    }); 
+  }, [search, page, pageSize, reloadAt]);
+ 
 
   return (
     <section className="section" id="production-export-section">
       <div className="section-container section-table mb-6">
-        <h6 className="mb-4 text-base font-semibold">
-          Danh sách đơn chờ lập phiếu xuất kho
-        </h6>
+        {loadError ? (
+          <LoadError
+            message={loadError}
+            onRetry={() => {
+              setLoadError(null);
+              setOrders(null);
+              setReloadAt((value) => value + 1);
+            }}
+          />
+        ) : (
+          <>
+            {orders === null ? (
+              <TableLoading />
+            ) : orders.length === 0 ? (
+              <EmptyData
+                title="Không có đơn xuất kho"
+                description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm."
+              />
+            ) : (
+              <div className="overview-table-wrap">
+                <div className="overview-table-inner">
+                  <table className="overview-table min-w-[1400px]" id="export-orders-table">
+                    <colgroup>
+                      <col style={{ width: "26%" }} />
+                      <col style={{ width: "10%" }} />
+                      <col style={{ width: "10%" }} />
+                      <col style={{ width: "14%" }} />
+                      <col style={{ width: "14%" }} />
+                      <col style={{ width: "8%" }} />
+                      <col style={{ width: "8%" }} />
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        <TableHead icon="hero-clipboard-document-list">Mã đơn</TableHead>
+                        <TableHead>Số lượng</TableHead>
+                        <TableHead icon="hero-tag">Trạng thái</TableHead>
+                        <TableHead icon="hero-building-storefront">Kho</TableHead>
+                        <TableHead icon="hero-users">Đại lý</TableHead>
+                        <TableHead icon="hero-calendar-days">Bắt đầu</TableHead>
+                        <TableHead className="actions" />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orders.map((order) => {
+                        return (
+                          <Fragment key={order.id}>
+                            <tr id={`export-order-row-${order.id}`} onClick={() => setSelectedOrder(order)}>
+                              <td className="overview-table__code">{order.code}</td>
+                              <td className="overview-table__muted">{order.packed_quantity}</td> 
+                              <td>
+                                <OrderStatusBadge status={order.status} />
+                              </td>
+                              <td>{order.warehouse_name}</td>
+                              <td className="overview-table__muted">{order.agency_name}</td>
+                              <td className="overview-table__muted">
+                                {formatDateTimeVi(order.started_at || order.created_at)}
+                              </td>
+                              <td className="actions">
+                                <button
+                                  type="button"
+                                  className="admin-actions__btn"
+                                  aria-label="Lập phiếu xuất kho"
+                                  onClick={() => setSelectedOrder(order)}
+                                >
+                                  <Icon name="hero-pencil-square" className="size-4" />
+                                </button>
+                              </td>
+                            </tr> 
+                          </Fragment>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
-        <div className="overview-table-wrap">
-          <div className="overview-table-inner">
-            <table className="overview-table min-w-full" id="export-orders-table">
-              <colgroup>
-                <col style={{ width: "14%" }} />
-                <col style={{ width: "28%" }} />
-                <col style={{ width: "28%" }} />
-                <col style={{ width: "12%" }} />
-                <col style={{ width: "18%" }} />
-              </colgroup>
-              <thead>
-                <tr>
-                  <TableHead icon="hero-clipboard-document-list">Mã đơn</TableHead>
-                  <TableHead icon="hero-users">Khách hàng</TableHead>
-                  <TableHead icon="hero-cube">Sản phẩm trong đơn</TableHead>
-                  <TableHead>Tổng SL (bao)</TableHead>
-                  <TableHead className="actions"></TableHead>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((order) => (
-                  <tr key={order.id} id={`export-order-row-${order.id}`}>
-                    <td className="overview-table__code">{order.code}</td>
-                    <td>{order.customer}</td>
-                    <td className="overview-table__muted">
-                      <p className="text-theme-muted">
-                        {order.productCount} sản phẩm <br />
-                        {order.productSku}
-                      </p>
-                    </td>
-                    <td className="is-num">{order.totalBags} Bao</td>
-                    <td className="actions">
-                      <button
-                        type="button"
-                        className="btn btn--primary"
-                        onClick={() => setSelectedOrder(order)}
-                      >
-                        Lập phiếu xuất kho
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          pageSize={pageSize}
-          onPageChange={setPage}
-          onPageSizeChange={(size) => {
-            setPageSize(size);
-            setPage(1);
-          }}
-        />
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              onPageChange={setPage}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setPage(1);
+              }}
+            />
+          </>
+        )}
       </div>
 
       {selectedOrder && (
-        <ExportSlipModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
+        <ExportSlipModal
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+          onSaved={() => {
+            setSelectedOrder(null);
+            setReloadAt((value) => value + 1);
+          }}
+        />
       )}
     </section>
   );

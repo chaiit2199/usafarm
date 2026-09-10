@@ -8,7 +8,12 @@ import type {
   WarehouseOrdersResponse,
 } from "@/lib/api/types";
 import { runServerAction } from "@/lib/server-actions";
-import { orderIdSchema, completeWarehousePackingSchema } from "@/lib/validate/orders";
+import {
+  orderIdSchema,
+  completeWarehousePackingSchema,
+  createGoodsIssueSchema,
+  uploadGoodsIssueImagesSchema,
+} from "@/lib/validate/orders";
 
 export type WarehouseOrdersParams = {
   search?: string;
@@ -76,7 +81,6 @@ export async function completeWarehouseOrderPacking(payload: {
     payload,
     "Không thể hoàn thành đóng gói",
     async ({ id, lines }) => {
-      console.log(lines);
       await client.patch(
         `/api/v1/warehouse/orders/${id}/packing`,
         { lines },
@@ -87,6 +91,65 @@ export async function completeWarehouseOrderPacking(payload: {
         },
       );
       revalidatePath("/production/packaging");
+      return { ok: true as const };
+    },
+  );
+}
+
+export async function createWarehouseOrderGoodsIssue(payload: {
+  id: number;
+  warehouse_id: number;
+  carrier_name: string;
+  vehicle_plate: string;
+  driver_name: string;
+  driver_identity_or_phone: string;
+}) {
+
+  console.log(payload);
+  return runServerAction(
+    createGoodsIssueSchema,
+    payload,
+    "Không thể lập phiếu xuất kho",
+    async ({ id, warehouse_id, carrier_name, vehicle_plate, driver_name, driver_identity_or_phone }) => {
+      await client.post(
+        `/api/v1/warehouse/orders/${id}/goods-issues`,
+        {
+          warehouse_id,
+          carrier_name,
+          vehicle_plate,
+          driver_name,
+          driver_identity_or_phone,
+        },
+        {
+          headers: {
+            "Idempotency-Key": crypto.randomUUID(),
+          },
+        },
+      );
+      revalidatePath("/production/export");
+      return { ok: true as const };
+    },
+  );
+}
+
+export async function uploadGoodsIssueImages(formData: FormData) {
+  return runServerAction(
+    uploadGoodsIssueImagesSchema,
+    {
+      id: formData.get("id"),
+      files: formData.getAll("file").filter((item): item is File => item instanceof File),
+    },
+    "Không thể tải ảnh chứng từ",
+    async ({ id, files }) => {
+      for (const file of files) {
+        const body = new FormData();
+        body.append("file", file);
+        console.log("formDataformData", formData);
+        await client.post(`/api/v1/warehouse/goods-issues/${id}/images`, body, {
+          timeout: 60_000, 
+        });
+      }
+      revalidatePath("/production/handover");
       return { ok: true as const };
     },
   );

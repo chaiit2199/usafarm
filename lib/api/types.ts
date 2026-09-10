@@ -449,6 +449,17 @@ export type WarehouseOrderLine = {
   unit?: string;
 };
 
+export type GoodsIssue = {
+  code: string;
+  id: number;
+  warehouse_id: number;
+  warehouse_name: string;
+  handed_over_at: string;
+  carrier_name: string;
+  driver_name: string;
+  vehicle_plate: string;
+};
+
 export type WarehouseOrder = {
   id: number;
   code: string;
@@ -471,6 +482,7 @@ export type WarehouseOrder = {
   completed_at?: string | null;
   updated_at?: string;
   lines: WarehouseOrderLine[];
+  goods_issues: GoodsIssue[];
 };
 
 export type WarehouseOrdersResponse = {

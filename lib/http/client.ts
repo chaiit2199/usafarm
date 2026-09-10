@@ -89,6 +89,7 @@ export class Client {
     const { accessToken: explicitToken, headers, ...requestConfig } = options;
     const skipAuth = isAuthEndpoint(url);
     const token = skipAuth ? undefined : (explicitToken ?? (await this.readSession()).access_token);
+    const isFormData = typeof FormData !== "undefined" && data instanceof FormData;
 
     const debug = Logger(
       String(method ?? "GET").toUpperCase(),
@@ -104,6 +105,7 @@ export class Client {
         headers: {
           ...headers,
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(isFormData ? { "Content-Type": false as unknown as string } : {}),
         },
       });
 
