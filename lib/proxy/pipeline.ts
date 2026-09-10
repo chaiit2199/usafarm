@@ -6,7 +6,9 @@ import { ensureAuthenticated } from "@/lib/auth/guard";
 const PROTECTED_ROUTES = [
   "/",
   "/products/cost-management",
-  "/products/ingredients",
+  "/products/groups",
+  "/products/types",
+  "/products/seeds",
   "/products/packaging",
   "/products/product",
   "/orders",

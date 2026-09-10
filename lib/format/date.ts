@@ -1,3 +1,5 @@
+
+// 2026-09-09T12:30:31.463323Z -> 18/05/24
 export function formatDateVi(value?: string | null): string {
   if (!value) return "-";
 
@@ -10,7 +12,7 @@ export function formatDateVi(value?: string | null): string {
   return `${day}/${month}/${date.getFullYear()}`;
 }
 
-/** Ví dụ: 10:20 18/05/24 */
+// 2026-09-09T12:30:31.463323Z -> 10:20 18/05/24
 export function formatDateTimeVi(value?: string | null): string {
   if (!value) return "-";
 

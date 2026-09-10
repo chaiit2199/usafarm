@@ -76,6 +76,7 @@ export async function completeWarehouseOrderPacking(payload: {
     payload,
     "Không thể hoàn thành đóng gói",
     async ({ id, lines }) => {
+      console.log(lines);
       await client.patch(
         `/api/v1/warehouse/orders/${id}/packing`,
         { lines },
