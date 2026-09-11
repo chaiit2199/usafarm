@@ -104,11 +104,12 @@ export const MENU: Navbar[] = [
       },
       {
         id: "seeds",
-        label: "Tạo mới loại hạt",
+        label: "Danh mục hạt độc lập — mỗi hạt là 1 nguyên liệu thô hoặc công thức phối trộn, liên kết nhiều-nhiều với loại hàng",
         href: "/products/seeds",
         icon: "hero-swatch",
         title: "Quản lý loại hạt",
         create: true,
+        search: true,
       }, 
       {
         id: "product",

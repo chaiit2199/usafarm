@@ -109,6 +109,23 @@ function seedKindLabel(kind: SeedKind) {
   return kind === "single" ? "Hạt đơn" : "Hạt phối trộn";
 }
 
+function SeedKindBadge({ kind }: { kind: SeedKind }) {
+  const color = kind === "single" ? "#059669" : "#7C3AED";
+
+  return (
+    <span
+      className="status"
+      style={{
+        color,
+        borderColor: `${color}55`,
+        backgroundColor: `${color}1A`,
+      }}
+    >
+      {seedKindLabel(kind)}
+    </span>
+  );
+}
+
 function resolveProductTypes(skus: string[]) {
   return skus
     .map((sku) => MOCK_PRODUCT_TYPES.find((type) => type.skuBase === sku))
@@ -480,7 +497,7 @@ export function ProductSeedsComponent() {
                         <td className="overview-table__code">{seed.code}</td>
                         <td className="font-medium text-slate-900">{seed.name}</td>
                         <td>
-                          <span className="status status--active">{seedKindLabel(seed.kind)}</span>
+                          <SeedKindBadge kind={seed.kind} />
                         </td>
                         <td className="overview-table__muted">{seed.material}</td>
                         <td>
