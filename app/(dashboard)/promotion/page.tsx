@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
 
-import { WipPage } from "@/components/dashboard";
+import { Dashboard } from "@/components/dashboard";
+import { PromotionComponent } from "@/components/promotion";
 import { pageMetadata } from "@/lib/dashboard/navbar";
 
 export const metadata: Metadata = pageMetadata("/promotion");
 
 export default function Page() {
-  return <WipPage id="promotions-main" />;
+  return (
+    <Dashboard id="promotions-main">
+      <PromotionComponent />
+    </Dashboard>
+  );
 }
