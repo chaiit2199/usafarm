@@ -71,19 +71,21 @@ export const roleStatusMeta = recordStatusMeta;
 
 /** API order.status 0–10. */
 export const ORDER_STATUSES = [
-  { id: 0, semantic: "DRAFT", label: "Đơn mới", color: "#64748B" },
-  { id: 1, semantic: "WAITING_FOR_APPROVAL", label: "Chờ duyệt", color: "#E8A45A" },
-  { id: 2, semantic: "APPROVED_WAITING_ALLOCATION", label: "Chờ phân kho", color: "#F97316" },
-  { id: 11, semantic: "APPROVED_WAITING_SHIPMENT", label: "Chờ giao hàng", color: "#123123" },
-  { id: 12, semantic: "APPROVED_WAITING_GOODS_ISSUE", label: "Chờ xuất kho", color: "#123123" },
+  { id: 0, semantic: "DRAFT", label: "Đơn mới", color: "#16A34A" },
+
+  { id: 1, semantic: "WAITING_FOR_APPROVAL", label: "Chờ duyệt", color: "#D97706" },
+  { id: 2, semantic: "APPROVED_WAITING_ALLOCATION", label: "Chờ phân kho", color: "#EA580C" },
+  { id: 11, semantic: "APPROVED_WAITING_SHIPMENT", label: "Chờ giao hàng", color: "#0284C7" },
+  { id: 12, semantic: "APPROVED_WAITING_GOODS_ISSUE", label: "Chờ xuất kho", color: "#0D9488" },
+  { id: 13, semantic: "APPROVED_WAITING_HANDOVER", label: "Bàn giao thành công", color: "#2563EB" },
   { id: 3, semantic: "REJECTED", label: "Từ chối", color: "#B91C1C" },
-  { id: 4, semantic: "WAITING_WAREHOUSE_ACCEPTANCE", label: "Chờ đóng gói", color: "#C4A35A" },
+  { id: 4, semantic: "WAITING_WAREHOUSE_ACCEPTANCE", label: "Chờ đóng gói", color: "#CA8A04" },
   { id: 5, semantic: "PROCESSING", label: "Đang đóng gói", color: "#7C3AED" },
-  { id: 6, semantic: "CANCELLING", label: "Đang xử lý hủy", color: "#EA580C" },
-  { id: 7, semantic: "COMPLETED", label: "Hoàn thành", color: "#3B7A57" },
-  { id: 8, semantic: "COMPLETED_PARTIAL_CANCEL", label: "Hoàn thành, có hủy một phần", color: "#3B7A57" },
+  { id: 6, semantic: "CANCELLING", label: "Đang xử lý hủy", color: "#F97316" },
+  { id: 7, semantic: "COMPLETED", label: "Hoàn thành", color: "#16A34A" },
+  { id: 8, semantic: "COMPLETED_PARTIAL_CANCEL", label: "Hoàn thành, có hủy một phần", color: "#65A30D" },
   { id: 9, semantic: "CANCELLED", label: "Đã hủy", color: "#DC2626" },
-  { id: 10, semantic: "SPLIT_ORDER", label: "Tách đơn", color: "#64748B" },
+  { id: 10, semantic: "SPLIT_ORDER", label: "Tách đơn", color: "#78716C" },
 ] as const;
 
 export type OrderStatusId = (typeof ORDER_STATUSES)[number]["id"];
