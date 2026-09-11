@@ -22,6 +22,12 @@ import {
 
 type SeedKind = "single" | "blend";
 
+type BlendLine = {
+  id: string;
+  materialId: string;
+  percent: number;
+};
+
 type ProductSeed = {
   id: number;
   code: string;
@@ -37,6 +43,7 @@ type CreateSeedPayload = {
   kind: SeedKind;
   material: string;
   productTypeSkus: string[];
+  blendLines?: BlendLine[];
 };
 
 const MOCK_MATERIALS = [
@@ -105,12 +112,25 @@ const MOCK_SEEDS: ProductSeed[] = [
   },
 ];
 
+const SEED_KIND_META = {
+  single: {
+    label: "Hạt đơn",
+    description: "Dùng 1 nguyên liệu thô, không cần công thức phối trộn.",
+    color: "#059669",
+  },
+  blend: {
+    label: "Hạt phối trộn",
+    description: "Nhiều nguyên liệu thô, tổng tỷ lệ không vượt quá 100%.",
+    color: "#7C3AED",
+  },
+} as const;
+
 function seedKindLabel(kind: SeedKind) {
-  return kind === "single" ? "Hạt đơn" : "Hạt phối trộn";
+  return SEED_KIND_META[kind].label;
 }
 
 function SeedKindBadge({ kind }: { kind: SeedKind }) {
-  const color = kind === "single" ? "#059669" : "#7C3AED";
+  const color = SEED_KIND_META[kind].color;
 
   return (
     <span
@@ -123,6 +143,198 @@ function SeedKindBadge({ kind }: { kind: SeedKind }) {
     >
       {seedKindLabel(kind)}
     </span>
+  );
+}
+
+function newBlendLine(percent = 0): BlendLine {
+  return { id: crypto.randomUUID(), materialId: "", percent };
+}
+
+function blendTotal(lines: BlendLine[]) {
+  return lines.reduce((sum, line) => sum + Number(line.percent || 0), 0);
+}
+
+function isBlendRecipeValid(lines: BlendLine[]) {
+  if (lines.length < 2) return false;
+
+  const ids = lines.map((line) => line.materialId);
+  const hasEmpty = ids.some((id) => !id);
+  const hasDuplicate = new Set(ids).size !== ids.length;
+  const hasInvalidPercent = lines.some((line) => Number(line.percent) <= 0);
+
+  return !hasEmpty && !hasDuplicate && !hasInvalidPercent && Math.abs(blendTotal(lines) - 100) < 0.01;
+}
+
+function formatBlendMaterial(lines: BlendLine[]) {
+  return lines
+    .map((line) => {
+      const material = MOCK_MATERIALS.find((item) => item.id === line.materialId);
+      return material ? `${material.label} ${line.percent}%` : "";
+    })
+    .filter(Boolean)
+    .join(" + ");
+}
+
+function SeedKindCards({
+  value,
+  onChange,
+}: {
+  value: SeedKind;
+  onChange: (kind: SeedKind) => void;
+}) {
+  return (
+    <fieldset className="core_field col-span-2">
+      <legend className="core_label">
+        <RequiredLabel>Phân loại hạt</RequiredLabel>
+      </legend>
+      <div className="grid grid-cols-2 gap-3">
+        {(Object.keys(SEED_KIND_META) as SeedKind[]).map((kind) => {
+          const option = SEED_KIND_META[kind];
+          const selected = value === kind;
+
+          return (
+            <button
+              key={kind}
+              type="button"
+              aria-pressed={selected}
+              onClick={() => onChange(kind)}
+              className={[
+                "rounded-xl border p-3.5 text-left transition",
+                selected ? "" : "border-theme-primary-border hover:bg-slate-50",
+              ].join(" ")}
+              style={
+                selected
+                  ? {
+                      borderColor: `${option.color}88`,
+                      backgroundColor: `${option.color}14`,
+                    }
+                  : undefined
+              }
+            >
+              <span className="flex items-start justify-between gap-2">
+                <span className="flex items-center gap-2"> 
+                  <span className="text-sm font-semibold text-slate-900">{option.label}</span>
+                </span>
+                {selected ? (
+                  <span style={{ color: option.color }}>
+                    <Icon name="hero-check-circle-mini" className="size-5" />
+                  </span>
+                ) : null}
+              </span>
+              <p className="mt-1.5 text-xs leading-5 text-theme-muted">{option.description}</p>
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
+
+function BlendRecipeField({
+  lines,
+  onChange,
+}: {
+  lines: BlendLine[];
+  onChange: (next: BlendLine[]) => void;
+}) {
+  const total = blendTotal(lines);
+  const isExact = Math.abs(total - 100) < 0.01;
+  const canAdd = lines.length < MOCK_MATERIALS.length;
+
+  function updateLine(id: string, patch: Partial<BlendLine>) {
+    onChange(lines.map((line) => (line.id === id ? { ...line, ...patch } : line)));
+  }
+
+  return (
+    <div className="col-span-2 rounded-xl border border-theme-primary-border bg-slate-50/70 p-4">
+      <p className="text-sm font-semibold text-slate-900">Công thức phối trộn</p>
+      <p className="mt-0.5 text-xs text-theme-muted">
+        Chọn các nguyên liệu thô cấu thành và tỷ lệ % — tổng không vượt quá 100%.
+      </p>
+
+      <div className="mt-3 grid grid-cols-[minmax(0,1fr)_6.5rem_2.5rem] items-center gap-2 text-xs font-medium text-theme-muted">
+        <span>Nguyên liệu thô</span>
+        <span>Tỷ lệ %</span>
+        <span />
+      </div>
+
+      <div className="mt-1.5 space-y-2">
+        {lines.map((line) => {
+          const usedIds = lines
+            .filter((item) => item.id !== line.id)
+            .map((item) => item.materialId)
+            .filter(Boolean);
+
+          return (
+            <div
+              key={line.id}
+              className="grid grid-cols-[minmax(0,1fr)_80px_2.5rem] items-center gap-2"
+            >
+              <select
+                value={line.materialId}
+                required
+                onChange={(event) => updateLine(line.id, { materialId: event.target.value })}
+                className="core_input core_input--select w-full"
+              >
+                <option value="">Chọn nguyên liệu</option>
+                {MOCK_MATERIALS.map((material) => (
+                  <option
+                    key={material.id}
+                    value={material.id}
+                    disabled={usedIds.includes(material.id)}
+                  >
+                    {material.label}
+                  </option>
+                ))}
+              </select>
+
+              <input
+                type="number"
+                min={0}
+                max={100}
+                step={1}
+                required
+                value={Number.isFinite(line.percent) ? line.percent : 0}
+                onChange={(event) =>
+                  updateLine(line.id, { percent: Number(event.target.value) || 0 })
+                }
+                className="core_input w-full text-center"
+              />
+
+              <button
+                type="button"
+                aria-label="Xóa nguyên liệu"
+                onClick={() => onChange(lines.filter((item) => item.id !== line.id))}
+                className="inline-flex size-10 items-center justify-center rounded-lg text-rose-500 hover:bg-rose-50"
+              >
+                <Icon name="hero-x-mark" className="size-4" />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <button
+          type="button"
+          disabled={!canAdd}
+          onClick={() => onChange([...lines, newBlendLine(0)])}
+          className="inline-flex items-center gap-1 rounded-lg border border-theme-primary-border bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <Icon name="hero-plus" className="size-4" />
+          Thêm nguyên liệu
+        </button>
+
+        <p className={`text-sm font-medium ${isExact ? "text-emerald-600" : "text-rose-600"}`}>
+          Tổng: {total}%
+          {isExact
+            ? " - đạt 100%"
+            : total > 100
+              ? " - không vượt quá 100%"
+              : " - chưa đủ 100%"}
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -289,15 +501,32 @@ function CreateSeedModal({ onClose }: { onClose: () => void }) {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [payload, setPayload] = useState<CreateSeedPayload | null>(null);
   const [kind, setKind] = useState<SeedKind>("single");
+  const [blendLines, setBlendLines] = useState<BlendLine[]>(() => [
+    newBlendLine(),
+    newBlendLine(),
+  ]);
   const [productTypeSkus, setProductTypeSkus] = useState<string[]>([]);
+
+  function handleKindChange(next: SeedKind) {
+    if (next === kind) return;
+    setKind(next);
+    if (next === "blend") {
+      setBlendLines([newBlendLine(), newBlendLine()]);
+    }
+  }
 
   function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.currentTarget).entries());
     const code = String(data.code ?? "").trim();
     const name = String(data.name ?? "").trim();
-    const material = String(data.material ?? "").trim();
+    const material =
+      kind === "blend"
+        ? formatBlendMaterial(blendLines)
+        : String(data.material ?? "").trim();
+
     if (!code || !name || !material || productTypeSkus.length === 0) return;
+    if (kind === "blend" && !isBlendRecipeValid(blendLines)) return;
 
     setPayload({
       code,
@@ -305,11 +534,13 @@ function CreateSeedModal({ onClose }: { onClose: () => void }) {
       kind,
       material,
       productTypeSkus,
+      blendLines: kind === "blend" ? blendLines : undefined,
     });
     setIsConfirmOpen(true);
   }
 
   function confirmCreate() {
+    console.log(payload);
     setIsConfirmOpen(false);
     onClose();
   }
@@ -346,55 +577,31 @@ function CreateSeedModal({ onClose }: { onClose: () => void }) {
               required
             />
 
-            <fieldset className="core_field">
-              <legend className="core_label">
-                <RequiredLabel>Phân loại hạt</RequiredLabel>
-              </legend>
-              <div className="flex gap-2">
-                <label className="inline-flex items-center gap-2 text-sm text-slate-700">
-                  <input
-                    type="radio"
-                    name="kind"
-                    value="single"
-                    checked={kind === "single"}
-                    onChange={() => setKind("single")}
-                  />
-                  Hạt đơn (không cần phối trộn)
-                </label>
-                <label className="inline-flex items-center gap-2 text-sm text-slate-700">
-                  <input
-                    type="radio"
-                    name="kind"
-                    value="blend"
-                    checked={kind === "blend"}
-                    onChange={() => setKind("blend")}
-                  />
-                  Hạt phối trộn (cần công thức nhiều nguyên liệu)
-                </label>
-              </div>
-            </fieldset>
+            <SeedKindCards value={kind} onChange={handleKindChange} />
 
-            <div>
-              <SelectField
-                id="create-seed-material"
-                name="material"
-                label={<RequiredLabel>Nguyên liệu thô tương ứng</RequiredLabel>}
-                defaultValue=""
-                required
-              >
-                <option value="">Chọn nguyên liệu</option>
-                {MOCK_MATERIALS.map((material) => (
-                  <option key={material.id} value={material.label}>
-                    {material.label}
-                  </option>
-                ))}
-              </SelectField>
-              <p className="mt-1.5 text-xs text-theme-muted">
-                {kind === "single"
-                  ? 'Hạt đơn dùng thẳng 1 nguyên liệu thô, không cần công thức phối trộn. Chưa có nguyên liệu cần dùng? Bấm "Tạo nhanh".'
-                  : "Hạt phối trộn cần khai báo công thức nhiều nguyên liệu."}
-              </p>
-            </div>
+            {kind === "single" ? (
+              <div className="col-span-2">
+                <SelectField
+                  id="create-seed-material"
+                  name="material"
+                  label={<RequiredLabel>Nguyên liệu thô tương ứng</RequiredLabel>}
+                  defaultValue=""
+                  required
+                >
+                  <option value="">Chọn nguyên liệu</option>
+                  {MOCK_MATERIALS.map((material) => (
+                    <option key={material.id} value={material.label}>
+                      {material.label}
+                    </option>
+                  ))}
+                </SelectField>
+                <p className="mt-1.5 text-xs text-theme-muted">
+                  Hạt đơn dùng thẳng 1 nguyên liệu thô, không cần công thức phối trộn.
+                </p>
+              </div>
+            ) : (
+              <BlendRecipeField lines={blendLines} onChange={setBlendLines} />
+            )}
 
             <ProductTypeMultiSelect value={productTypeSkus} onChange={setProductTypeSkus} />
           </div>
@@ -420,7 +627,8 @@ function CreateSeedModal({ onClose }: { onClose: () => void }) {
           <p className="text-sm text-theme-muted">
             Bạn có chắc muốn thêm loại hạt{" "}
             <span className="font-semibold text-slate-900">{payload?.name}</span> (mã{" "}
-            <span className="font-semibold text-slate-900">{payload?.code}</span>) với{" "}
+            <span className="font-semibold text-slate-900">{payload?.code}</span>
+            {payload ? `, ${seedKindLabel(payload.kind).toLowerCase()}` : ""}) với{" "}
             <span className="font-semibold text-slate-900">
               {payload?.productTypeSkus.length ?? 0}
             </span>{" "}
