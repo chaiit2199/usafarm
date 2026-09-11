@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Dropdown } from "@/components/core_component";
 import { Icon } from "@/components/icon";
@@ -15,31 +15,22 @@ export function SidebarComponent({ user, menu }: { user?: User | null; menu: Nav
   const pathname = usePathname();
   const currentPage = getPageId(pathname);
   const [collapsed, setCollapsed] = useState(false);
-  const [openIndexes, setOpenIndexes] = useState<Set<number>>(() => {
-    const match = menu.findIndex((item) => item.children?.some((child) => child.href === pathname));
-    return match >= 0 ? new Set([match]) : new Set();
-  });
+  const [openIndexes, setOpenIndexes] = useState<Set<number>>(() =>
+    new Set(menu.flatMap((item, index) => (item.children ? [index] : []))),
+  );
   const displayName = user?.full_name || user?.username || "User";
   const role = user?.role ?? "1002";
   const userId = String(user?.id ?? user?.username ?? "guest");
 
-  useEffect(() => {
-    const match = menu.findIndex((item) => item.children?.some((child) => child.href === pathname));
-    if (match < 0) return;
-    setOpenIndexes((current) => {
-      if (current.has(match)) return current;
-      const next = new Set(current);
-      next.add(match);
-      return next;
-    });
-  }, [pathname, menu]);
-
   function groupOpen(index: number) {
-    return openIndexes.has(index);
+    return collapsed || openIndexes.has(index);
   }
 
   function toggleGroup(index: number) {
-    if (collapsed) setCollapsed(false);
+    if (collapsed) {
+      setCollapsed(false);
+      return;
+    }
     setOpenIndexes((current) => {
       const next = new Set(current);
       if (next.has(index)) next.delete(index);
@@ -131,7 +122,7 @@ export function SidebarComponent({ user, menu }: { user?: User | null; menu: Nav
                           id={`nav-${child.id}`}
                           title={child.title}
                           tabIndex={isOpen ? undefined : -1}
-                          onClick={() => collapsed && setCollapsed(false)}
+                          onClick={() => collapsed}
                         >
                           <Icon name={child.icon} className="dash-sidebar__icon" />
                           <span className="dash-sidebar__label">{child.title}</span>

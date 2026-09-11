@@ -107,8 +107,15 @@ $sidebar-label-delay: 0.15s;
       padding $sidebar-duration $sidebar-ease;
   }
 
-  /* Collapsed: subnav icon-only, không indent */
-  .dash-sidebar__group.is-open > .dash-sidebar__subnav {
+  /* Collapsed: ẩn tiêu đề group, chỉ hiện subnav icon */
+  .dash-sidebar__item--toggle {
+    display: none;
+  }
+
+  .dash-sidebar__group > .dash-sidebar__subnav {
+    max-height: 28rem;
+    opacity: 1;
+    pointer-events: auto;
     margin-left: 0;
   }
 
