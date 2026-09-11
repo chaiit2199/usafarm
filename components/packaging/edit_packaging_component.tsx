@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { Packaging, PackagingGroup } from "@/lib/api/types";
 import { Icon } from "@/components/icon";
 import { Tab } from "@/components/tab";
-import { Input, Modal, EmptyData, Pagination, TableHead, TableLoading } from "@/components/core_component";
+import { Input, Modal, EmptyData, Pagination, TableHead } from "@/components/core_component";
 import { LoadError } from "@/components/load_error";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel, SelectField } from "@/components/form-fields";
@@ -88,14 +88,13 @@ export function EditPackagingComponent({
   const [selectedPackaging, setSelectedPackaging] = useState<Packaging | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [isDetailLoading, setIsDetailLoading] = useState(false);
   const [payload, setPayload] = useState<UpdatePackagingInput | null>(null);
   const [reloadAt, setReloadAt] = useState(0);
   const [activeTab, setActiveTab] = useState<UserStatusTabValue>("all");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [totalPages, setTotalPages] = useState(initialTotalPages);
-  const [packagings, setPackagings] = useState<Packaging[] | null>(initialPackagings);
+  const [packagings, setPackagings] = useState<Packaging[]>(initialPackagings);
   const [loadError, setLoadError] = useState<string | null>(null);
   const skipFirstFetch = useRef(true);
   const canEdit = selectedPackaging?.status === UserStatus.Active;
@@ -136,14 +135,12 @@ export function EditPackagingComponent({
   }, [search, activeTab, page, pageSize, reloadAt, externalReloadAt]);
 
   async function openEditForm(packaging: Packaging) {
-    setIsDetailLoading(true);
     setIsFormOpen(true);
     setSelectedPackaging(packaging);
     setPayload(null);
     setIsConfirmOpen(false);
 
     const result = await getPackaging(packaging.id);
-    setIsDetailLoading(false);
 
     if (!result.ok) {
       putFlash("error", result.message, 1500);
@@ -160,7 +157,6 @@ export function EditPackagingComponent({
     setIsConfirmOpen(false);
     setIsFormOpen(false);
     setSelectedPackaging(null);
-    setIsDetailLoading(false);
   }
 
   function handleFormSubmit(event: FormEvent<HTMLFormElement>) {
@@ -194,13 +190,12 @@ export function EditPackagingComponent({
   return (
     <>
       <section className="section" id="admin-packaging-section">
-        <div className="section-container section-table mb-6">
+        <div className="section-container section-table mb-6 ">
           {loadError ? (
             <LoadError
               message={loadError}
               onRetry={() => {
                 setLoadError(null);
-                setPackagings(null);
                 setReloadAt((value) => value + 1);
               }}
             />
@@ -215,9 +210,7 @@ export function EditPackagingComponent({
                 }}
               />
 
-              {packagings === null ? (
-                <TableLoading />
-              ) : packagings.length === 0 ? (
+              {packagings.length === 0 ? (
                 <EmptyData
                   title="Không có bao bì"
                   description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm."
@@ -316,7 +309,7 @@ export function EditPackagingComponent({
         id="update-packaging-modal"
         show={isFormOpen && selectedPackaging !== null}
         title="Chi tiết bao bì"
-        closeable={!isConfirmOpen && !isDetailLoading}
+        closeable={!isConfirmOpen}
         width="2xl"
         onClose={resetForm}
       >
@@ -328,11 +321,6 @@ export function EditPackagingComponent({
             autoComplete="off"
             onSubmit={handleFormSubmit}
           >
-            {isDetailLoading ? (
-              <div className="admin-user-form gap-4 overflow-y-auto flex-auto h-full">
-                <p className="overview-table__muted">Đang tải chi tiết…</p>
-              </div>
-            ) : (
               <div className="admin-user-form gap-4 overflow-y-auto flex-auto h-full px-4">
                 <div className="admin-user-form__full">
                   <div className="core_field">
@@ -410,12 +398,11 @@ export function EditPackagingComponent({
                   </div>
                 </div>
               </div>
-            )}
             <div className="core_modal__actions">
               <button type="button" className="core_button core_button--secondary" onClick={resetForm}>
                 Hủy
               </button>
-              {canEdit && !isDetailLoading && (
+              {canEdit && (
                 <button type="submit" className="core_button core_button--primary">
                   Xác nhận
                 </button>

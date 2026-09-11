@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-
-import { Dashboard, TableSkeleton } from "@/components/dashboard";
+import { Dashboard } from "@/components/dashboard";
 import { PageLoadError } from "@/components/load_error";
 import { DepartmentsComponent } from "@/components/departments/departments_component";
 import { filterDepartments } from "@/lib/api/departments";
@@ -13,9 +11,7 @@ export const metadata: Metadata = pageMetadata("/departments");
 export default function DepartmentsPage() {
   return (
     <Dashboard id="departments-main">
-      <Suspense fallback={<TableSkeleton />}>
-        <DepartmentsData />
-      </Suspense>
+      <DepartmentsData />
     </Dashboard>
   );
 }

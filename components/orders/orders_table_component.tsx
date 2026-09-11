@@ -7,7 +7,6 @@ import {
   EmptyData,
   Pagination,
   TableHead,
-  TableLoading,
 } from "@/components/core_component";
 import { Icon } from "@/components/icon";
 import { LoadError } from "@/components/load_error";
@@ -65,7 +64,7 @@ export function OrdersTableComponent() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [totalPages, setTotalPages] = useState(1);
-  const [orders, setOrders] = useState<Order[] | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [reloadAt, setReloadAt] = useState(0);
 
@@ -81,7 +80,6 @@ export function OrdersTableComponent() {
 
   useEffect(() => {
     let cancelled = false;
-    setOrders(null);
     setLoadError(null);
 
     filterOrders({
@@ -113,7 +111,6 @@ export function OrdersTableComponent() {
             message={loadError}
             onRetry={() => {
               setLoadError(null);
-              setOrders(null);
               setReloadAt((value) => value + 1);
             }}
           />
@@ -129,9 +126,7 @@ export function OrdersTableComponent() {
               }}
             />
 
-            {orders === null ? (
-              <TableLoading />
-            ) : orders.length === 0 ? (
+            {orders.length === 0 ? (
               <EmptyData
                 title="Không có đơn hàng"
                 description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm."

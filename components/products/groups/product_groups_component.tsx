@@ -21,7 +21,7 @@ export function ProductGroupsComponent() {
 
   return (
     <section className="section" id="product-groups-section">
-      <div className="section-container section-table mb-6">
+      <div className="section-container section-table mb-6 ">
         {MOCK_PRODUCT_GROUPS.length === 0 ? (
           <EmptyData
             title="Không có nhóm sản phẩm"

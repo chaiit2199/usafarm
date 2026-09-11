@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
-import { Suspense } from "react";
-import { Dashboard, TableSkeleton } from "@/components/dashboard";
+import { Dashboard } from "@/components/dashboard";
 import { pageMetadata } from "@/lib/dashboard/navbar";
 import { OrdersComponent } from "@/components/orders/orders_component";
 import { getOrderSummary } from "@/lib/api/orders";
@@ -16,9 +15,7 @@ export default async function Page() {
   return ( 
 
     <Dashboard id="orders-main">
-    <Suspense fallback={<TableSkeleton />}>
       <OrdersData />
-    </Suspense>
     </Dashboard>
   );
 }

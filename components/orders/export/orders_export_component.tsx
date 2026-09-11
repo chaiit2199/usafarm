@@ -8,7 +8,6 @@ import {
   Modal,
   Pagination,
   TableHead,
-  TableLoading,
 } from "@/components/core_component";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel, SelectField } from "@/components/form-fields";
@@ -252,7 +251,7 @@ function ExportSlipModal({
 export function OrdersExportComponent() {
   const [selectedOrder, setSelectedOrder] = useState<WarehouseOrder | null>(null);
   const [search] = useState("");
-  const [orders, setOrders] = useState<WarehouseOrder[] | null>(null);
+  const [orders, setOrders] = useState<WarehouseOrder[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [reloadAt, setReloadAt] = useState(0);
   const [page, setPage] = useState(1);
@@ -260,7 +259,6 @@ export function OrdersExportComponent() {
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    setOrders(null);
     setLoadError(null);
 
     getWarehouseOrders({
@@ -282,21 +280,18 @@ export function OrdersExportComponent() {
 
   return (
     <section className="section" id="production-export-section">
-      <div className="section-container section-table mb-6">
+      <div className="section-container section-table mb-6 ">
         {loadError ? (
           <LoadError
             message={loadError}
             onRetry={() => {
               setLoadError(null);
-              setOrders(null);
               setReloadAt((value) => value + 1);
             }}
           />
         ) : (
           <>
-            {orders === null ? (
-              <TableLoading />
-            ) : orders.length === 0 ? (
+            {orders.length === 0 ? (
               <EmptyData
                 title="Không có đơn xuất kho"
                 description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm."

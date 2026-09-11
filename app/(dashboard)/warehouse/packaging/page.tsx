@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-
-import { Dashboard, TableSkeleton } from "@/components/dashboard";
+import { Dashboard } from "@/components/dashboard";
 import { PageLoadError } from "@/components/load_error";
 import { PackagingComponent } from "@/components/packaging/packaging_component";
 import { filterPackagings, fetchPackagingGroups } from "@/lib/api/packaging";
@@ -13,9 +11,7 @@ export const metadata: Metadata = pageMetadata("/products/packaging");
 export default function PackagingPage() {
   return (
     <Dashboard id="packaging-main">
-      <Suspense fallback={<TableSkeleton />}>
-        <PackagingData />
-      </Suspense>
+      <PackagingData />
     </Dashboard>
   );
 }

@@ -293,7 +293,6 @@ function CreateSeedModal({ onClose }: { onClose: () => void }) {
   }
 
   function confirmCreate() {
-    console.log("create_product_seed", payload);
     setIsConfirmOpen(false);
     onClose();
   }
@@ -445,7 +444,7 @@ export function ProductSeedsComponent() {
 
   return (
     <section className="section" id="product-seeds-section">
-      <div className="section-container section-table mb-6">
+      <div className="section-container section-table mb-6 ">
         {MOCK_SEEDS.length === 0 ? (
           <EmptyData title="Không có loại hạt" description="Chưa có loại hạt nào được tạo." />
         ) : (

@@ -146,9 +146,6 @@ export function IngredientsComponent() {
         setSearch(detail.query ?? "");
         setPage(1);
       }
-      if (detail.action === "create") {
-        console.log("create_ingredient");
-      }
     });
   }, []);
 
@@ -170,7 +167,7 @@ export function IngredientsComponent() {
     <>
       <IngredientsSummaryComponent />
       <section className="section" id="warehouse-ingredients-section">
-        <div className="section-container section-table mb-6">
+        <div className="section-container section-table mb-6 ">
           <div className="overview-table-wrap">
             <div className="overview-table-inner">
               <table className="overview-table min-w-full" id="ingredients-table">

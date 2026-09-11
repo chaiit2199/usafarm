@@ -23,19 +23,3 @@ export function WipPage({ id }: { id: string }) {
     </Dashboard>
   );
 }
-export function TableSkeleton() {
-  return (
-    <section className="section">
-      <div className="section-container section-table mb-6">
-        <div className="relative min-h-100 table-skeleton-pulse overflow-hidden max-w-full">
-          <div className="loading show">
-            <div className="loading-inner">
-              <h2 className="loader">Đang tải dữ liệu...</h2>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-

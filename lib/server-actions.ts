@@ -19,7 +19,7 @@ export async function runServerAction<TSchema extends z.ZodType, TResult extends
   payload: unknown,
   fallbackMessage: string,
   handler: (input: z.infer<TSchema>) => Promise<TResult>,
-): Promise<ActionResult> {
+): Promise<TResult | { ok: false; message: string }> {
   // await requireCurrentUser();
 
   const parsed = schema.safeParse(payload);
@@ -30,7 +30,6 @@ export async function runServerAction<TSchema extends z.ZodType, TResult extends
   try {
     return await handler(parsed.data);
   } catch (error) {
-    console.error("error", actionErrorMessage(error, fallbackMessage));
     return { ok: false, message: actionErrorMessage(error, fallbackMessage) };
   }
 }

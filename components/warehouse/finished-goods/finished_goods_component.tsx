@@ -87,9 +87,6 @@ export function FinishedGoodsComponent() {
         setSearch(detail.query ?? "");
         setPage(1);
       }
-      if (detail.action === "create") {
-        console.log("create_finished_good");
-      }
     });
   }, []);
 
@@ -109,7 +106,7 @@ export function FinishedGoodsComponent() {
 
   return (
     <section className="section" id="finished-goods-section">
-      <div className="section-container section-table mb-6">
+      <div className="section-container section-table mb-6 ">
         <div className="overview-table-wrap">
           <div className="overview-table-inner">
             <table className="overview-table min-w-full" id="finished-goods-table">

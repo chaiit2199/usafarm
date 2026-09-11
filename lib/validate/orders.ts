@@ -41,9 +41,16 @@ export const uploadGoodsIssueImagesSchema = z.object({
   files: z.array(z.instanceof(File)).min(1, "Vui lòng tải ảnh chứng từ"),
 });
 
+export const confirmGoodsIssueHandoverSchema = z.object({
+  id: positiveInt,
+  image_ids: z.array(positiveInt).min(1, "Vui lòng tải ảnh chứng từ"),
+  note: trimmed.max(2000).optional().default(""),
+});
+
 export type OrderIdInput = z.infer<typeof orderIdSchema>;
 export type RejectOrderInput = z.infer<typeof rejectOrderSchema>;
 export type AssignWarehouseInput = z.infer<typeof assignWarehouseSchema>;
 export type CompleteWarehousePackingInput = z.infer<typeof completeWarehousePackingSchema>;
 export type CreateGoodsIssueInput = z.infer<typeof createGoodsIssueSchema>;
 export type UploadGoodsIssueImagesInput = z.infer<typeof uploadGoodsIssueImagesSchema>;
+export type ConfirmGoodsIssueHandoverInput = z.infer<typeof confirmGoodsIssueHandoverSchema>;

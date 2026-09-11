@@ -11,9 +11,14 @@ type Slice = {
 
 const PIE = { size: 200, rOuter: 95, rInner: 58 };
 
+/** Stabilize float coords so SSR and client SVG paths match. */
+function round(n: number) {
+  return Math.round(n * 1e4) / 1e4;
+}
+
 function polar(cx: number, cy: number, r: number, angleDeg: number) {
   const rad = ((angleDeg - 90) * Math.PI) / 180;
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  return { x: round(cx + r * Math.cos(rad)), y: round(cy + r * Math.sin(rad)) };
 }
 
 function donutPath(cx: number, cy: number, rOuter: number, rInner: number, startAngle: number, endAngle: number) {

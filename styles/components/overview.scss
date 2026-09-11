@@ -405,11 +405,9 @@
 }
 
 .overview-table {
-  width: 100%;
+  @apply w-full rounded-xl border border-theme-primary-border;
   border-collapse: collapse;
   table-layout: fixed; 
-  border: 1px solid var(--theme-primary-border);
-  border-radius: 12px !important;
 
   &.overview-table--align-top {
     td,
@@ -425,9 +423,15 @@
     }
   }
 
+  td {
+    .btn {
+      @apply px-2 h-8;
+    }
+  }
+
   th {
     @apply text-sm font-medium text-theme-muted bg-theme-primary-border; 
-    @apply py-2 px-3;
+    @apply py-2 px-2;
     text-align: left; 
     
 
@@ -443,7 +447,7 @@
   }
 
   td {
-    @apply py-3.5 px-3; 
+    @apply py-3.5 px-2; 
     text-align: left;
     color: var(--dash-fg);
     border-bottom: 1px solid var(--theme-primary-border);
@@ -466,6 +470,10 @@
 
   tbody tr {
     position: transition-all;
+
+    td:first-child  {
+      @apply pl-4;
+    } 
   }
 
   tbody tr:hover:not(.td-collapse) {

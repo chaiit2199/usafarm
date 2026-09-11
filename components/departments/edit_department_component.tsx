@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { Department } from "@/lib/api/me";
 import { Icon } from "@/components/icon";
 import { Tab } from "@/components/tab";
-import { Input, Modal, EmptyData, Pagination, TableHead, TableLoading } from "@/components/core_component";
+import { Input, Modal, EmptyData, Pagination, TableHead } from "@/components/core_component";
 import { LoadError } from "@/components/load_error";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel } from "@/components/form-fields";
@@ -79,7 +79,7 @@ export function EditDepartmentComponent({
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [totalPages, setTotalPages] = useState(initialTotalPages);
-  const [departments, setDepartments] = useState<Department[] | null>(initialDepartments);
+  const [departments, setDepartments] = useState<Department[]>(initialDepartments);
   const [loadError, setLoadError] = useState<string | null>(null);
   const skipFirstFetch = useRef(true);
   const canEdit = selectedDepartment?.status === UserStatus.Active;
@@ -181,13 +181,12 @@ export function EditDepartmentComponent({
   return (
     <>
       <section className="section" id="admin-departments-section">
-        <div className="section-container section-table mb-6">
+        <div className="section-container section-table mb-6 ">
           {loadError ? (
             <LoadError
               message={loadError}
               onRetry={() => {
                 setLoadError(null);
-                setDepartments(null);
                 setReloadAt((value) => value + 1);
               }}
             />
@@ -202,9 +201,7 @@ export function EditDepartmentComponent({
                 }}
               />
 
-              {departments === null ? (
-                <TableLoading />
-              ) : departments.length === 0 ? (
+              {departments.length === 0 ? (
                 <EmptyData
                   title="Không có phòng ban"
                   description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm."

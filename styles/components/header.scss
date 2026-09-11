@@ -1,7 +1,7 @@
 /* App header — breadcrumb, title, action bar */
 
 .header {
-  @apply flex items-center justify-between gap-4 flex-shrink-0 px-10 py-7 bg-transparent max-h-30;
+  @apply flex items-center justify-between gap-4 flex-shrink-0 px-8 py-7 bg-transparent max-h-30;
 }
 
 .header__left {

@@ -110,7 +110,6 @@ function CreateWarehouseModal({ onClose }: { onClose: () => void }) {
   }
 
   function confirmCreate() {
-    console.log("create_warehouse", payload);
     setIsConfirmOpen(false);
     onClose();
   }
@@ -231,7 +230,7 @@ export function WarehousesComponent() {
 
   return (
     <section className="section" id="warehouse-list-section">
-      <div className="section-container section-table mb-6">
+      <div className="section-container section-table mb-6 ">
         <div className="overview-table-wrap">
           <div className="overview-table-inner">
             <table className="overview-table min-w-full" id="warehouses-table">

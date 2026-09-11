@@ -13,6 +13,7 @@ import {
   completeWarehousePackingSchema,
   createGoodsIssueSchema,
   uploadGoodsIssueImagesSchema,
+  confirmGoodsIssueHandoverSchema,
 } from "@/lib/validate/orders";
 
 export type WarehouseOrdersParams = {
@@ -104,8 +105,6 @@ export async function createWarehouseOrderGoodsIssue(payload: {
   driver_name: string;
   driver_identity_or_phone: string;
 }) {
-
-  console.log(payload);
   return runServerAction(
     createGoodsIssueSchema,
     payload,
@@ -141,16 +140,48 @@ export async function uploadGoodsIssueImages(formData: FormData) {
     },
     "Không thể tải ảnh chứng từ",
     async ({ id, files }) => {
+      const images: Array<{ id: number; url: string }> = [];
+
       for (const file of files) {
         const body = new FormData();
         body.append("file", file);
-        const ok = await client.post(`/api/v1/warehouse/goods-issues/${id}/images`, body, {
-          timeout: 60_000,
-        });
-        await client.post(`/api/v1/warehouse/goods-issues/${id}/images`, body, {
-          timeout: 60_000,
-        });
+        const response = await client.post<{ data: { id: number; url: string } }>(
+          `/api/v1/warehouse/goods-issues/${id}/images`,
+          body,
+          { timeout: 60_000 },
+        );
+        images.push({ id: response.data.id, url: response.data.url });
       }
+
+      revalidatePath("/production/handover");
+      return {
+        ok: true as const,
+        imagesId: images.map((image) => image.id),
+        images,
+      };
+    },
+  );
+}
+
+export async function confirmGoodsIssueHandover(payload: {
+  id: number;
+  image_ids: number[];
+  note: string;
+}) {
+  return runServerAction(
+    confirmGoodsIssueHandoverSchema,
+    payload,
+    "Không thể xác nhận bàn giao",
+    async ({ id, image_ids, note }) => {
+      await client.post(
+        `/api/v1/warehouse/goods-issues/${id}/handover`,
+        { image_ids, note },
+        {
+          headers: {
+            "Idempotency-Key": crypto.randomUUID(),
+          },
+        },
+      );
       revalidatePath("/production/handover");
       return { ok: true as const };
     },

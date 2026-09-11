@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-
-import { Dashboard, TableSkeleton } from "@/components/dashboard";
+import { Dashboard } from "@/components/dashboard";
 import { getPermissions, getScopeTypes } from "@/lib/api/me";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import { filterRoles } from "@/lib/api/roles";
@@ -14,9 +12,7 @@ export const metadata: Metadata = pageMetadata("/roles");
 export default function PermissionGroupsPage() {
   return (
     <Dashboard id="permission-main">
-      <Suspense fallback={<TableSkeleton />}>
-        <RolesData />
-      </Suspense>
+      <RolesData />
     </Dashboard>
   );
 }

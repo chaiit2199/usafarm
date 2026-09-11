@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-
-import { Dashboard, TableSkeleton } from "@/components/dashboard";
+import { Dashboard } from "@/components/dashboard";
 import { HeaderPageMeta } from "@/components/header_meta";
 import { PageLoadError } from "@/components/load_error";
 import { OrderDetailsComponent } from "@/components/order-details/order_details_component";
@@ -25,9 +23,7 @@ export default async function Page({ params }: PageProps) {
     <>
       <HeaderPageMeta href="/orders" subpage={code} />
       <Dashboard id="order-detail-main">
-        <Suspense fallback={<TableSkeleton />}>
-          <OrderDetailData code={code} />
-        </Suspense>
+        <OrderDetailData code={code} />
       </Dashboard>
     </>
   );

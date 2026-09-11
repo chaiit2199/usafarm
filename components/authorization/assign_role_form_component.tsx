@@ -87,7 +87,6 @@ export function AssignRoleFormComponent({
   const [selectedScopes, setSelectedScopes] = useState<string[]>([]);
   const [targetsByScope, setTargetsByScope] = useState<Record<string, ScopeTarget[]>>({});
   const [selectedTargetIdsByScope, setSelectedTargetIdsByScope] = useState<Record<string, number[]>>({});
-  const [loadingScopes, setLoadingScopes] = useState<Record<string, boolean>>({});
   const [selectedRoleId, setSelectedRoleId] = useState(
     user?.role != null && user.role !== "" ? String(user.role) : "",
   );
@@ -120,7 +119,6 @@ export function AssignRoleFormComponent({
       const scopesNeedingTargets = scopes.filter(requiresTargets);
       if (scopesNeedingTargets.length === 0) return;
 
-      setLoadingScopes(Object.fromEntries(scopesNeedingTargets.map((scope) => [scope, true])));
       try {
         const entries = await Promise.all(
           scopesNeedingTargets.map(async (scope) => {
@@ -138,10 +136,6 @@ export function AssignRoleFormComponent({
         if (!cancelled) {
           putFlash("error", error instanceof Error ? error.message : "Không tải được danh sách phạm vi", 1500);
         }
-      } finally {
-        if (!cancelled) {
-          setLoadingScopes(Object.fromEntries(scopesNeedingTargets.map((scope) => [scope, false])));
-        }
       }
     });
 
@@ -157,21 +151,17 @@ export function AssignRoleFormComponent({
     setSelectedScopes([]);
     setTargetsByScope({});
     setSelectedTargetIdsByScope({});
-    setLoadingScopes({});
   }
 
   async function ensureTargetsLoaded(scope: string) {
     if (!requiresTargets(scope) || targetsByScope[scope]) return;
 
-    setLoadingScopes((current) => ({ ...current, [scope]: true }));
     try {
       const list = await fetchScopeTargets(scope);
       setTargetsByScope((current) => ({ ...current, [scope]: list }));
     } catch (error) {
       putFlash("error", error instanceof Error ? error.message : "Không tải được danh sách phạm vi", 1500);
       setTargetsByScope((current) => ({ ...current, [scope]: [] }));
-    } finally {
-      setLoadingScopes((current) => ({ ...current, [scope]: false }));
     }
   }
 
@@ -346,18 +336,15 @@ export function AssignRoleFormComponent({
             )}
 
             {targetScopes.map((scope) => {
-              const targets = targetsByScope[scope] ?? [];
+              const targets = targetsByScope[scope];
               const selectedIds = selectedTargetIdsByScope[scope] ?? [];
-              const isLoading = loadingScopes[scope];
 
               return (
                 <div key={scope} className="auth-targets md:col-span-2">
                   <p className="auth-targets__title">
                     <RequiredLabel>{SCOPE_TARGET_TITLE[scope] ?? scopeTypeLabel(scope)}</RequiredLabel>
                   </p>
-                  {isLoading ? (
-                    <p className="auth-targets__hint">Đang tải danh sách…</p>
-                  ) : targets.length === 0 ? (
+                  {targets == null ? null : targets.length === 0 ? (
                     <p className="auth-targets__hint">Không có đối tượng để chọn.</p>
                   ) : (
                     <div className="auth-targets__list">

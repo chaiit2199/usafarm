@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { EmptyData, Pagination, TableHead, TableLoading } from "@/components/core_component";
+import { EmptyData, Pagination, TableHead } from "@/components/core_component";
 import { Icon } from "@/components/icon";
 import { Tab } from "@/components/tab";
 import { UserAvatar } from "@/components/user-components";
@@ -21,7 +21,7 @@ export function AuthorizationComponent({ roles }: { roles: Role[] }) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [totalPages, setTotalPages] = useState(1);
-  const [users, setUsers] = useState<User[] | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
@@ -67,16 +67,14 @@ export function AuthorizationComponent({ roles }: { roles: Role[] }) {
   return (
     <>
       {isFormOpen && (
-        <AssignRoleFormComponent user={selectedUser} users={users ?? []} roles={roles} onClose={closeForm} />
+        <AssignRoleFormComponent user={selectedUser} users={users} roles={roles} onClose={closeForm} />
       )}
 
       <section className="section" id="admin-authorization-section">
-        <div className="section-container section-table mb-6">
+        <div className="section-container section-table mb-6 ">
           <Tab tabs={ACTIVE_STATUS_TABS} activeTab={UserStatus.Active} />
 
-          {users === null ? (
-            <TableLoading />
-          ) : users.length === 0 ? (
+          {users.length === 0 ? (
             <EmptyData title="Không có nhân viên" description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm." />
           ) : (
             <div className="overview-table-wrap">

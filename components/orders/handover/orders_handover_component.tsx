@@ -2,18 +2,12 @@
 
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 
-import {
-  EmptyData,
-  Modal,
-  Pagination,
-  TableHead,
-  TableLoading,
-} from "@/components/core_component";
+import { Modal, Pagination, TableHead } from "@/components/core_component";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { Icon } from "@/components/icon";
 import { RequiredLabel } from "@/components/form-fields";
 import { LoadError } from "@/components/load_error";
-import { getWarehouseOrders, uploadGoodsIssueImages } from "@/lib/api/production";
+import { getWarehouseOrders, uploadGoodsIssueImages, confirmGoodsIssueHandover } from "@/lib/api/production";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import type { GoodsIssue, WarehouseOrder } from "@/lib/api/types";
 import { getOrderStatusLabel, orderColor } from "@/lib/constants";
@@ -57,15 +51,17 @@ function HandoverConfirmModal({
 }) {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [podFiles, setPodFiles] = useState<File[]>([]);
-  const [uploading, setUploading] = useState(false);
+  const [imagesId, setImagesId] = useState<number[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<Array<{ id: number; url: string }>>([]);
+  const [note, setNote] = useState("");
 
   const issue = latestGoodsIssue(order);
-  const hasFile = podFiles.length > 0;
 
   async function handleUploadImage(event: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? []);
-    console.log("files", files);
     setPodFiles(files);
+    setImagesId([]);
+    setUploadedImages([]);
     if (files.length === 0) return;
 
     if (!issue) {
@@ -77,27 +73,45 @@ function HandoverConfirmModal({
     formData.append("id", String(issue.id));
     for (const file of files) formData.append("file", file);
 
-    setUploading(true);
     const result = await uploadGoodsIssueImages(formData);
-    setUploading(false);
 
     if (!result.ok) {
       putFlash("error", result.message, 1500);
       setPodFiles([]);
+      setImagesId([]);
+      setUploadedImages([]);
       event.target.value = "";
       return;
     }
 
+    setImagesId(result.imagesId);
+    setUploadedImages(result.images);
     putFlash("success", "Đã tải ảnh chứng từ", 1500);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!hasFile || uploading) return;
+    if (!issue || imagesId.length === 0) return;
+    const data = new FormData(event.currentTarget);
+    setNote(String(data.get("note") ?? "").trim());
     setIsConfirmOpen(true);
   }
 
   async function confirmHandover() {
+    if (!issue || imagesId.length === 0) return;
+
+    const result = await confirmGoodsIssueHandover({
+      id: issue.id,
+      image_ids: imagesId,
+      note,
+    });
+
+    if (!result.ok) {
+      setIsConfirmOpen(false);
+      putFlash("error", result.message, 1500);
+      return;
+    }
+
     setIsConfirmOpen(false);
     putFlash("success", "Đã xác nhận bàn giao", 1500);
     onSaved();
@@ -159,11 +173,9 @@ function HandoverConfirmModal({
                 </span>
                 <span className="min-w-0">
                   <span className="block text-sm font-medium text-slate-900">
-                    {uploading
-                      ? "Đang tải ảnh..."
-                      : podFiles.length > 0
-                        ? podFiles.map((file) => file.name).join(", ")
-                        : "Chụp ảnh từ điện thoại hoặc bấm vào đây để tải file biên bản"}
+                    {podFiles.length > 0
+                      ? podFiles.map((file) => file.name).join(", ")
+                      : "Chụp ảnh từ điện thoại hoặc bấm vào đây để tải file biên bản"}
                   </span>
                   <span className="mt-0.5 block text-xs text-theme-muted">
                     Bắt buộc phải có ảnh chứng từ mới kích hoạt được nút xác nhận
@@ -177,10 +189,21 @@ function HandoverConfirmModal({
                   multiple
                   className="sr-only"
                   required
-                  disabled={uploading}
                   onChange={handleUploadImage}
                 />
               </label>
+              {uploadedImages.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {uploadedImages.map((image) => (
+                    <img
+                      key={image.id}
+                      src={image.url}
+                      alt={`Ảnh chứng từ #${image.id}`}
+                      className="w-20 h-20 object-cover rounded-lg"
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="core_field">
@@ -204,7 +227,7 @@ function HandoverConfirmModal({
             <button
               type="submit"
               className="core_button core_button--primary inline-flex items-center gap-1.5"
-              disabled={!hasFile || uploading}
+              disabled={imagesId.length === 0}
             >
               Xác nhận bàn giao
             </button>
@@ -247,14 +270,13 @@ export function OrdersHandoverComponent() {
   const [pageSize, setPageSize] = useState(20);
   const [totalPages, setTotalPages] = useState(1);
   const [search] = useState("");
-  const [orders, setOrders] = useState<WarehouseOrder[] | null>(null);
+  const [orders, setOrders] = useState<WarehouseOrder[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [reloadAt, setReloadAt] = useState(0);
   const [selectedOrder, setSelectedOrder] = useState<WarehouseOrder | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    setOrders(null);
     setLoadError(null);
 
     getWarehouseOrders({
@@ -280,13 +302,12 @@ export function OrdersHandoverComponent() {
 
   return (
     <section className="section" id="production-handover-section">
-      <div className="section-container section-table mb-6">
+      <div className="section-container section-table mb-6 ">
         {loadError ? (
           <LoadError
             message={loadError}
             onRetry={() => {
               setLoadError(null);
-              setOrders(null);
               setReloadAt((value) => value + 1);
             }}
           />
@@ -294,14 +315,14 @@ export function OrdersHandoverComponent() {
           <>
             <div className="overview-table-wrap">
               <div className="overview-table-inner">
-                <table className="overview-table min-w-[1200px]" id="handover-orders-table">
+                <table className="overview-table min-w-full" id="handover-orders-table">
                   <colgroup>
                     <col style={{ width: "4%" }} />
                     <col style={{ width: "24%" }} />
                     <col style={{ width: "14%" }} />
                     <col style={{ width: "14%" }} />
-                    <col style={{ width: "14%" }} />
-                    <col style={{ width: "14%" }} />
+                    <col style={{ width: "16%" }} />
+                    <col style={{ width: "12%" }} />
                     <col style={{ width: "16%" }} />
                   </colgroup>
                   <thead>
@@ -310,13 +331,13 @@ export function OrdersHandoverComponent() {
                       <TableHead>Mã đơn hàng</TableHead>
                       <TableHead>Số phiếu xuất</TableHead> 
                       <TableHead icon="hero-truck">Xe nhận hàng</TableHead>
-                      <TableHead icon="hero-tag">Người nhận hàng</TableHead>
+                      <TableHead>Người nhận hàng</TableHead>
                       <TableHead>Trạng thái</TableHead>
                       <TableHead className="actions"></TableHead>
                     </tr>
                   </thead>
                   <tbody>
-                    {orders?.map((order, index) => (
+                    {orders.map((order, index) => (
                       <tr key={order.code} id={`handover-order-row-${order.code}`}>
                         <td className="overview-table__muted">{index + 1}</td>
                         <td className="overview-table__muted">{order.code}</td>

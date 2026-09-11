@@ -52,7 +52,6 @@ function CreateProductTypeModal({ onClose }: { onClose: () => void }) {
   }
 
   function confirmCreate() {
-    console.log("create_product_type", payload);
     setIsConfirmOpen(false);
     onClose();
   }
@@ -179,7 +178,7 @@ export function ProductTypesComponent() {
 
   return (
     <section className="section" id="product-types-section">
-      <div className="section-container section-table mb-6">
+      <div className="section-container section-table mb-6 ">
         {MOCK_PRODUCT_TYPES.length === 0 ? (
           <EmptyData
             title="Không có loại hàng"

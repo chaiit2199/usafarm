@@ -479,7 +479,7 @@ $sidebar-label-delay: 0.15s;
 /* —— Main content —— */
 
 .dash-main {
-  @apply flex flex-col flex-1 min-w-0 px-10 overflow-y-auto;
+  @apply flex flex-col flex-1 min-w-0 px-8 overflow-y-auto;
 }
 
 .dash-pagehead {
@@ -1027,80 +1027,3 @@ $sidebar-label-delay: 0.15s;
   color: var(--dash-fg);
   font-size: 16px;
 } 
-.loading {
-  transition: opacity 0.15s ease, visibility 0.15s ease;
-  opacity: 0;
-  visibility: hidden;
-  background: #fff;
-  color: #424242;
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 100%;
-  left: 0;
-  top: 0;
-  z-index: 1;
-
-  &.show {
-    opacity: 1;
-    visibility: visible;
-  }
-}
-
-.loader,
-.loader:after {
-  width: 30px;
-  height: 30px;
-}
-
-@keyframes spin_around {
-  from {
-    -webkit-transform: rotate(0deg);
-    -moz-transform: rotate(0deg);
-    -o-transform: rotate(0deg);
-  }
-
-  to {
-    -webkit-transform: rotate(360deg);
-    -moz-transform: rotate(360deg);
-    -o-transform: rotate(360deg);
-  }
-}
-
-.loading-inner {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.loader {
-  opacity: 0.3;
-  margin: 0 auto;
-  border-radius: 50%;
-  font-size: 6px;
-  position: relative;
-  text-indent: -9999em;
-  border-top: 3px solid rgba(199, 197, 197, 0);
-  border-right: 3px solid var(--dash-primary);
-  border-bottom: 3px solid var(--dash-primary);
-  border-left: 3px solid var(--dash-primary);
-  -webkit-animation: spin_around 0.45s infinite linear;
-  animation: spin_around 0.45s infinite linear;
-}
-
-@keyframes skeleton-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.55;
-  }
-}
-
-.table-skeleton-pulse {
-  animation: skeleton-pulse 0.9s ease-in-out infinite;
-}

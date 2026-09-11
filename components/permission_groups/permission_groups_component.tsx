@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 
-import { Input, Modal, EmptyData, Pagination, TableHead, TableLoading } from "@/components/core_component";
+import { Input, Modal, EmptyData, Pagination, TableHead } from "@/components/core_component";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel } from "@/components/form-fields";
 import { Icon } from "@/components/icon";
@@ -50,7 +50,7 @@ export function PermissionGroupsComponent({
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [totalPages, setTotalPages] = useState(initialTotalPages);
-  const [roles, setRoles] = useState<Role[] | null>(initialRoles);
+  const [roles, setRoles] = useState<Role[]>(initialRoles);
   const [reloadAt, setReloadAt] = useState(0);
   const skipFirstFetch = useRef(true);
 
@@ -61,7 +61,6 @@ export function PermissionGroupsComponent({
   const [payload, setPayload] = useState<UpdateRoleInput | null>(null);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
   const [userPermissionIds, setUserPermissionIds] = useState<number[] | null>(null);
-  const [isPermissionsLoading, setIsPermissionsLoading] = useState(false);
   const canEdit = selectedRole?.status === UserStatus.Active;
   const isPendingApproval = selectedRole?.status === UserStatus.WaitingForApproval;
   const isRejected = selectedRole?.status === UserStatus.Rejected;
@@ -106,7 +105,6 @@ export function PermissionGroupsComponent({
     setConfirmAction(null);
     setIsConfirmOpen(false);
     setUserPermissionIds(null);
-    setIsPermissionsLoading(true);
 
     try {
       const userPermissions = await fetchRolePermissions(role.id);
@@ -118,8 +116,6 @@ export function PermissionGroupsComponent({
     } catch (error) {
       setSelectedRole(null);
       putFlash("error", error instanceof Error ? error.message : "Không tải được danh sách quyền", 1500);
-    } finally {
-      setIsPermissionsLoading(false);
     }
   }
 
@@ -129,7 +125,6 @@ export function PermissionGroupsComponent({
     setIsConfirmOpen(false);
     setUserPermissionIds(null);
     setScopePermissions([]);
-    setIsPermissionsLoading(false);
     setSelectedRole(null);
   }
 
@@ -188,7 +183,7 @@ export function PermissionGroupsComponent({
         />
       )}
       <section className="section" id="admin-permission-section">
-        <div className="section-container section-table mb-6">
+        <div className="section-container section-table mb-6 ">
           <Tab
             tabs={USER_STATUS_TABS}
             activeTab={activeTab}
@@ -198,9 +193,7 @@ export function PermissionGroupsComponent({
             }}
           />
 
-          {roles === null ? (
-            <TableLoading />
-          ) : roles.length === 0 ? (
+          {roles.length === 0 ? (
             <EmptyData title="Không có nhóm quyền" description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm." />
           ) : (
             <div className="overview-table-wrap">
@@ -327,9 +320,7 @@ export function PermissionGroupsComponent({
                 )}
               </div>
 
-              {isPermissionsLoading ? (
-                <p className="text-sm text-theme-muted">Đang tải danh sách quyền...</p>
-              ) : userPermissionIds ? (
+              {userPermissionIds ? (
                 <SelectRoles
                   permissions={permissions}
                   scopePermissions={scopePermissions}

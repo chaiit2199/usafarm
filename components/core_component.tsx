@@ -6,7 +6,7 @@ import { Icon } from "./icon";
 
 export { Input, type InputProps } from "@/components/input";
 export { Tab, type TabItem, type TabProps } from "@/components/tab";
-export { EmptyData, TableLoading } from "@/components/empty_data";
+export { EmptyData } from "@/components/empty_data";
 export { Pagination, type PaginationProps } from "@/components/pagination";
 export { TableHead } from "@/components/table_head";
 

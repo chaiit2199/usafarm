@@ -24,15 +24,3 @@ export function EmptyData({
     </div>
   );
 }
-
-export function TableLoading({ label = "Đang tải dữ liệu..." }: { label?: string }) {
-  return (
-    <div className="relative min-h-100 overflow-hidden max-w-full" role="status" aria-live="polite">
-      <div className="loading show">
-        <div className="loading-inner">
-          <h2 className="loader">{label}</h2>
-        </div>
-      </div>
-    </div>
-  );
-}

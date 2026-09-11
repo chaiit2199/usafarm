@@ -11,7 +11,7 @@ import {
   sessionCookieOptions,
   type Session,
 } from "@/lib/auth/session";
-import { Logger } from "@/lib/debug/logger";
+import { Logger, logHttpError } from "@/lib/debug/logger";
 
 export type HttpRequestOptions = Omit<AxiosRequestConfig, "url" | "method" | "data"> & {
   accessToken?: string;
@@ -122,6 +122,14 @@ export class Client {
         }
       }
 
+      logHttpError({
+        method: String(method ?? "GET").toUpperCase(),
+        url,
+        status: httpError.status,
+        message: httpError.message,
+        data: httpError.data,
+      });
+
       throw httpError;
     }
   }
@@ -184,8 +192,9 @@ function readMessage(value: unknown): string | undefined {
     const joined = value.filter((item): item is string => typeof item === "string").join(", ");
     return joined || undefined;
   }
-  if (value && typeof value === "object" && "message" in value) {
-    return readMessage((value as { message: unknown }).message);
+  if (value && typeof value === "object") {
+    const obj = value as { message?: unknown; code?: unknown };
+    return readMessage(obj.message) || readMessage(obj.code);
   }
   return undefined;
 }

@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useState } from "react";
 
-import { EmptyData, Modal, Pagination, TableHead, TableLoading } from "@/components/core_component";
+import { EmptyData, Modal, Pagination, TableHead } from "@/components/core_component";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { Icon } from "@/components/icon";
 import { LoadError } from "@/components/load_error";
@@ -250,7 +250,7 @@ export function PackagingComponent() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [totalPages, setTotalPages] = useState(1);
-  const [orders, setOrders] = useState<WarehouseOrder[] | null>(null);
+  const [orders, setOrders] = useState<WarehouseOrder[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [reloadAt, setReloadAt] = useState(0);
   const [expandedIds, setExpandedIds] = useState<number[]>([]);
@@ -270,7 +270,6 @@ export function PackagingComponent() {
 
   useEffect(() => {
     let cancelled = false;
-    setOrders(null);
     setLoadError(null);
 
     getWarehouseOrders({
@@ -361,13 +360,12 @@ export function PackagingComponent() {
 
   return (
     <section className="section" id="production-packaging-section">
-      <div className="section-container section-table mb-6">
+      <div className="section-container section-table mb-6 ">
         {loadError ? (
           <LoadError
             message={loadError}
             onRetry={() => {
               setLoadError(null);
-              setOrders(null);
               setReloadAt((value) => value + 1);
             }}
           />
@@ -383,9 +381,7 @@ export function PackagingComponent() {
               }}
             />
 
-            {orders === null ? (
-              <TableLoading />
-            ) : orders.length === 0 ? (
+            {orders.length === 0 ? (
               <EmptyData
                 title="Không có đơn đóng gói"
                 description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm."

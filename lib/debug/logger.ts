@@ -16,3 +16,21 @@ export function Logger(method: string, url: string) {
     console.debug(`[debug] ${method} ${url} ${status} ${ms}ms`);
   };
 }
+
+export function logHttpError(input: {
+  method: string;
+  url: string;
+  status?: number;
+  message: string;
+  data?: unknown;
+}) {
+  if (!enabled) return;
+
+  console.error("[http]", {
+    method: input.method,
+    url: input.url,
+    status: input.status,
+    message: input.message,
+    data: input.data,
+  });
+}
