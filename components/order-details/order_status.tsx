@@ -24,6 +24,7 @@ const STEP_ICONS: Record<OrderStatusId, IconName> = {
   [orderStatus.splitOrder]: "hero-document-duplicate",
   [orderStatus.approvedWaitingShipment]: "hero-truck",
   [orderStatus.approvedWaitingGoodsIssue]: "hero-archive-box-arrow-down",
+  [orderStatus.approvedWaitingHandover]: "hero-check-circle-mini",
 };
 
 const TERMINALS = new Set<OrderStatusId>([
