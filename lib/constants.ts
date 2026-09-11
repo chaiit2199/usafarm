@@ -72,7 +72,6 @@ export const roleStatusMeta = recordStatusMeta;
 /** API order.status 0–10. */
 export const ORDER_STATUSES = [
   { id: 0, semantic: "DRAFT", label: "Đơn mới", color: "#16A34A" },
-
   { id: 1, semantic: "WAITING_FOR_APPROVAL", label: "Chờ duyệt", color: "#D97706" },
   { id: 2, semantic: "APPROVED_WAITING_ALLOCATION", label: "Chờ phân kho", color: "#EA580C" },
   { id: 11, semantic: "APPROVED_WAITING_SHIPMENT", label: "Chờ giao hàng", color: "#0284C7" },

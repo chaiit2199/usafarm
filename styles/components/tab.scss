@@ -1,7 +1,7 @@
 .core_tab {
     @apply mb-6;
     .menu_tab {
-        @apply flex gap-6 relative min-w-max;
+        @apply flex gap-x-6 gap-y-2 relative flex-wrap;
         &::before {
             @apply content-[''] absolute left-0 bottom-0 w-full h-px bg-theme-primary-border;
             z-index: -1;
