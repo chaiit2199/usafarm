@@ -87,7 +87,7 @@ export const MENU: Navbar[] = [
     children: [  
       {
         id: "groups",
-        label: "Tạo mới nhóm hàng (NPK, DAP, HUMIC...)",
+        label: "Danh mục gốc — các nhóm phân bón lớn (NPK, DAP, Urê, Kali, Humic...)",
         href: "/products/groups",
         icon: "hero-rectangle-stack",
         title: "Quản lý nhóm hàng",
@@ -96,7 +96,7 @@ export const MENU: Navbar[] = [
       },
       {
         id: "types",
-        label: "Tạo mới loại hàng (30-10-10, 20-15-15...)",
+        label: "Công thức hàm lượng chi tiết trực thuộc từng nhóm sản phẩm cha",
         href: "/products/types",
         icon: "hero-beaker",
         title: "Quản lý loại hàng",
@@ -106,7 +106,7 @@ export const MENU: Navbar[] = [
         id: "seeds",
         label: "Tạo mới loại hạt",
         href: "/products/seeds",
-        icon: "hero-sparkles",
+        icon: "hero-swatch",
         title: "Quản lý loại hạt",
         create: true,
       }, 

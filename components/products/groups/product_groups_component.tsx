@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import { EmptyData, Pagination, TableHead } from "@/components/core_component";
 import { MOCK_PRODUCT_GROUPS } from "@/lib/mock/product-groups";
+import { Icon } from "@/components/icon";
 
 function formatChildTypes(count: number) {
   return `${count} loại hàng`;
@@ -34,15 +35,17 @@ export function ProductGroupsComponent() {
                 <colgroup>
                   <col style={{ width: "8%" }} />
                   <col style={{ width: "18%" }} />
-                  <col style={{ width: "46%" }} />
-                  <col style={{ width: "28%" }} />
+                  <col style={{ width: "40%" }} />
+                  <col style={{ width: "24%" }} />
+                  <col style={{ width: "10%" }} />
                 </colgroup>
                 <thead>
                   <tr>
-                    <TableHead>STT</TableHead>
-                    <TableHead icon="hero-hashtag">ID nhóm</TableHead>
+                    <TableHead></TableHead>
+                    <TableHead>ID nhóm</TableHead>
                     <TableHead icon="hero-rectangle-stack">Tên nhóm sản phẩm gốc</TableHead>
                     <TableHead>Số loại hàng con (C2)</TableHead>
+                    <TableHead></TableHead>
                   </tr>
                 </thead>
                 <tbody>
@@ -57,6 +60,11 @@ export function ProductGroupsComponent() {
                       <td className="font-medium text-slate-900">{group.name}</td>
                       <td className="overview-table__muted">
                         {formatChildTypes(group.childTypeCount)}
+                      </td>
+                      <td className="actions"> 
+                        <button type="button" className="admin-actions__btn" aria-label="Chỉnh sửa">
+                          <Icon name="hero-pencil-square" className="size-5" />
+                        </button> 
                       </td>
                     </tr>
                   ))}

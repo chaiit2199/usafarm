@@ -14,6 +14,7 @@ import { RequiredLabel, SelectField } from "@/components/form-fields";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 import { MOCK_PRODUCT_GROUPS } from "@/lib/mock/product-groups";
 import { MOCK_PRODUCT_TYPES } from "@/lib/mock/product-types";
+import { Icon } from "@/components/icon";
 
 type CreateProductTypePayload = {
   groupCode: string;
@@ -72,51 +73,61 @@ function CreateProductTypeModal({ onClose }: { onClose: () => void }) {
           autoComplete="off"
           onSubmit={handleFormSubmit}
         >
-          <div className="admin-user-form gap-4 overflow-y-auto flex-auto h-full px-4">
-            <SelectField
-              id="create-product-type-group"
-              name="group_code"
-              label={<RequiredLabel>Nhóm cha</RequiredLabel>}
-              value={groupCode}
-              required
-              onChange={(event) => setGroupCode(event.target.value)}
-            >
-              <option value="">Chọn nhóm cha</option>
-              {MOCK_PRODUCT_GROUPS.map((group) => (
-                <option key={group.id} value={group.code}>
-                  {group.code} — {group.name}
-                </option>
-              ))}
-            </SelectField>
+          <div className="admin-user-form gap-4 overflow-y-auto flex-auto h-full px-4"> 
+            <div className="col-span-2 flex flex-col gap-6">
+              <SelectField
+                id="create-product-type-group"
+                name="group_code"
+                label={<RequiredLabel>Chọn nhóm sản phẩm cha (Cấp 1)</RequiredLabel>}
+                value={groupCode}
+                required
+                onChange={(event) => setGroupCode(event.target.value)}
+              >
+                <option value="">Chọn nhóm cha</option>
+                {MOCK_PRODUCT_GROUPS.map((group) => (
+                  <option key={group.id} value={group.code}>
+                    {group.code} — {group.name}
+                  </option>
+                ))}
+              </SelectField>
 
-            <Input
-              id="create-product-type-name"
-              name="name"
-              label={<RequiredLabel>Tên loại hàng / tên công thức</RequiredLabel>}
-              placeholder="Ví dụ: 20-20-15, Đen, Dạng bột"
-              required
-            />
+              <Input
+                id="create-product-type-name"
+                name="name"
+                label={<RequiredLabel>Tên loại hàng / tên công thức</RequiredLabel>}
+                placeholder="Ví dụ: 20-20-15, Đen, Dạng bột"
+                required
+              />
 
-            <Input
-              id="create-product-type-id"
-              name="type_id"
-              label={
-                <RequiredLabel>
-                  ID loại hàng (mã viết liền — dùng ghép đuôi SKU phân đoạn 1)
-                </RequiredLabel>
-              }
-              placeholder="VÍ DỤ: 202015, D, BOT"
-              value={typeId}
-              required
-              onChange={(event) => setTypeId(event.target.value)}
-            />
+              <Input
+                id="create-product-type-id"
+                name="type_id"
+                label={
+                  <RequiredLabel>
+                    ID loại hàng (mã viết liền — dùng ghép đuôi SKU phân đoạn 1)
+                  </RequiredLabel>
+                }
+                placeholder="VÍ DỤ: 202015, D, BOT"
+                value={typeId}
+                required
+                onChange={(event) => setTypeId(event.target.value)}
+              />
 
-            {skuPreview ? (
-              <p className="text-sm text-theme-muted mb-0">
-                Mã ghép SKU gốc:{" "}
-                <span className="font-semibold text-slate-900">{skuPreview}</span>
-              </p>
-            ) : null}
+              {skuPreview ? (
+                <Input
+                  id="skuPreview"
+                  name="sku_preview"
+                  label={
+                    <RequiredLabel>
+                      Nhóm [URE] + Loại [D] 
+                    </RequiredLabel>
+                  }
+                  value={skuPreview}
+                  required
+                  disabled
+                />
+              ) : null}
+            </div> 
           </div>
 
           <div className="core_modal__actions px-4">
@@ -192,16 +203,18 @@ export function ProductTypesComponent() {
                   <col style={{ width: "8%" }} />
                   <col style={{ width: "14%" }} />
                   <col style={{ width: "28%" }} />
-                  <col style={{ width: "20%" }} />
-                  <col style={{ width: "30%" }} />
+                  <col style={{ width: "16%" }} />
+                  <col style={{ width: "26%" }} />
+                  <col style={{ width: "8%" }} />
                 </colgroup>
                 <thead>
                   <tr>
-                    <TableHead>STT</TableHead>
+                    <TableHead></TableHead>
                     <TableHead icon="hero-rectangle-stack">Nhóm cha</TableHead>
                     <TableHead icon="hero-beaker">Tên loại hàng / công thức</TableHead>
                     <TableHead icon="hero-hashtag">ID loại hàng</TableHead>
                     <TableHead icon="hero-tag">Mã ghép SKU gốc</TableHead>
+                    <TableHead></TableHead>
                   </tr>
                 </thead>
                 <tbody>
@@ -216,6 +229,11 @@ export function ProductTypesComponent() {
                       <td className="font-medium text-slate-900">{item.name}</td>
                       <td className="overview-table__muted">{item.typeId || "—"}</td>
                       <td className="overview-table__code">{item.skuBase}</td>
+                      <td className="actions">
+                        <button type="button" className="admin-actions__btn" aria-label="Chỉnh sửa">
+                        <Icon name="hero-pencil-square" className="size-5" />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

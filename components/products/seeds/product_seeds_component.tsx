@@ -461,9 +461,9 @@ export function ProductSeedsComponent() {
                 </colgroup>
                 <thead>
                   <tr>
-                    <TableHead>STT</TableHead>
+                    <TableHead></TableHead>
                     <TableHead icon="hero-hashtag">Mã hạt</TableHead>
-                    <TableHead icon="hero-sparkles">Tên hạt</TableHead>
+                    <TableHead icon="hero-swatch">Tên hạt</TableHead>
                     <TableHead>Loại</TableHead>
                     <TableHead icon="hero-beaker">Nguyên liệu / Công thức phối trộn</TableHead>
                     <TableHead icon="hero-tag">Loại hàng áp dụng</TableHead>
