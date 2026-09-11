@@ -1,5 +1,7 @@
 import "server-only";
 
+import { inspect } from "node:util";
+
 // show debug only in development mode
 const enabled = process.env.NODE_ENV === "development";
 
@@ -22,15 +24,23 @@ export function logHttpError(input: {
   url: string;
   status?: number;
   message: string;
+  payload?: unknown;
   data?: unknown;
 }) {
   if (!enabled) return;
 
-  console.error("[http]", {
-    method: input.method,
-    url: input.url,
-    status: input.status,
-    message: input.message,
-    data: input.data,
-  });
+  console.error(
+    "[http]",
+    inspect(
+      {
+        method: input.method,
+        url: input.url,
+        status: input.status,
+        message: input.message,
+        payload: input.payload,
+        data: input.data,
+      },
+      { depth: null, colors: true },
+    ),
+  );
 }

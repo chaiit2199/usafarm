@@ -127,6 +127,7 @@ export class Client {
         url,
         status: httpError.status,
         message: httpError.message,
+        payload: isFormData ? "[FormData]" : data,
         data: httpError.data,
       });
 
