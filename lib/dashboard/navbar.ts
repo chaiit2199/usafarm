@@ -117,8 +117,8 @@ export const MENU: Navbar[] = [
           "Hệ thống tự động tạo sản phẩm từ nhóm hàng, loại hàng, bao bì, loại hạt",
         href: "/products/product",
         icon: "hero-tag",
-        title: "Danh mục sản phẩm",
-        create: true,
+        title: "Danh mục sản phẩm", 
+        search: true,
         view: true,
       },
     ]

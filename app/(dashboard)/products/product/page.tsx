@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
 
-import { WipPage } from "@/components/dashboard";
+import { Dashboard } from "@/components/dashboard";
+import { ProductComponent } from "@/components/products/product";
 import { pageMetadata } from "@/lib/dashboard/navbar";
 
 export const metadata: Metadata = pageMetadata("/products/product");
 
 export default function Page() {
-  return <WipPage id="products-main" />;
+  return (
+    <Dashboard id="products-main">
+      <ProductComponent />
+    </Dashboard>
+  );
 }
