@@ -207,8 +207,8 @@ function PackagingOrderLines({ lines }: { lines: WarehouseOrderLine[] }) {
       <div className="overview-table-inner theme-primary-border">
         <table className="overview-table min-w-full">
           <colgroup>
-            <col style={{ width: "4%" }} />
-            <col style={{ width: "18%" }} />
+            <col style={{ width: "8%" }} />
+            <col style={{ width: "14%" }} />
             <col style={{ width: "30%" }} />
             <col style={{ width: "16%" }} />
             <col style={{ width: "16%" }} />
@@ -216,7 +216,7 @@ function PackagingOrderLines({ lines }: { lines: WarehouseOrderLine[] }) {
           </colgroup>
           <thead>
             <tr>
-              <TableHead />
+              <TableHead>ID đơn hàng</TableHead>
               <TableHead>SKU</TableHead>
               <TableHead icon="hero-cube">Tên sản phẩm</TableHead>
               <TableHead>Số lượng cần</TableHead>
@@ -225,9 +225,9 @@ function PackagingOrderLines({ lines }: { lines: WarehouseOrderLine[] }) {
             </tr>
           </thead>
           <tbody>
-            {lines.map((line, index) => (
-              <tr key={line.id}>
-                <td>{index + 1}</td>
+            {lines.map((line) => (
+              <tr key={line.sales_sku_code}>
+                <td>{line.id}</td>
                 <td className="overview-table__muted">{line.sales_sku_code}</td>
                 <td>{line.sku_name}</td>
                 <td className="is-num overview-table__muted">{line.quantity}</td>
@@ -403,7 +403,7 @@ export function PackagingComponent() {
                     </colgroup>
                     <thead>
                       <tr>
-                        <TableHead />
+                        <TableHead></TableHead>
                         <TableHead icon="hero-clipboard-document-list">Mã đơn</TableHead>
                         <TableHead>Số lượng cần</TableHead>
                         <TableHead icon="hero-cube">Số lượng đã đóng</TableHead>
