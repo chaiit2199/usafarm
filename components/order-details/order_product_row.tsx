@@ -97,7 +97,6 @@ function ProductCapacityPanel({ capacity , line }: { capacity?: OrderFulfillment
                     </td>
                     <td>{capacity.finished_goods_available} bao</td>
                     <td>
-                    is_finished_goods_available: {capacity.finished_goods_available}
                       {capacity.is_finished_goods_available ? (
                         <span className="status status--active">Đi hàng tồn kho</span>
                       ) : capacity.finished_goods_available <= 0 ? (
