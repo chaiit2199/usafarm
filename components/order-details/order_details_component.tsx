@@ -8,7 +8,6 @@ import { FormSubmitButton } from "@/components/form-submit-button";
 import { Icon } from "@/components/icon";
 import { SelectField, RequiredLabel } from "@/components/form-fields";
 import { OrderProductRow } from "@/components/order-details/order_product_row";
-import { OrderStatus } from "@/components/order-details/order_status";
 import { approveOrder, assignOrderWarehouse, rejectOrder } from "@/lib/api/orders";
 import type {
   Order,
@@ -348,14 +347,6 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
 
   return (
     <>
-      {(statusId === orderStatus.draft) && (
-        <OrderStatus
-          status={order.status}
-          createdAt={order.created_at}
-          updatedAt={order.updated_at}
-        />
-      )}
-
       <div className="grid grid-cols-3 gap-6">
         <section className="section-container mb-6 col-span-2">
           <h6 className="mb-4 text-base font-semibold flex items-center gap-2">
@@ -440,12 +431,12 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
             </div>
             <div>
               <p className="text-theme-muted text-xs mb-0.5">Số điện thoại</p>
-              <p className="font-semibold text-slate-900 text-sm">{order.agency.phone ?? "0123456789"}</p>
+              <p className="font-semibold text-slate-900 text-sm">{order.agency.phone ?? "-"}</p>
             </div>
             <div>
               <p className="text-theme-muted text-xs mb-0.5">Người liên hệ</p>
               <p className="font-semibold text-slate-900 text-sm">
-                {order.agency.contact_name ?? "Nguyễn Lê Huỳnh Đức"}
+                {order.agency.contact_name ?? "-"}
               </p>
             </div>
             <div className="col-span-2">

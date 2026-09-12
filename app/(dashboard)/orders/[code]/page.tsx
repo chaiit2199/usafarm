@@ -20,12 +20,9 @@ export default async function Page({ params }: PageProps) {
   const { code } = await params;
 
   return (
-    <>
-      <HeaderPageMeta href="/orders" subpage={code} />
-      <Dashboard id="order-detail-main">
-        <OrderDetailData code={code} />
-      </Dashboard>
-    </>
+    <Dashboard id="order-detail-main">
+      <OrderDetailData code={code} />
+    </Dashboard>
   );
 }
 
@@ -37,10 +34,13 @@ async function OrderDetailData({ code }: { code: string }) {
     }
 
     return (
-      <OrderDetailsComponent
-        order={result.data.order}
-        fulfillmentCapacity={result.data.fulfillment}
-      />
+      <>
+        <HeaderPageMeta href="/orders" subpage={result.data.order.code} />
+        <OrderDetailsComponent
+          order={result.data.order}
+          fulfillmentCapacity={result.data.fulfillment}
+        />
+      </>
     );
   } catch (error) {
     return catchPageLoadError(error);

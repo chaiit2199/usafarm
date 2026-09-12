@@ -136,19 +136,21 @@ export function OrdersTableComponent() {
                 <div className="overview-table-inner">
                   <table className="overview-table min-w-[2000px]" id="orders-table">
                     <colgroup>
+                      <col style={{ width: "6%" }} />
                       <col style={{ width: "16%" }} />
                       <col style={{ width: "10%" }} />
-                      <col style={{ width: "16%" }} />
+                      <col style={{ width: "14%" }} />
                       <col style={{ width: "10%" }} />
                       <col style={{ width: "10%" }} />
-                      <col style={{ width: "12%" }} />
-                      <col style={{ width: "12%" }} />
+                      <col style={{ width: "10%" }} />
+                      <col style={{ width: "10%" }} />
                       <col style={{ width: "10%" }} />
                       <col style={{ width: "4%" }} />
                     </colgroup>
                     <thead>
                       <tr>
-                        <TableHead icon="hero-clipboard-document-list">Mã đơn</TableHead>
+                        <TableHead>ID đơn hàng</TableHead>
+                        <TableHead icon="hero-clipboard-document-list">Mã đơn hàng</TableHead>
                         <TableHead icon="hero-tag">Trạng thái</TableHead>
                         <TableHead icon="hero-building-storefront">Đại lý</TableHead>
                         <TableHead icon="hero-calendar-days">Ngày tạo</TableHead>
@@ -161,12 +163,13 @@ export function OrdersTableComponent() {
                     </thead>
                     <tbody>
                       {orders.map((order) => (
-                        <Fragment key={order.id}>
+                        <Fragment key={order.code}>
                           <tr
                             id={`order-row-${order.code}`}
                             className="cursor-pointer"
                             onClick={() => router.push(`/orders/${order.id}`)}
                           >
+                            <td>{order.id}</td>
                             <td className="overview-table__code">{order.code}</td>
                             <td>
                               <OrderStatusBadge status={order.status} />
@@ -212,6 +215,7 @@ export function OrdersTableComponent() {
                                 className="cursor-pointer"
                                 onClick={() => router.push(`/orders/${child.id}`)}
                               >
+                                <td>{order.id}</td>
                                 <td className="overview-table__code">
                                   <span className="inline-flex items-center gap-2 pl-4">
                                     <Icon

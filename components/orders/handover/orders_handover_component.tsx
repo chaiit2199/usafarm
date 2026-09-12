@@ -317,17 +317,17 @@ export function OrdersHandoverComponent() {
               <div className="overview-table-inner">
                 <table className="overview-table min-w-full" id="handover-orders-table">
                   <colgroup>
-                    <col style={{ width: "4%" }} />
+                    <col style={{ width: "10%" }} />
                     <col style={{ width: "24%" }} />
                     <col style={{ width: "14%" }} />
                     <col style={{ width: "14%" }} />
                     <col style={{ width: "16%" }} />
                     <col style={{ width: "12%" }} />
-                    <col style={{ width: "16%" }} />
+                    <col style={{ width: "10%" }} />
                   </colgroup>
                   <thead>
                     <tr>
-                      <TableHead></TableHead>
+                      <TableHead>ID đơn hàng</TableHead>
                       <TableHead>Mã đơn hàng</TableHead>
                       <TableHead>Số phiếu xuất</TableHead> 
                       <TableHead icon="hero-truck">Xe nhận hàng</TableHead>
@@ -337,9 +337,9 @@ export function OrdersHandoverComponent() {
                     </tr>
                   </thead>
                   <tbody>
-                    {orders.map((order, index) => (
+                    {orders.map((order) => (
                       <tr key={order.code} id={`handover-order-row-${order.code}`}>
-                        <td className="overview-table__muted">{index + 1}</td>
+                        <td className="overview-table__muted">{order.id}</td>
                         <td className="overview-table__muted">{order.code}</td>
                         <td className="overview-table__muted">
                           {order.goods_issues.at(-1)?.code ?? "—"}
@@ -355,7 +355,7 @@ export function OrdersHandoverComponent() {
                             className="btn btn--primary"
                             onClick={() => setSelectedOrder(order)}
                           >
-                            Xác nhận bàn giao
+                            Bàn giao
                           </button>
                         </td>
                       </tr>
