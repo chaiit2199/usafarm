@@ -149,7 +149,7 @@ export function OrdersTableComponent() {
                     </colgroup>
                     <thead>
                       <tr>
-                        <TableHead>ID đơn hàng</TableHead>
+                        <TableHead icon="hero-hashtag"></TableHead>
                         <TableHead icon="hero-clipboard-document-list">Mã đơn hàng</TableHead>
                         <TableHead icon="hero-tag">Trạng thái</TableHead>
                         <TableHead icon="hero-building-storefront">Đại lý</TableHead>
@@ -162,14 +162,14 @@ export function OrdersTableComponent() {
                       </tr>
                     </thead>
                     <tbody>
-                      {orders.map((order) => (
+                      {orders.map((order, index) => (
                         <Fragment key={order.code}>
                           <tr
                             id={`order-row-${order.code}`}
                             className="cursor-pointer"
                             onClick={() => router.push(`/orders/${order.id}`)}
                           >
-                            <td>{order.id}</td>
+                            <td>{index + 1}</td>
                             <td className="overview-table__code">{order.code}</td>
                             <td>
                               <OrderStatusBadge status={order.status} />
@@ -215,7 +215,7 @@ export function OrdersTableComponent() {
                                 className="cursor-pointer"
                                 onClick={() => router.push(`/orders/${child.id}`)}
                               >
-                                <td>{child.id}</td>
+                                <td>{index + 1}</td>
                                 <td className="overview-table__code">
                                   <span className="inline-flex items-center gap-2 pl-4">
                                     <Icon

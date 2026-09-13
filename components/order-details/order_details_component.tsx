@@ -183,18 +183,7 @@ function OrderDetailActions({
           >
             Từ chối
           </button>
-        )}
-
-        {statusId === orderStatus.cancelling && (
-          <>
-            <button type="button" className="core_button core_button--secondary">
-              Rút yêu cầu hủy
-            </button>
-            <button type="button" className="core_button core_button--danger">
-              Từ chối hủy
-            </button>
-          </>
-        )}
+        )} 
 
         {canCancel && (
           <button type="button" className="core_button core_button--danger">
@@ -221,17 +210,7 @@ function OrderDetailActions({
           >
             Duyệt
           </button>
-        )}
-        {statusId === orderStatus.rejected && (
-          <button type="button" className="core_button core_button--primary">
-            Gửi duyệt lại
-          </button>
-        )}
-        {statusId === orderStatus.cancelling && (
-          <button type="button" className="core_button core_button--primary">
-            Duyệt hủy
-          </button>
-        )}
+        )} 
       </div>
 
       <Modal
@@ -361,11 +340,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
               <p className="font-semibold text-slate-900 text-sm">
                 <OrderStatusBadge status={order.status} />
               </p>
-            </div>
-            <div>
-              <p className="text-theme-muted text-xs mb-0.5">Mã đơn hàng</p>
-              <p className="font-semibold text-slate-900 text-sm">{order.code}</p>
-            </div>
+            </div> 
             <div>
               <p className="text-theme-muted text-xs mb-0.5">Nhân viên tạo đơn</p>
               <p className="font-semibold text-slate-900 text-sm">{order.created_by.name}</p>
@@ -448,40 +423,44 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
         </section>
       </div>
 
-        <div className="section-container mb-6">
-          <h6 className="mb-3 text-base font-semibold flex items-center gap-2">
-            <Icon name="hero-building-storefront" className="size-5 text-theme-primary" />
-            Chọn kho hàng đối chiếu
-          </h6>
-
-          <SelectField
-            id="order-fulfillment-warehouse"
-            name="warehouse_id"
-            label=""
-            disabled={statusId !== orderStatus.draft}
-            value={warehouseId != null ? String(warehouseId) : ""}
-            required
-            onChange={(event) => {
-              const next = Number(event.target.value);
-              setWarehouseId(Number.isFinite(next) ? next : null);
-            }}
-          >
-            <option value="" disabled>
-              Chọn kho hàng
-            </option>
-            {warehouses.map((warehouse) => (
-              <option key={warehouse.warehouse_id} value={warehouse.warehouse_id}>
-                {warehouse.warehouse_name}
-              </option>
-            ))}
-          </SelectField>
-        </div>
+        
 
       <section className="section-container mb-6">
-        <h6 className="mb-3 text-base font-semibold flex items-center gap-2">
-          <Icon name="hero-cube" className="size-5 text-theme-primary" />
-          Sản phẩm
-        </h6>
+        <div className="flex items-center justify-between gap-4 mb-8">
+          <h6 className="text-base font-semibold flex items-center gap-2">
+            <Icon name="hero-cube" className="size-5 text-theme-primary" />
+            Sản phẩm
+          </h6>
+          <div className="flex items-center gap-4">
+            <h6 className="text-base font-semibold flex items-center gap-2">
+              <Icon name="hero-building-storefront" className="size-5 text-theme-primary" />
+              Chọn kho hàng đối chiếu
+            </h6>
+
+            <SelectField
+              id="order-fulfillment-warehouse"
+              name="warehouse_id"
+              label=""
+              disabled={statusId !== orderStatus.draft}
+              value={warehouseId != null ? String(warehouseId) : ""}
+              required
+              onChange={(event) => {
+                const next = Number(event.target.value);
+                setWarehouseId(Number.isFinite(next) ? next : null);
+              }}
+            >
+              <option value="" disabled>
+                Chọn kho hàng
+              </option>
+              {warehouses.map((warehouse) => (
+                <option key={warehouse.warehouse_id} value={warehouse.warehouse_id}>
+                  {warehouse.warehouse_name}
+                </option>
+              ))}
+            </SelectField>
+          </div>
+        </div>
+
         <div className="overview-table-inner">
           <table className="overview-table min-w-full" id="order-details-table">
             <colgroup>
