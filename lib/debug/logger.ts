@@ -2,10 +2,8 @@ import "server-only";
 
 import { inspect } from "node:util";
 
-// show debug only in development mode
 const enabled = process.env.NODE_ENV === "development";
 
-// get log each request
 export function Logger(method: string, url: string) {
   if (!enabled) {
     return (_status: number | string) => {};
@@ -19,17 +17,21 @@ export function Logger(method: string, url: string) {
   };
 }
 
-export function logHttpError(input: {
+export function logHttp(input: {
   method: string;
   url: string;
-  status?: number;
-  message: string;
+  status?: number | string;
+  message?: string;
   payload?: unknown;
   data?: unknown;
 }) {
   if (!enabled) return;
 
-  console.error(
+  const statusCode = typeof input.status === "number" ? input.status : Number(input.status);
+  const isError = !Number.isFinite(statusCode) || statusCode >= 400;
+  const write = isError ? console.error : console.debug;
+
+  write(
     "[http]",
     inspect(
       {

@@ -11,7 +11,7 @@ import {
   sessionCookieOptions,
   type Session,
 } from "@/lib/auth/session";
-import { Logger, logHttpError } from "@/lib/debug/logger";
+import { Logger, logHttp } from "@/lib/debug/logger";
 
 export type HttpRequestOptions = Omit<AxiosRequestConfig, "url" | "method" | "data"> & {
   accessToken?: string;
@@ -110,6 +110,15 @@ export class Client {
       });
 
       debug(response.status);
+
+      // disable because spam log console
+      // logHttp({
+      //   method: String(method ?? "GET").toUpperCase(),
+      //   url: `${url}${isRetry ? " (retry)" : ""}`,
+      //   status: response.status,
+      //   payload: isFormData ? "[FormData]" : data,
+      //   data: response.data,
+      // });
       return response.data;
     } catch (error) {
       const httpError = toHttpError(error);
@@ -122,7 +131,7 @@ export class Client {
         }
       }
 
-      logHttpError({
+      logHttp({
         method: String(method ?? "GET").toUpperCase(),
         url,
         status: httpError.status,
