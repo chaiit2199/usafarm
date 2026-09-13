@@ -215,7 +215,7 @@ export function OrdersTableComponent() {
                                 className="cursor-pointer"
                                 onClick={() => router.push(`/orders/${child.id}`)}
                               >
-                                <td>{order.id}</td>
+                                <td>{child.id}</td>
                                 <td className="overview-table__code">
                                   <span className="inline-flex items-center gap-2 pl-4">
                                     <Icon
