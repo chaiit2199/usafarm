@@ -39,6 +39,10 @@ function formatMoney(value: number) {
   return new Intl.NumberFormat("en-US").format(value);
 }
 
+function parentRowNumber(orders: Order[], index: number) {
+  return orders.slice(0, index).reduce((sum, item) => sum + 1 + item.children.length, 0) + 1;
+}
+
 function OrderStatusBadge({ status }: { status: OrderStatusRef }) {
   const label = getOrderStatusLabel(status);
   const color = orderColor(status);
@@ -136,8 +140,8 @@ export function OrdersTableComponent() {
                 <div className="overview-table-inner">
                   <table className="overview-table min-w-[2000px]" id="orders-table">
                     <colgroup>
-                      <col style={{ width: "6%" }} />
-                      <col style={{ width: "16%" }} />
+                      <col style={{ width: "4%" }} />
+                      <col style={{ width: "18%" }} />
                       <col style={{ width: "10%" }} />
                       <col style={{ width: "14%" }} />
                       <col style={{ width: "10%" }} />
@@ -169,7 +173,7 @@ export function OrdersTableComponent() {
                             className="cursor-pointer"
                             onClick={() => router.push(`/orders/${order.id}`)}
                           >
-                            <td>{index + 1}</td>
+                            <td>{parentRowNumber(orders, index)}</td>
                             <td className="overview-table__code">{order.code}</td>
                             <td>
                               <OrderStatusBadge status={order.status} />
@@ -208,14 +212,14 @@ export function OrdersTableComponent() {
                           </tr>
 
                           {order.children.length > 0 &&
-                            order.children.map((child) => (
+                            order.children.map((child, childIndex) => (
                               <tr
                                 key={child.code}
                                 id={`order-row-${child.code}`}
                                 className="cursor-pointer"
                                 onClick={() => router.push(`/orders/${child.id}`)}
                               >
-                                <td>{index + 1}</td>
+                                <td>{parentRowNumber(orders, index) + 1 + childIndex}</td>
                                 <td className="overview-table__code">
                                   <span className="inline-flex items-center gap-2 pl-4">
                                     <Icon
