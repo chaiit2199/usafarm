@@ -320,13 +320,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
             Thông tin đơn hàng
           </h6>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
-              <p className="text-theme-muted text-xs mb-0.5">Trạng thái</p>
-              <p className="font-semibold text-slate-900 text-sm">
-                <OrderStatusBadge status={order.status} />
-              </p>
-            </div> 
+          <div className="grid grid-cols-2 gap-4"> 
             <div>
               <p className="text-theme-muted text-xs mb-0.5">Nhân viên tạo đơn</p>
               <p className="font-semibold text-slate-900 text-sm">{order.created_by.name}</p>
@@ -447,7 +441,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
           </div>
         </div>
 
-        <div className="overview-table-inner">
+        <div className="overview-table-inner min-h-auto">
           <table className="overview-table min-w-full" id="order-details-table">
             <colgroup>
               <col style={{ width: "4%" }} />
