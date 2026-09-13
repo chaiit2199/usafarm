@@ -6,7 +6,8 @@ import { Tab } from "@/components/tab";
 import type { Department, User } from "@/lib/api/me";
 import { UserAvatar } from "@/components/user-components";
 import { Icon } from "@/components/icon";
-import { USER_STATUS_TABS, UserStatus, type UserStatusTabValue, readFormStatus, userStatusMeta } from "@/lib/constants";
+import { RecordStatusBadge } from "@/components/status";
+import { USER_STATUS_TABS, UserStatus, type UserStatusTabValue, readFormStatus } from "@/lib/constants";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel, SelectField } from "@/components/form-fields";
 import { Input, Modal, EmptyData, Pagination, TableHead } from "@/components/core_component";
@@ -232,7 +233,7 @@ export function UsersComponent({
                                         </div>
                                         </td>
                                         <td>
-                                            <UserStatusBadge status={user.status} />
+                                            <RecordStatusBadge status={user.status} />
                                         </td>
                                         <td className="overview-table__muted">{user.username}</td>
                                         <td className="overview-table__muted">{user.phone}</td>
@@ -448,14 +449,4 @@ export function UsersComponent({
 
 function departmentOptionValue(department: User["department"]) {
     return department?.id != null ? String(department.id) : "";
-}
-
-function UserStatusBadge({ status }: { status?: number }) {
-    const meta = userStatusMeta(status);
-
-    return (
-        <span className={`status status--${meta.kind}`}>
-        {meta.label}
-        </span>
-    );
 }

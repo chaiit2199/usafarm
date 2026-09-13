@@ -8,6 +8,7 @@ import { FormSubmitButton } from "@/components/form-submit-button";
 import { Icon } from "@/components/icon";
 import { SelectField, RequiredLabel } from "@/components/form-fields";
 import { OrderProductRow } from "@/components/order-details/order_product_row";
+import { OrderStatusBadge, Status } from "@/components/status";
 import { approveOrder, assignOrderWarehouse, rejectOrder } from "@/lib/api/orders";
 import type {
   Order,
@@ -16,12 +17,9 @@ import type {
 } from "@/lib/api/types";
 import { orderAmount, orderReceived, orderRemaining } from "@/lib/api/types";
 import {
-  getOrderStatusLabel,
   getOrderStatusMeta,
-  orderColor,
   orderStatus,
   type OrderStatusId,
-  type OrderStatusInput,
 } from "@/lib/constants";
 import { formatDateTimeVi } from "@/lib/format/date";
 import { putFlash } from "@/lib/flash/flash";
@@ -53,24 +51,6 @@ function getWarehouse(
   if (warehouseId == null) return undefined;
   const line = capacity.lines.find((entry) => entry.order_line_id === orderLineId);
   return line?.warehouses.find((warehouse) => warehouse.warehouse_id === warehouseId);
-}
-
-function OrderStatusBadge({ status }: { status: OrderStatusInput }) {
-  const label = getOrderStatusLabel(status);
-  const color = orderColor(status);
-
-  return (
-    <span
-      className="status"
-      style={{
-        color,
-        borderColor: `${color}55`,
-        backgroundColor: `${color}1A`,
-      }}
-    >
-      {label}
-    </span>
-  );
 }
 
 const CAN_REQUEST_CANCEL: OrderStatusId[] = [
@@ -188,6 +168,12 @@ function OrderDetailActions({
         {canCancel && (
           <button type="button" className="core_button core_button--danger">
             Huỷ đơn
+          </button>
+        )}
+
+        {statusId === orderStatus.approvedWaitingHandover && (
+          <button type="button" className="core_button core_button--primary">
+            Hoàn thành
           </button>
         )}
 
@@ -520,7 +506,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
           <div className="rounded-xl border border-theme-primary-border p-4">
             <div className="flex items-center justify-between gap-2 mb-2">
               <span className="font-medium text-theme-muted">Đơn 1</span>
-              <span className="status status--active">Sẵn sàng phân kho</span>
+              <Status kind="active">Sẵn sàng phân kho</Status>
             </div>
             <p className="text-2xl font-semibold text-slate-900 text-sm">
               {warehouseAvailable.allocation_proposal.suggested_quantity} bao

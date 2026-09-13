@@ -9,12 +9,12 @@ import { Input, Modal, EmptyData, Pagination, TableHead } from "@/components/cor
 import { LoadError } from "@/components/load_error";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel } from "@/components/form-fields";
+import { RecordStatusBadge } from "@/components/status";
 import {
   USER_STATUS_TABS,
   UserStatus,
   type UserStatusTabValue,
   readFormStatus,
-  recordStatusMeta,
 } from "@/lib/constants";
 import {
   approveDepartment,
@@ -229,10 +229,7 @@ export function EditDepartmentComponent({
                         </tr>
                       </thead>
                       <tbody>
-                        {departments.map((department) => {
-                          const meta = recordStatusMeta(department.status);
-
-                          return (
+                        {departments.map((department) => (
                             <tr
                               key={department.id}
                               id={`department-row-${department.id}`}
@@ -241,7 +238,7 @@ export function EditDepartmentComponent({
                             >
                               <td className="overview-table__muted">{department.code}</td>
                               <td>
-                                <span className={`status status--${meta.kind}`}>{meta.label}</span>
+                                <RecordStatusBadge status={department.status} />
                               </td>
                               <td>{department.name}</td>
                               <td className="overview-table__muted">{formatDateVi(department.created_at)}</td>
@@ -254,8 +251,7 @@ export function EditDepartmentComponent({
                                 </div>
                               </td>
                             </tr>
-                          );
-                        })}
+                        ))}
                       </tbody>
                     </table>
                   </div>

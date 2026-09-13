@@ -9,7 +9,8 @@ import { UserAvatar } from "@/components/user-components";
 import { filterUsers } from "@/lib/api/users";
 import type { Role, User } from "@/lib/api/types";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
-import { UserStatus, userStatusMeta } from "@/lib/constants";
+import { RecordStatusBadge } from "@/components/status";
+import { UserStatus } from "@/lib/constants";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 import { formatDateVi } from "@/lib/format/date";
 import { AssignRoleFormComponent } from "./assign_role_form_component";
@@ -103,10 +104,7 @@ export function AuthorizationComponent({ roles }: { roles: Role[] }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {users.map((user) => {
-                      const meta = userStatusMeta(user.status);
-
-                      return (
+                    {users.map((user) => (
                         <tr
                           key={user.id}
                           id={`authorization-row-${user.id}`}
@@ -123,7 +121,7 @@ export function AuthorizationComponent({ roles }: { roles: Role[] }) {
                             </div>
                           </td>
                           <td>
-                            <span className={`status status--${meta.kind}`}>{meta.label}</span>
+                            <RecordStatusBadge status={user.status} />
                           </td>
                           <td className="overview-table__muted">{user.username}</td>
                           <td className="overview-table__muted">{user.phone}</td>
@@ -138,8 +136,7 @@ export function AuthorizationComponent({ roles }: { roles: Role[] }) {
                             </div>
                           </td>
                         </tr>
-                      );
-                    })}
+                    ))}
                   </tbody>
                 </table>
               </div>

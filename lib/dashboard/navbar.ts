@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 
 import type { MeAccessActions, MeAccessPermission } from "@/lib/api/types";
 
@@ -314,6 +315,8 @@ export const DEFAULT_PAGE_TITLE = "USA FARM AGRI";
 
 export type HeaderPageOptions = {
   subpage?: string;
+  /** Rendered after the breadcrumb current label (e.g. a status badge). */
+  subpageExtra?: ReactNode;
   href?: string;
   /** Override header action buttons (e.g. show export on detail pages). */
   export?: boolean;
@@ -328,6 +331,7 @@ export type HeaderConfig = {
   label: string;
   href?: string;
   subpage?: string;
+  subpageExtra?: ReactNode;
 } & Required<HeaderButtons>;
 
 export function getPageTitle(pathname: string): string {
@@ -346,6 +350,7 @@ export function getHeaderConfig(
   const item = exact ?? findPrefixMenuItem(pathname);
   const title = item?.title ?? DEFAULT_PAGE_TITLE;
   const subpage = options?.subpage;
+  const subpageExtra = options?.subpageExtra;
   const isNested = !exact && Boolean(item);
   const href = options?.href ?? (subpage ? item?.href : undefined);
   const hideActions = Boolean(subpage) || isNested;
@@ -364,6 +369,7 @@ export function getHeaderConfig(
     label: subpage ? "" : (item?.label ?? title),
     href,
     subpage,
+    subpageExtra,
     create: action("create", item?.create),
     export: action("export", item?.export),
     filter: action("filter", item?.filter),

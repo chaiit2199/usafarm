@@ -3,6 +3,7 @@ import { Dashboard } from "@/components/dashboard";
 import { HeaderPageMeta } from "@/components/header_meta";
 import { PageLoadError } from "@/components/load_error";
 import { OrderDetailsComponent } from "@/components/order-details/order_details_component";
+import { OrderStatusBadge } from "@/components/status";
 import { getOrderDetail } from "@/lib/api/orders";
 import { catchPageLoadError } from "@/lib/catch-page-load";
 import { pageMetadata } from "@/lib/dashboard/navbar";
@@ -35,7 +36,9 @@ async function OrderDetailData({ code }: { code: string }) {
 
     return (
       <>
-        <HeaderPageMeta href="/orders" subpage={result.data.order.code} />
+        <HeaderPageMeta href="/orders" subpage={result.data.order.code}>
+          <OrderStatusBadge status={result.data.order.status} />
+        </HeaderPageMeta>
         <OrderDetailsComponent
           order={result.data.order}
           fulfillmentCapacity={result.data.fulfillment}

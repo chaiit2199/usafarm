@@ -13,10 +13,10 @@ import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel, SelectField } from "@/components/form-fields";
 import { Icon } from "@/components/icon";
 import { LoadError } from "@/components/load_error";
+import { OrderStatusBadge } from "@/components/status";
 import { getWarehouseOrders, createWarehouseOrderGoodsIssue } from "@/lib/api/production";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import type { WarehouseOrder } from "@/lib/api/types";
-import { getOrderStatusLabel, orderColor } from "@/lib/constants";
 import { putFlash } from "@/lib/flash/flash";
 import { formatDateTimeVi } from "@/lib/format/date";
 
@@ -28,24 +28,6 @@ const MOCK_CARRIERS = [
 
 function formatWeightKg(bags: number, packSpecKg: number) {
   return new Intl.NumberFormat("en-US").format(bags * packSpecKg);
-}
-
-function OrderStatusBadge({ status }: { status: number }) {
-  const label = getOrderStatusLabel(status);
-  const color = orderColor(status);
-
-  return (
-    <span
-      className="status"
-      style={{
-        color,
-        borderColor: `${color}55`,
-        backgroundColor: `${color}1A`,
-      }}
-    >
-      {label}
-    </span>
-  );
 } 
 
 function ExportSlipModal({

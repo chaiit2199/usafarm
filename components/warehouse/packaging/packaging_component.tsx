@@ -6,11 +6,12 @@ import { EmptyData, Modal, Pagination, TableHead } from "@/components/core_compo
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { Icon } from "@/components/icon";
 import { LoadError } from "@/components/load_error";
+import { OrderStatusBadge } from "@/components/status";
 import { Tab } from "@/components/tab";
 import { getWarehouseOrders, startWarehouseOrder, completeWarehouseOrderPacking } from "@/lib/api/production";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import type { WarehouseOrder, WarehouseOrderLine } from "@/lib/api/types";
-import { getOrderStatusLabel, orderColor, orderStatus } from "@/lib/constants";
+import { orderStatus } from "@/lib/constants";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 import { putFlash } from "@/lib/flash/flash";
 import { formatDateTimeVi } from "@/lib/format/date";
@@ -55,24 +56,6 @@ type CompletePackLinePayload = {
 type CompletePackPayload = {
   lines: CompletePackLinePayload[];
 };
-
-function OrderStatusBadge({ status }: { status: number }) {
-  const label = getOrderStatusLabel(status);
-  const color = orderColor(status);
-
-  return (
-    <span
-      className="status"
-      style={{
-        color,
-        borderColor: `${color}55`,
-        backgroundColor: `${color}1A`,
-      }}
-    >
-      {label}
-    </span>
-  );
-}
 
 function PackingDetailsModalForm({
   order,

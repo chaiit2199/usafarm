@@ -12,7 +12,8 @@ import {
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel, RecordStatusSelectField } from "@/components/form-fields";
 import { Icon } from "@/components/icon";
-import { readFormStatus, recordStatusMeta, UserStatus } from "@/lib/constants";
+import { RecordStatusBadge } from "@/components/status";
+import { readFormStatus, UserStatus } from "@/lib/constants";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 import { formatDateVi } from "@/lib/format/date";
 import { MOCK_PROMOTIONS } from "@/lib/mock/promotions";
@@ -201,9 +202,7 @@ export function PromotionComponent() {
                   </tr>
                 </thead>
                 <tbody>
-                  {pageItems.map((item, index) => {
-                    const meta = recordStatusMeta(item.status);
-                    return (
+                  {pageItems.map((item, index) => (
                       <tr key={item.id} id={`promotion-row-${item.code}`}>
                         <td className="overview-table__muted">
                           {(page - 1) * pageSize + index + 1}
@@ -211,7 +210,7 @@ export function PromotionComponent() {
                         <td className="overview-table__code">{item.code}</td>
                         <td className="font-medium text-slate-900">{item.name}</td>
                         <td>
-                          <span className={`status status--${meta.kind}`}>{meta.label}</span>
+                          <RecordStatusBadge status={item.status} />
                         </td>
                         <td className="overview-table__muted">{formatDateVi(item.createdAt)}</td>
                         <td className="overview-table__muted">{formatDateVi(item.startsAt)}</td>
@@ -222,8 +221,7 @@ export function PromotionComponent() {
                           </button>
                         </td>
                       </tr>
-                    );
-                  })}
+                    ))}
                 </tbody>
               </table>
             </div>

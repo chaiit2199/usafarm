@@ -36,7 +36,10 @@ export function DashboardHeader() {
               {meta.title}
             </Link>
             <Icon name="hero-chevron-right" className="header__breadcrumb-sep" />
-            <span className="header__breadcrumb-current">{meta.subpage}</span>
+            <span className="header__breadcrumb-current">
+              {meta.subpage}
+              {meta.subpageExtra}
+            </span>
           </nav>
         ) : (
           <>

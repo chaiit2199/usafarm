@@ -7,10 +7,10 @@ import { FormSubmitButton } from "@/components/form-submit-button";
 import { Icon } from "@/components/icon";
 import { RequiredLabel } from "@/components/form-fields";
 import { LoadError } from "@/components/load_error";
+import { OrderStatusBadge } from "@/components/status";
 import { getWarehouseOrders, uploadGoodsIssueImages, confirmGoodsIssueHandover } from "@/lib/api/production";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import type { GoodsIssue, WarehouseOrder } from "@/lib/api/types";
-import { getOrderStatusLabel, orderColor } from "@/lib/constants";
 import { putFlash } from "@/lib/flash/flash";
 
 function latestGoodsIssue(order: WarehouseOrder): GoodsIssue | undefined {
@@ -20,24 +20,6 @@ function latestGoodsIssue(order: WarehouseOrder): GoodsIssue | undefined {
 function vehicleLabel(issue: GoodsIssue | undefined) {
   if (!issue) return "—";
   return [issue.vehicle_plate, issue.driver_name].filter(Boolean).join(" — ") || "—";
-}
-
-function OrderStatusBadge({ status }: { status: number }) {
-  const label = getOrderStatusLabel(status);
-  const color = orderColor(status);
-
-  return (
-    <span
-      className="status"
-      style={{
-        color,
-        borderColor: `${color}55`,
-        backgroundColor: `${color}1A`,
-      }}
-    >
-      {label}
-    </span>
-  );
 }
 
 function HandoverConfirmModal({

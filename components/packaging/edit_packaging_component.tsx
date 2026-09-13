@@ -9,12 +9,12 @@ import { Input, Modal, EmptyData, Pagination, TableHead } from "@/components/cor
 import { LoadError } from "@/components/load_error";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel, SelectField } from "@/components/form-fields";
+import { RecordStatusBadge } from "@/components/status";
 import {
   PACKAGING_UNITS,
   USER_STATUS_TABS,
   UserStatus,
   type UserStatusTabValue,
-  recordStatusMeta,
 } from "@/lib/constants";
 import {
   filterPackagings,
@@ -246,10 +246,7 @@ export function EditPackagingComponent({
                         </tr>
                       </thead>
                       <tbody>
-                        {packagings.map((packaging) => {
-                          const meta = recordStatusMeta(packaging.status);
-
-                          return (
+                        {packagings.map((packaging) => (
                             <tr
                               key={packaging.id}
                               id={`packaging-row-${packaging.id}`}
@@ -270,7 +267,7 @@ export function EditPackagingComponent({
                               </td>
                               <td className="overview-table__muted">{formatWeight(packaging.weight_kg)}</td>
                               <td>
-                                <span className={`status status--${meta.kind}`}>{meta.label}</span>
+                                <RecordStatusBadge status={packaging.status} />
                               </td>
                               <td className="overview-table__muted">{unitLabel(packaging.unit)}</td>
                               <td className="overview-table__muted">dd/mm/yy</td>
@@ -283,8 +280,7 @@ export function EditPackagingComponent({
                                 </div>
                               </td>
                             </tr>
-                          );
-                        })}
+                        ))}
                       </tbody>
                     </table>
                   </div>

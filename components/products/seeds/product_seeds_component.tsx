@@ -13,6 +13,7 @@ import {
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel, SelectField } from "@/components/form-fields";
 import { Icon } from "@/components/icon";
+import { Status } from "@/components/status";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 import {
   MOCK_PRODUCT_TYPES,
@@ -130,19 +131,10 @@ function seedKindLabel(kind: SeedKind) {
 }
 
 function SeedKindBadge({ kind }: { kind: SeedKind }) {
-  const color = SEED_KIND_META[kind].color;
-
   return (
-    <span
-      className="status"
-      style={{
-        color,
-        borderColor: `${color}55`,
-        backgroundColor: `${color}1A`,
-      }}
-    >
+    <Status color={SEED_KIND_META[kind].color}>
       {seedKindLabel(kind)}
-    </span>
+    </Status>
   );
 }
 

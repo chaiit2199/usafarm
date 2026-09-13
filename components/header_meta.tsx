@@ -43,18 +43,22 @@ export function useHeaderPageOptions() {
 export function HeaderPageMeta({
   href,
   subpage,
+  subpageExtra,
+  children,
   export: canExport,
   create,
   filter,
   search,
   authorization,
-}: HeaderPageOptions) {
+}: HeaderPageOptions & { children?: ReactNode }) {
   const { setOptions } = useHeaderMeta();
+  const extra = subpageExtra ?? children;
 
   useLayoutEffect(() => {
     setOptions({
       href,
       subpage,
+      subpageExtra: extra,
       export: canExport,
       create,
       filter,
@@ -62,7 +66,7 @@ export function HeaderPageMeta({
       authorization,
     });
     return () => setOptions(null);
-  }, [setOptions, href, subpage, canExport, create, filter, search, authorization]);
+  }, [setOptions, href, subpage, extra, canExport, create, filter, search, authorization]);
 
   return null;
 }

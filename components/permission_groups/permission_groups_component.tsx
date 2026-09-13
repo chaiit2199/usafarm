@@ -6,11 +6,12 @@ import { Input, Modal, EmptyData, Pagination, TableHead } from "@/components/cor
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel } from "@/components/form-fields";
 import { Icon } from "@/components/icon";
+import { RecordStatusBadge } from "@/components/status";
 import { Tab } from "@/components/tab";
 import { fetchRolePermissions, filterRoles, updateRole, approveRole, rejectRole, resubmitRole, type UpdateRoleInput } from "@/lib/api/roles";
 import type { Permission, Role, ScopeType } from "@/lib/api/types";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
-import { USER_STATUS_TABS, UserStatus, type UserStatusTabValue, roleStatusMeta } from "@/lib/constants";
+import { USER_STATUS_TABS, UserStatus, type UserStatusTabValue } from "@/lib/constants";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 import { putFlash } from "@/lib/flash/flash";
 import { formatDateVi } from "@/lib/format/date";
@@ -217,9 +218,7 @@ export function PermissionGroupsComponent({
                   </tr>
                 </thead>
                 <tbody>
-                  {roles.map((role) => {
-                    const meta = roleStatusMeta(role.status);
-                    return (
+                  {roles.map((role) => (
                       <tr
                         key={role.id}
                         id={`permission-group-row-${role.id}`}
@@ -228,7 +227,7 @@ export function PermissionGroupsComponent({
                       >
                         <td>{role.name}</td>
                         <td>
-                          <span className={`status status--${meta.kind}`}>{meta.label}</span>
+                          <RecordStatusBadge status={role.status} />
                         </td>
                         <td>{role.description}</td>
                         <td className="overview-table__muted">{formatDateVi(role.created_at)}</td>
@@ -241,8 +240,7 @@ export function PermissionGroupsComponent({
                           </div>
                         </td>
                       </tr>
-                    );
-                  })}
+                    ))}
                 </tbody>
               </table>
             </div>

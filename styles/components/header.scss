@@ -25,7 +25,7 @@
 }
 
 .header__breadcrumb-current {
-  @apply text-theme-base-content;
+  @apply inline-flex items-center gap-3 text-theme-base-content;
 }
 
 .header__actions {

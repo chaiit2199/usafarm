@@ -10,6 +10,7 @@ import {
 } from "@/components/core_component";
 import { Icon } from "@/components/icon";
 import { LoadError } from "@/components/load_error";
+import { OrderStatusBadge } from "@/components/status";
 import { Tab } from "@/components/tab";
 import { filterOrders } from "@/lib/api/orders";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
@@ -18,13 +19,8 @@ import {
   orderRemaining,
   orderTotal,
   type Order,
-  type OrderStatusRef,
 } from "@/lib/api/types";
-import {
-  ORDER_STATUSES,
-  getOrderStatusLabel,
-  orderColor,
-} from "@/lib/constants";
+import { ORDER_STATUSES } from "@/lib/constants";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 import { formatDateTimeVi } from "@/lib/format/date";
 
@@ -41,24 +37,6 @@ function formatMoney(value: number) {
 
 function parentRowNumber(orders: Order[], index: number) {
   return orders.slice(0, index).reduce((sum, item) => sum + 1 + item.children.length, 0) + 1;
-}
-
-function OrderStatusBadge({ status }: { status: OrderStatusRef }) {
-  const label = getOrderStatusLabel(status);
-  const color = orderColor(status);
-
-  return (
-    <span
-      className="status"
-      style={{
-        color,
-        borderColor: `${color}55`,
-        backgroundColor: `${color}1A`,
-      }}
-    >
-      {label}
-    </span>
-  );
 }
 
 export function OrdersTableComponent() {
