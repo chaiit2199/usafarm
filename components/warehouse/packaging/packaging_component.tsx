@@ -204,7 +204,7 @@ function PackagingOrderLines({ lines }: { lines: WarehouseOrderLine[] }) {
 
   return (
     <div className="px-4 py-3">
-      <div className="overview-table-inner theme-primary-border">
+      <div className="overview-table-inner min-h-auto theme-primary-border">
         <table className="overview-table min-w-full">
           <colgroup>
             <col style={{ width: "8%" }} />

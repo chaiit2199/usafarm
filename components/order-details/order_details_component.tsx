@@ -301,6 +301,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
     () => warehouses[0]?.warehouse_id ?? null,
   );
 
+  // Khởi tạo warehouseAvailable với giá trị mặc định
   const warehouseAvailable = {
     line_name: "",
     line_name_available: 0,

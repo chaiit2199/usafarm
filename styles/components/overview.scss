@@ -402,6 +402,9 @@
 
 .overview-table-inner {
   @apply overflow-x-auto pb-4 rounded-t-xl;
+  &:not(.min-h-auto) {
+    @apply min-h-80;
+  }
 }
 
 .overview-table {
