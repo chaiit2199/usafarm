@@ -81,6 +81,7 @@ export function EditDepartmentComponent({
   const [totalPages, setTotalPages] = useState(initialTotalPages);
   const [departments, setDepartments] = useState<Department[]>(initialDepartments);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const skipFirstFetch = useRef(true);
   const canEdit = selectedDepartment?.status === UserStatus.Active;
   const isPendingApproval = selectedDepartment?.status === UserStatus.WaitingForApproval;
@@ -97,6 +98,7 @@ export function EditDepartmentComponent({
     }
 
     let cancelled = false;
+    setIsLoading(true);
 
     filterDepartments({
       search: search.trim() || undefined,
@@ -114,6 +116,8 @@ export function EditDepartmentComponent({
       setLoadError(null);
       setDepartments(result.data ?? []);
       setTotalPages(totalPagesFromMeta(result.meta, result.data?.length ?? 0, pageSize));
+    }).finally(() => {
+      if (!cancelled) setIsLoading(false);
     });
 
     return () => {
@@ -201,7 +205,7 @@ export function EditDepartmentComponent({
                 }}
               />
 
-              {departments.length === 0 ? (
+              {isLoading ? null : departments.length === 0 ? (
                 <EmptyData
                   title="Không có phòng ban"
                   description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm."
@@ -257,6 +261,7 @@ export function EditDepartmentComponent({
                   </div>
                 </div>
               )}
+              {isLoading ? null : (
               <Pagination
                 currentPage={page}
                 totalPages={totalPages}
@@ -267,6 +272,7 @@ export function EditDepartmentComponent({
                   setPage(1);
                 }}
               />
+              )}
             </>
           )}
         </div>

@@ -84,6 +84,7 @@ export function UsersComponent({
     const [pageSize, setPageSize] = useState(20);
     const [totalPages, setTotalPages] = useState(initialTotalPages);
     const [users, setUsers] = useState<User[]>(initialUsers);
+    const [isLoading, setIsLoading] = useState(false);
     const skipFirstFetch = useRef(true);
     const canEdit = selectedUser?.status === UserStatus.Active;
     const isPendingApproval = selectedUser?.status === UserStatus.WaitingForApproval;
@@ -100,6 +101,7 @@ export function UsersComponent({
         }
 
         let cancelled = false;
+        setIsLoading(true);
 
         filterUsers({
             search: search.trim() || undefined,
@@ -110,6 +112,8 @@ export function UsersComponent({
             if (cancelled || !result.ok) return;
             setUsers(result.data ?? []);
             setTotalPages(totalPagesFromMeta(result.meta, result.data?.length ?? 0, pageSize));
+        }).finally(() => {
+            if (!cancelled) setIsLoading(false);
         });
 
         return () => {
@@ -189,7 +193,7 @@ export function UsersComponent({
                     }}
                 />
 
-                {users.length === 0 ? (
+                {isLoading ? null : users.length === 0 ? (
                     <EmptyData
                         title="Không có nhân viên"
                         description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm."
@@ -258,6 +262,7 @@ export function UsersComponent({
                     </div>
                 </div>
                 )}
+                {isLoading ? null : (
                 <Pagination
                     currentPage={page}
                     totalPages={totalPages}
@@ -268,6 +273,7 @@ export function UsersComponent({
                         setPage(1);
                     }}
                 />
+                )}
             </div>
         </section>
 

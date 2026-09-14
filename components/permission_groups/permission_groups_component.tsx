@@ -53,6 +53,7 @@ export function PermissionGroupsComponent({
   const [totalPages, setTotalPages] = useState(initialTotalPages);
   const [roles, setRoles] = useState<Role[]>(initialRoles);
   const [reloadAt, setReloadAt] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const skipFirstFetch = useRef(true);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -83,6 +84,7 @@ export function PermissionGroupsComponent({
     }
 
     let cancelled = false;
+    setIsLoading(true);
 
     filterRoles({
       search: search.trim() || undefined,
@@ -93,6 +95,8 @@ export function PermissionGroupsComponent({
       if (cancelled || !result.ok) return;
       setRoles(result.data ?? []);
       setTotalPages(totalPagesFromMeta(result.meta, result.data?.length ?? 0, pageSize));
+    }).finally(() => {
+      if (!cancelled) setIsLoading(false);
     });
 
     return () => {
@@ -194,7 +198,7 @@ export function PermissionGroupsComponent({
             }}
           />
 
-          {roles.length === 0 ? (
+          {isLoading ? null : roles.length === 0 ? (
             <EmptyData title="Không có nhóm quyền" description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm." />
           ) : (
             <div className="overview-table-wrap">
@@ -245,6 +249,7 @@ export function PermissionGroupsComponent({
               </table>
             </div>
           )}
+          {isLoading ? null : (
           <Pagination
             currentPage={page}
             totalPages={totalPages}
@@ -255,6 +260,7 @@ export function PermissionGroupsComponent({
               setPage(1);
             }}
           />
+          )}
         </div>
       </section>
 

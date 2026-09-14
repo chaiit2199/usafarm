@@ -267,12 +267,14 @@ export function OrdersHandoverComponent() {
   const [search] = useState("");
   const [orders, setOrders] = useState<WarehouseOrder[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [reloadAt, setReloadAt] = useState(0);
   const [selectedOrder, setSelectedOrder] = useState<WarehouseOrder | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     setLoadError(null);
+    setIsLoading(true);
 
     getWarehouseOrders({
       search: search.trim() || "",
@@ -288,6 +290,8 @@ export function OrdersHandoverComponent() {
       }
       setOrders(result.data ?? []);
       setTotalPages(totalPagesFromMeta(result.meta, result.data?.length ?? 0, pageSize));
+    }).finally(() => {
+      if (!cancelled) setIsLoading(false);
     });
 
     return () => {
@@ -306,7 +310,7 @@ export function OrdersHandoverComponent() {
               setReloadAt((value) => value + 1);
             }}
           />
-        ) : (
+        ) : isLoading ? null : (
           <>
             <div className="overview-table-wrap">
               <div className="overview-table-inner">

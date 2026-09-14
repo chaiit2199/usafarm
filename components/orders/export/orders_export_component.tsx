@@ -311,6 +311,7 @@ export function OrdersExportComponent() {
   const [search] = useState("");
   const [orders, setOrders] = useState<WarehouseOrder[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [reloadAt, setReloadAt] = useState(0);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
@@ -318,6 +319,7 @@ export function OrdersExportComponent() {
 
   useEffect(() => {
     setLoadError(null);
+    setIsLoading(true);
 
     getWarehouseOrders({
       search: search.trim().replace("script", "") || "",
@@ -332,6 +334,8 @@ export function OrdersExportComponent() {
       }
       setOrders(result.data ?? []);
       setTotalPages(totalPagesFromMeta(result.meta, result.data?.length ?? 0, pageSize));
+    }).finally(() => {
+      setIsLoading(false);
     }); 
   }, [search, page, pageSize, reloadAt]);
  
@@ -349,7 +353,7 @@ export function OrdersExportComponent() {
           />
         ) : (
           <>
-            {orders.length === 0 ? (
+            {isLoading ? null : orders.length === 0 ? (
               <EmptyData
                 title="Không có đơn xuất kho"
                 description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm."
@@ -413,6 +417,7 @@ export function OrdersExportComponent() {
               </div>
             )}
 
+            {isLoading ? null : (
             <Pagination
               currentPage={page}
               totalPages={totalPages}
@@ -423,6 +428,7 @@ export function OrdersExportComponent() {
                 setPage(1);
               }}
             />
+            )}
           </>
         )}
       </div>

@@ -96,6 +96,7 @@ export function EditPackagingComponent({
   const [totalPages, setTotalPages] = useState(initialTotalPages);
   const [packagings, setPackagings] = useState<Packaging[]>(initialPackagings);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const skipFirstFetch = useRef(true);
   const canEdit = selectedPackaging?.status === UserStatus.Active;
 
@@ -110,6 +111,7 @@ export function EditPackagingComponent({
     }
 
     let cancelled = false;
+    setIsLoading(true);
 
     filterPackagings({
       search: search.trim() || undefined,
@@ -127,6 +129,8 @@ export function EditPackagingComponent({
       setLoadError(null);
       setPackagings(result.data ?? []);
       setTotalPages(totalPagesFromMeta(result.meta, result.data?.length ?? 0, pageSize));
+    }).finally(() => {
+      if (!cancelled) setIsLoading(false);
     });
 
     return () => {
@@ -210,7 +214,7 @@ export function EditPackagingComponent({
                 }}
               />
 
-              {packagings.length === 0 ? (
+              {isLoading ? null : packagings.length === 0 ? (
                 <EmptyData
                   title="Không có bao bì"
                   description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm."
@@ -286,6 +290,7 @@ export function EditPackagingComponent({
                   </div>
                 </div>
               )}
+              {isLoading ? null : (
               <Pagination
                 currentPage={page}
                 totalPages={totalPages}
@@ -296,6 +301,7 @@ export function EditPackagingComponent({
                   setPage(1);
                 }}
               />
+              )}
             </>
           )}
         </div>

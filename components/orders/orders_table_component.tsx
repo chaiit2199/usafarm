@@ -48,6 +48,7 @@ export function OrdersTableComponent() {
   const [totalPages, setTotalPages] = useState(1);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [reloadAt, setReloadAt] = useState(0);
 
   useEffect(() => {
@@ -62,6 +63,7 @@ export function OrdersTableComponent() {
 
   useEffect(() => {
     let cancelled = false;
+    setIsLoading(true);
     setLoadError(null);
 
     filterOrders({
@@ -78,6 +80,8 @@ export function OrdersTableComponent() {
       }
       setOrders(result.data ?? []);
       setTotalPages(totalPagesFromMeta(result.meta, result.data?.length ?? 0, pageSize));
+    }).finally(() => {
+      if (!cancelled) setIsLoading(false);
     });
 
     return () => {
@@ -108,7 +112,7 @@ export function OrdersTableComponent() {
               }}
             />
 
-            {orders.length === 0 ? (
+            {isLoading ? null : orders.length === 0 ? (
               <EmptyData
                 title="Không có đơn hàng"
                 description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm."
@@ -251,6 +255,7 @@ export function OrdersTableComponent() {
               </div>
             )}
 
+            {isLoading ? null : (
             <Pagination
               currentPage={page}
               totalPages={totalPages}
@@ -261,6 +266,7 @@ export function OrdersTableComponent() {
                 setPage(1);
               }}
             />
+            )}
           </>
         )}
       </div>

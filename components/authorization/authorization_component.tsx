@@ -23,6 +23,7 @@ export function AuthorizationComponent({ roles }: { roles: Role[] }) {
   const [pageSize, setPageSize] = useState(20);
   const [totalPages, setTotalPages] = useState(1);
   const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
@@ -48,6 +49,7 @@ export function AuthorizationComponent({ roles }: { roles: Role[] }) {
 
   useEffect(() => {
     let cancelled = false;
+    setIsLoading(true);
 
     filterUsers({
       search: search.trim() || undefined,
@@ -58,6 +60,8 @@ export function AuthorizationComponent({ roles }: { roles: Role[] }) {
       if (cancelled || !result.ok) return;
       setUsers(result.data ?? []);
       setTotalPages(totalPagesFromMeta(result.meta, result.data?.length ?? 0, pageSize));
+    }).finally(() => {
+      if (!cancelled) setIsLoading(false);
     });
 
     return () => {
@@ -75,7 +79,7 @@ export function AuthorizationComponent({ roles }: { roles: Role[] }) {
         <div className="section-container section-table mb-6 ">
           <Tab tabs={ACTIVE_STATUS_TABS} activeTab={UserStatus.Active} />
 
-          {users.length === 0 ? (
+          {isLoading ? null : users.length === 0 ? (
             <EmptyData title="Không có nhân viên" description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm." />
           ) : (
             <div className="overview-table-wrap">
@@ -142,6 +146,7 @@ export function AuthorizationComponent({ roles }: { roles: Role[] }) {
               </div>
             </div>
           )}
+          {isLoading ? null : (
           <Pagination
             currentPage={page}
             totalPages={totalPages}
@@ -152,6 +157,7 @@ export function AuthorizationComponent({ roles }: { roles: Role[] }) {
               setPage(1);
             }}
           />
+          )}
         </div>
       </section>
     </>

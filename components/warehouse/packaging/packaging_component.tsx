@@ -235,6 +235,7 @@ export function PackagingComponent() {
   const [totalPages, setTotalPages] = useState(1);
   const [orders, setOrders] = useState<WarehouseOrder[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [reloadAt, setReloadAt] = useState(0);
   const [expandedIds, setExpandedIds] = useState<number[]>([]);
   const [confirmOrder, setConfirmOrder] = useState<WarehouseOrder | null>(null);
@@ -254,6 +255,7 @@ export function PackagingComponent() {
   useEffect(() => {
     let cancelled = false;
     setLoadError(null);
+    setIsLoading(true);
 
     getWarehouseOrders({
       search: search.trim() || "",
@@ -269,6 +271,8 @@ export function PackagingComponent() {
       }
       setOrders(result.data ?? []);
       setTotalPages(totalPagesFromMeta(result.meta, result.data?.length ?? 0, pageSize));
+    }).finally(() => {
+      if (!cancelled) setIsLoading(false);
     });
 
     return () => {
@@ -364,7 +368,7 @@ export function PackagingComponent() {
               }}
             />
 
-            {orders.length === 0 ? (
+            {isLoading ? null : orders.length === 0 ? (
               <EmptyData
                 title="Không có đơn đóng gói"
                 description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm."
@@ -465,6 +469,7 @@ export function PackagingComponent() {
               </div>
             )}
 
+            {isLoading ? null : (
             <Pagination
               currentPage={page}
               totalPages={totalPages}
@@ -475,6 +480,7 @@ export function PackagingComponent() {
                 setPage(1);
               }}
             />
+            )}
           </>
         )}
       </div>
