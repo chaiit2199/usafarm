@@ -449,15 +449,39 @@ export type WarehouseOrderLine = {
   unit?: string;
 };
 
-export type GoodsIssue = {
-  code: string;
+export type GoodsIssueLine = {
   id: number;
-  warehouse_id: number;
-  warehouse_name: string;
-  handed_over_at: string;
+  sku_name: string;
+  quantity: number;
+  packaging_weight_kg?: number;
+  unit?: string;
+};
+
+export type GoodsIssue = {
+  id: number;
+  code: string;
+  form_code?: string;
+  issued_at?: string;
+  created_at?: string;
+  created_by?: number;
+  agency_name?: string;
   carrier_name: string;
   driver_name: string;
+  driver_identity_or_phone?: string;
   vehicle_plate: string;
+  warehouse_id: number;
+  warehouse_name: string;
+  order_id?: number;
+  order_code?: string;
+  order_status?: number;
+  total_quantity?: number;
+  total_weight_kg?: number;
+  delivery_address?: { id: number; address: string } | null;
+  handed_over_at?: string | null;
+  handed_over_by?: number | null;
+  handover_images?: unknown[];
+  handover_note?: string | null;
+  lines?: GoodsIssueLine[];
 };
 
 export type WarehouseOrder = {
@@ -492,5 +516,10 @@ export type WarehouseOrdersResponse = {
 
 export type WarehouseOrderResponse = {
   data: WarehouseOrder;
+  meta?: ApiListMeta;
+};
+
+export type GoodsIssueResponse = {
+  data: GoodsIssue;
   meta?: ApiListMeta;
 };

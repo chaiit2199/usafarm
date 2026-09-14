@@ -466,7 +466,7 @@
     }
 
     &.actions {
-      @apply sticky right-0 z-1;
+      @apply sticky right-0 z-1 flex justify-end pr-3;
       &:not(.bg-transparent) {
         background: #fff;
       }

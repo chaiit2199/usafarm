@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { client, HttpError } from "@/lib/http/client";
 import type {
+  GoodsIssueResponse,
   WarehouseOrderResponse,
   WarehouseOrdersResponse,
 } from "@/lib/api/types";
@@ -110,7 +111,7 @@ export async function createWarehouseOrderGoodsIssue(payload: {
     payload,
     "Không thể lập phiếu xuất kho",
     async ({ id, warehouse_id, carrier_name, vehicle_plate, driver_name, driver_identity_or_phone }) => {
-      await client.post(
+      const response = await client.post<GoodsIssueResponse>(
         `/api/v1/warehouse/orders/${id}/goods-issues`,
         {
           warehouse_id,
@@ -126,7 +127,7 @@ export async function createWarehouseOrderGoodsIssue(payload: {
         },
       );
       revalidatePath("/production/export");
-      return { ok: true as const };
+      return { ok: true as const, data: response.data };
     },
   );
 }

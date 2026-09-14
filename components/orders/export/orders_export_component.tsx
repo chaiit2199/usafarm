@@ -13,6 +13,7 @@ import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel, SelectField } from "@/components/form-fields";
 import { Icon } from "@/components/icon";
 import { LoadError } from "@/components/load_error";
+import { exportHandoverPdf } from "@/components/orders/handover_template";
 import { OrderStatusBadge } from "@/components/status";
 import { getWarehouseOrders, createWarehouseOrderGoodsIssue } from "@/lib/api/production";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
@@ -28,7 +29,7 @@ const MOCK_CARRIERS = [
 
 function formatWeightKg(bags: number, packSpecKg: number) {
   return new Intl.NumberFormat("en-US").format(bags * packSpecKg);
-} 
+}  
 
 function ExportSlipModal({
   order,
@@ -67,14 +68,93 @@ function ExportSlipModal({
       warehouse_id: order.warehouse_id,
       ...slip,
     });
+
     if (!result.ok) {
       putFlash("error", result.message, 1500);
       return;
     }
 
-    setIsConfirmOpen(false);
-    putFlash("success", "Đã lập phiếu xuất kho", 1500);
-    onSaved();
+    // const result = {
+    //   data: {
+    //     id: 5,
+    //     code: "XK-20260914-0002",
+    //     form_code: "02-VT",
+    //     issued_at: "2026-09-14T04:31:01.002976Z",
+    //     created_at: "2026-09-14T04:31:01.005851Z",
+    //     created_by: 1,
+    //     agency_name: "Công Ty Lam Agri",
+    //     carrier_name: "Công ty vận tải B",
+    //     driver_name: "12312",
+    //     driver_identity_or_phone: "0373270196",
+    //     vehicle_plate: "92M1-03920",
+    //     warehouse_id: 9,
+    //     warehouse_name: "Kho khu vực Cần Thơ",
+    //     order_id: 15,
+    //     order_code: "ORD-20260908072923-E54FF3",
+    //     order_status: 12,
+    //     total_quantity: 200,
+    //     total_weight_kg: 10000,
+    //     delivery_address: {
+    //       id: 31,
+    //       address: "Số 18 đường Trần Phú, Phường 1, TP. Vĩnh Long, Vĩnh Long",
+    //     },
+    //     handed_over_at: null,
+    //     handed_over_by: null,
+    //     handover_images: [],
+    //     handover_note: null,
+    //     lines: [
+    //       {
+    //         id: 1,
+    //         sku_name: "Phân Bón DAP xanh miểng DAPEN2500",
+    //         quantity: 20,
+    //         packaging_weight_kg: 50,
+    //         unit: "kg",
+    //       },
+    //       {
+    //         id: 2,
+    //         sku_name: "Phân Bón DAP xanh miểng DAPEN2500",
+    //         quantity: 20,
+    //         packaging_weight_kg: 50,
+    //         unit: "kg",
+    //       }, 
+    //       {
+    //         id: 3,
+    //         sku_name: "Phân Bón DAP xanh miểng DAPEN2500",
+    //         quantity: 20,
+    //         packaging_weight_kg: 50,
+    //         unit: "kg",
+    //       },
+    //       {
+    //         id: 4,
+    //         sku_name: "Phân Bón DAP xanh miểng DAPEN2500",
+    //         quantity: 20,
+    //         packaging_weight_kg: 50,
+    //         unit: "kg",
+    //       },
+    //       {
+    //         id: 5,
+    //         sku_name: "Phân Bón DAP xanh miểng DAPEN2500",
+    //         quantity: 20,
+    //         packaging_weight_kg: 50,
+    //         unit: "kg",
+    //       },
+
+    //     ],
+    //   },
+    // };
+
+    try {
+      await exportHandoverPdf(result.data);
+      setIsConfirmOpen(false);
+      putFlash("success", "Đã lập phiếu xuất kho", 1500);
+      onSaved();
+    } catch (error) {
+      putFlash(
+        "error",
+        error instanceof Error ? error.message : "Không thể xuất phiếu xuất kho",
+        1500,
+      );
+    }
   }
 
   return (
@@ -145,7 +225,7 @@ function ExportSlipModal({
 
             <section>
               <h6 className="mb-3 text-base font-semibold">Bảng chi tiết hàng hóa xuất kho</h6>
-              <div className="overview-table-inner">
+              <div className="overview-table-inner min-h-auto">
                 <table className="overview-table min-w-full">
                   <colgroup>
                     <col style={{ width: "6%" }} />
@@ -166,7 +246,7 @@ function ExportSlipModal({
                     </tr>
                   </thead>
                   <tbody>
-                    {order.lines.map((line, index) => (
+                    {(order.lines ?? []).map((line, index) => (
                       <tr key={line.id}>
                         <td>{index + 1}</td>
                         <td>
@@ -183,11 +263,7 @@ function ExportSlipModal({
                       </tr>
                     ))}
                   </tbody>
-                </table>
-                {/* <div className="rounded-b-xl bg-theme-primary-border py-3 pr-4 text-right text-sm font-semibold text-slate-900">
-                  TỔNG CỘNG: {totalBags} Bao — {new Intl.NumberFormat("en-US").format(totalWeightKg)}{" "}
-                  KG ({totalTons} Tấn)
-                </div> */}
+                </table> 
               </div>
             </section>
           </div>
