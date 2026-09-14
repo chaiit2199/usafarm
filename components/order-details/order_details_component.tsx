@@ -481,7 +481,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
           </table>
 
           <div className="rounded-b-xl bg-theme-primary-border py-4 text-right pr-22">
-            Tổng thành tiền các sản phẩm:{" "}
+            Tổng cộng:{" "}
             <strong className="pl-1">
               {formatMoney(orderAmount(order.subtotal_amount))}
             </strong>
