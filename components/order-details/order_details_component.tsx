@@ -51,14 +51,7 @@ function getWarehouse(
   if (warehouseId == null) return undefined;
   const line = capacity.lines.find((entry) => entry.order_line_id === orderLineId);
   return line?.warehouses.find((warehouse) => warehouse.warehouse_id === warehouseId);
-}
-
-const CAN_REQUEST_CANCEL: OrderStatusId[] = [
-  orderStatus.draft,
-  orderStatus.approvedWaitingAllocation,
-  orderStatus.waitingWarehouseAcceptance,
-  orderStatus.processing,
-];
+} 
 
 function OrderDetailActions({
   orderId,
@@ -75,11 +68,8 @@ function OrderDetailActions({
 }) {
   const router = useRouter();
   const [confirmAction, setConfirmAction] = useState<OrderStatusId | "reject" | "">("");
-  const canCancel = statusId != null && CAN_REQUEST_CANCEL.includes(statusId);
   const canPreparePackaging = warehouseId != null;
-  const canShowPreparePackaging =
-    statusId === orderStatus.draft ||
-    statusId === orderStatus.approvedWaitingAllocation;
+  const canShowPreparePackaging = statusId === orderStatus.draft || statusId === orderStatus.approvedWaitingAllocation;
   const isRejectConfirm = confirmAction === "reject";
   const isApproveConfirm = confirmAction === orderStatus.waitingForApproval;
 
@@ -165,11 +155,9 @@ function OrderDetailActions({
           </button>
         )} 
 
-        {canCancel && (
-          <button type="button" className="core_button core_button--danger">
-            Huỷ đơn
-          </button>
-        )}
+        <button type="button" className="core_button core_button--danger">
+          Huỷ đơn
+        </button>
 
         {statusId === orderStatus.approvedWaitingHandover && (
           <button type="button" className="core_button core_button--primary">
@@ -177,7 +165,6 @@ function OrderDetailActions({
           </button>
         )}
 
-        {/* Nếu ở đơn mới và có đủ hàng KL, tồn kho và đóng mới */}
         {canShowPreparePackaging && (
           <button
             type="button"
