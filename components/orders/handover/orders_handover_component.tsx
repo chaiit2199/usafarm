@@ -12,6 +12,7 @@ import { getWarehouseOrders, uploadGoodsIssueImages, confirmGoodsIssueHandover }
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import type { GoodsIssue, WarehouseOrder } from "@/lib/api/types";
 import { putFlash } from "@/lib/flash/flash";
+import { exportHandoverPdf } from "../handover_template";
 
 function latestGoodsIssue(order: WarehouseOrder): GoodsIssue | undefined {
   return order.goods_issues.at(-1);
@@ -97,6 +98,11 @@ function HandoverConfirmModal({
     setIsConfirmOpen(false);
     putFlash("success", "Đã xác nhận bàn giao", 1500);
     onSaved();
+  }
+
+  async function handleExportHandoverPdf(order: WarehouseOrder) {
+    if (!issue) return;
+    await exportHandoverPdf(issue);
   }
 
   return (
@@ -205,6 +211,13 @@ function HandoverConfirmModal({
           <div className="core_modal__actions px-4">
             <button type="button" className="core_button core_button--secondary" onClick={onClose}>
               Hủy bỏ
+            </button>
+            <button
+              type="button"
+              className="core_button core_button--primary inline-flex items-center gap-1.5"
+              onClick={() => handleExportHandoverPdf(order)}
+            >
+              Tải phiếu xuất kho
             </button>
             <button
               type="submit"
