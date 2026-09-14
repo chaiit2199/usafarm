@@ -6,7 +6,7 @@ import { EmptyData, Modal, Pagination, TableHead } from "@/components/core_compo
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { Icon } from "@/components/icon";
 import { LoadError } from "@/components/load_error";
-import { OrderStatusBadge } from "@/components/status";
+import { OrderStatusBadge, Status } from "@/components/status";
 import { Tab } from "@/components/tab";
 import { getWarehouseOrders, startWarehouseOrder, completeWarehouseOrderPacking } from "@/lib/api/production";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
@@ -142,7 +142,7 @@ function PackingDetailsModalForm({
                     <td className="is-num overview-table__muted">{remaining}</td>
                     <td className="is-num">
                       {remaining === 0 ? (
-                        <span className="status status--active">Đủ hàng</span>
+                        <Status kind="active">Đủ hàng</Status>
                       ) : (
                         <input
                           id={`complete-pack-qty-${order.id}-${line.id}`}
@@ -376,20 +376,22 @@ export function PackagingComponent() {
             ) : (
               <div className="overview-table-wrap">
                 <div className="overview-table-inner">
-                  <table className="overview-table min-w-[2000px]" id="packaging-orders-table">
+                  <table className="overview-table min-w-[1800px]" id="packaging-orders-table">
                     <colgroup>
-                      <col style={{ width: "2%" }} />
+                      <col style={{ width: "4%" }} />
+                      <col style={{ width: "4%" }} />
                       <col style={{ width: "14%" }} />
                       <col style={{ width: "8%" }} />
                       <col style={{ width: "10%" }} />
                       <col style={{ width: "10%" }} />
                       <col style={{ width: "14%" }} />
                       <col style={{ width: "14%" }} />
-                      <col style={{ width: "8%" }} />
-                      <col style={{ width: "8%" }} />
+                      <col style={{ width: "6%" }} />
+                      <col style={{ width: "4%" }} />
                     </colgroup>
                     <thead>
                       <tr>
+                        <TableHead></TableHead>
                         <TableHead></TableHead>
                         <TableHead icon="hero-clipboard-document-list">Mã đơn</TableHead>
                         <TableHead>Số lượng cần</TableHead>
@@ -402,7 +404,7 @@ export function PackagingComponent() {
                       </tr>
                     </thead>
                     <tbody>
-                      {orders.map((order) => {
+                      {orders.map((order, index) => {
                         const expanded = expandedIds.includes(order.id);
 
                         return (
@@ -424,6 +426,7 @@ export function PackagingComponent() {
                                   />
                                 </button>
                               </td>
+                              <td>{index + 1}</td>
                               <td className="overview-table__code">{order.code}</td>
                               <td className="overview-table__muted">{order.total_quantity}</td>
                               <td className="is-num overview-table__muted">

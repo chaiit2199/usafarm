@@ -10,6 +10,7 @@ import {
 } from "@/components/core_component";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel } from "@/components/form-fields";
+import { Status } from "@/components/status";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 
 type Warehouse = {
@@ -87,7 +88,7 @@ const MOCK_WAREHOUSES: Warehouse[] = [
 ];
 
 function WarehouseCodeBadge({ code }: { code: string }) {
-  return <span className="status status--active">{code}</span>;
+  return <Status kind="active">{code}</Status>;
 }
 
 function CreateWarehouseModal({ onClose }: { onClose: () => void }) {

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { EmptyData, Pagination, TableHead } from "@/components/core_component";
+import { Status } from "@/components/status";
 import { MOCK_PRODUCT_GROUPS } from "@/lib/mock/product-groups";
 import { Icon } from "@/components/icon";
 
@@ -55,7 +56,7 @@ export function ProductGroupsComponent() {
                         {(page - 1) * pageSize + index + 1}
                       </td>
                       <td>
-                        <span className="status status--active">{group.code}</span>
+                        <Status kind="active">{group.code}</Status>
                       </td>
                       <td className="font-medium text-slate-900">{group.name}</td>
                       <td className="overview-table__muted">

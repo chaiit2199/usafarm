@@ -408,7 +408,7 @@
 }
 
 .overview-table {
-  @apply w-full rounded-xl border border-theme-primary-border overflow-hidden;
+  @apply w-full rounded-xl border border-theme-primary-border;
   border-collapse: separate;
   table-layout: fixed; 
   border-spacing: 0;
@@ -438,7 +438,14 @@
     @apply text-sm font-medium text-theme-muted bg-theme-primary-border; 
     @apply py-2 px-2;
     text-align: left; 
-    
+
+    &:first-child {
+      border-top-left-radius: 0.5rem;
+    }
+
+    &:last-child {
+      border-top-right-radius: 0.5rem;
+    }
 
     &.is-center {
       text-align: center;

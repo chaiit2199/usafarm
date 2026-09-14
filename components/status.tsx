@@ -16,10 +16,13 @@ type StatusProps = {
   className?: string;
 };
 
+/** Badge trạng thái dùng chung toàn app. Ưu tiên `color` (inline), không có thì dùng `kind` (CSS). */
 export function Status({ children, kind, color, className }: StatusProps) {
   return (
     <span
-      className={["status", kind ? `status--${kind}` : "", className].filter(Boolean).join(" ")}
+      className={["status", !color && kind ? `status--${kind}` : "", className]
+        .filter(Boolean)
+        .join(" ")}
       style={
         color
           ? {
