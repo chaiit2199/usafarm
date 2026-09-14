@@ -18,6 +18,11 @@ function latestGoodsIssue(order: WarehouseOrder): GoodsIssue | undefined {
   return order.goods_issues.at(-1);
 }
 
+function isPdfProof(file?: File, url?: string) {
+  if (file?.type === "application/pdf" || file?.name.toLowerCase().endsWith(".pdf")) return true;
+  return Boolean(url?.toLowerCase().split("?")[0]?.endsWith(".pdf"));
+}
+
 function vehicleLabel(issue: GoodsIssue | undefined) {
   if (!issue) return "—";
   return [issue.vehicle_plate, issue.driver_name].filter(Boolean).join(" — ") || "—";
@@ -69,7 +74,7 @@ function HandoverConfirmModal({
 
     setImagesId(result.imagesId);
     setUploadedImages(result.images);
-    putFlash("success", "Đã tải ảnh chứng từ", 1500);
+    putFlash("success", "Đã tải chứng từ", 1500);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -100,9 +105,23 @@ function HandoverConfirmModal({
     onSaved();
   }
 
-  async function handleExportHandoverPdf(order: WarehouseOrder) {
-    if (!issue) return;
-    await exportHandoverPdf(issue);
+  async function handleExportHandoverPdf() {
+    if (!issue) {
+      putFlash("error", "Không tìm thấy phiếu xuất kho", 1500);
+      return;
+    }
+
+    await exportHandoverPdf({
+      ...issue,
+      agency_name: issue.agency_name ?? order.agency_name,
+      warehouse_id: issue.warehouse_id || order.warehouse_id,
+      warehouse_name: issue.warehouse_name || order.warehouse_name,
+      order_id: issue.order_id ?? order.id,
+      order_code: issue.order_code ?? order.code,
+      order_status: issue.order_status ?? order.status,
+      total_quantity: issue.total_quantity ?? order.total_quantity,
+      lines: issue.lines?.length ? issue.lines : order.lines,
+    });
   }
 
   return (
@@ -163,17 +182,17 @@ function HandoverConfirmModal({
                   <span className="block text-sm font-medium text-slate-900">
                     {podFiles.length > 0
                       ? podFiles.map((file) => file.name).join(", ")
-                      : "Chụp ảnh từ điện thoại hoặc bấm vào đây để tải file biên bản"}
+                      : "Chụp ảnh từ điện thoại hoặc bấm vào đây để tải ảnh / file PDF biên bản"}
                   </span>
                   <span className="mt-0.5 block text-xs text-theme-muted">
-                    Bắt buộc phải có ảnh chứng từ mới kích hoạt được nút xác nhận
+                    Chấp nhận ảnh hoặc PDF. Bắt buộc có chứng từ mới xác nhận được.
                   </span>
                 </span>
                 <input
                   id="handover-pod-file"
                   name="pod_file"
                   type="file"
-                  accept="image/*"
+                  accept="image/*,.pdf,application/pdf"
                   multiple
                   className="sr-only"
                   required
@@ -182,14 +201,27 @@ function HandoverConfirmModal({
               </label>
               {uploadedImages.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {uploadedImages.map((image) => (
-                    <img
-                      key={image.id}
-                      src={image.url}
-                      alt={`Ảnh chứng từ #${image.id}`}
-                      className="w-20 h-20 object-cover rounded-lg"
-                    />
-                  ))}
+                  {uploadedImages.map((image, index) =>
+                    isPdfProof(podFiles[index], image.url) ? (
+                      <a
+                        key={image.id}
+                        href={image.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-lg bg-slate-100 text-theme-primary"
+                      >
+                        <Icon name="hero-document-text" className="size-6" />
+                        <span className="text-[10px] font-medium">PDF</span>
+                      </a>
+                    ) : (
+                      <img
+                        key={image.id}
+                        src={image.url}
+                        alt={`Ảnh chứng từ #${image.id}`}
+                        className="w-20 h-20 object-cover rounded-lg"
+                      />
+                    ),
+                  )}
                 </div>
               )}
             </div>
@@ -215,7 +247,7 @@ function HandoverConfirmModal({
             <button
               type="button"
               className="core_button core_button--primary inline-flex items-center gap-1.5"
-              onClick={() => handleExportHandoverPdf(order)}
+              onClick={() => handleExportHandoverPdf()}
             >
               Tải phiếu xuất kho
             </button>
