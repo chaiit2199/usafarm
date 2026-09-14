@@ -13,13 +13,17 @@
 * {
   &::-webkit-scrollbar {
     @apply rounded-xl;
-    @apply w-1 h-1 bg-transparent;
+    @apply w-1 h-2 bg-transparent transition-all;
 
   }
 
   &::-webkit-scrollbar-thumb {
     @apply rounded-xl;
     background-color: rgba(128, 128, 128, 0.3);
+
+    &:hover {
+      background-color: rgba(128, 128, 128, 0.5);
+    }
   }
 }
 

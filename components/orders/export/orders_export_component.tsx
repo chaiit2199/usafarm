@@ -65,7 +65,7 @@ function ExportSlipModal({
 
     const result = await createWarehouseOrderGoodsIssue({
       id: order.id,
-      warehouse_id: order.warehouse_id,
+      warehouse_id: order.warehouses?.[0].warehouse_id ?? 0,
       ...slip,
     });
 
@@ -392,7 +392,7 @@ export function OrdersExportComponent() {
                               <td>
                                 <OrderStatusBadge status={order.status} />
                               </td>
-                              <td>{order.warehouse_name}</td>
+                              <td>{order.warehouses?.[0].warehouse_name ?? ""}</td>
                               <td className="overview-table__muted">{order.agency_name}</td>
                               <td className="overview-table__muted">
                                 {formatDateTimeVi(order.started_at || order.created_at)}

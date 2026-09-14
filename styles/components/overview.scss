@@ -397,18 +397,18 @@
 }
 
 .overview-table-wrap { 
-  @apply overflow-y-auto overflow-x-hidden rounded-xl; 
+  @apply overflow-y-auto overflow-x-hidden; 
 }
 
 .overview-table-inner {
-  @apply overflow-x-auto pb-4 rounded-lg;
+  @apply overflow-x-auto pb-4;
   &:not(.min-h-auto) {
     @apply min-h-80;
   }
 }
 
 .overview-table {
-  @apply w-full rounded-xl border border-theme-primary-border;
+  @apply w-full rounded-xl border border-theme-primary-border overflow-hidden;
   border-collapse: separate;
   table-layout: fixed; 
   border-spacing: 0;
@@ -476,6 +476,7 @@
   tbody tr {
     position: transition-all;
 
+    th:first-child, 
     td:first-child  {
       @apply pl-4;
     } 

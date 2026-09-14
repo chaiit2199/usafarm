@@ -155,13 +155,16 @@ function OrderDetailActions({
           </button>
         )} 
 
-        <button type="button" className="core_button core_button--danger">
-          Huỷ đơn
-        </button>
+
+        {statusId != orderStatus.completed && (
+          <button type="button" className="core_button core_button--danger">
+            Huỷ đơn
+          </button>
+        )}
 
         {statusId === orderStatus.approvedWaitingHandover && (
           <button type="button" className="core_button core_button--primary">
-            Hoàn thành
+            Hoàn tất đơn hàng
           </button>
         )}
 

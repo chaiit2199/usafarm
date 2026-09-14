@@ -73,7 +73,7 @@ function HandoverConfirmModal({
     }
 
     setImagesId(result.imagesId);
-    setUploadedImages(result.images);
+    setUploadedImages(result.uploadFiles);
     putFlash("success", "Đã tải chứng từ", 1500);
   }
 
@@ -114,8 +114,7 @@ function HandoverConfirmModal({
     await exportHandoverPdf({
       ...issue,
       agency_name: issue.agency_name ?? order.agency_name,
-      warehouse_id: issue.warehouse_id || order.warehouse_id,
-      warehouse_name: issue.warehouse_name || order.warehouse_name,
+      warehouses: issue.warehouses ?? order.warehouses,
       order_id: issue.order_id ?? order.id,
       order_code: issue.order_code ?? order.code,
       order_status: issue.order_status ?? order.status,

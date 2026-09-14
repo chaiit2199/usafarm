@@ -432,7 +432,7 @@ export function PackagingComponent() {
                               <td>
                                 <OrderStatusBadge status={order.status} />
                               </td>
-                              <td>{order.warehouse_name}</td>
+                              <td>{order.warehouses?.[0].warehouse_name ?? ""}</td>
                               <td className="overview-table__muted">{order.agency_name}</td> 
                               <td className="overview-table__muted">
                                 {formatDateTimeVi(order.started_at || order.created_at)}
