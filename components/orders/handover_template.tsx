@@ -244,13 +244,13 @@ export async function exportHandoverPdf(issue: GoodsIssue) {
 
   const host = document.createElement("div");
   Object.assign(host.style, {
-    position: "fixed",
+    position: "fixed", 
     left: "0",
     top: "0",
     width: `${SLIP_PAGE_WIDTH}px`,
     background: "#ffffff",
     color: "#111111",
-    zIndex: "1",
+    zIndex: "-1",
   });
   document.body.appendChild(host);
 
