@@ -107,7 +107,7 @@ function PackingDetailsModalForm({
       {order.lines.length === 0 ? (
         <p className="text-sm text-theme-muted">Không có sản phẩm trong đơn.</p>
       ) : (
-        <div className="overview-table-inner theme-primary-border">
+        <div className="overview-table-inner min-h-auto theme-primary-border">
           <table className="overview-table min-w-full">
             <colgroup>
               <col style={{ width: "4%" }} />
@@ -173,7 +173,7 @@ function PackingDetailsModalForm({
           className="core_button core_button--primary"
           disabled={order.lines.every((line) => lineRemaining(line) <= 0)}
         >
-          Hoàn thành
+          Đóng gói
         </button>
       </div>
     </form>
