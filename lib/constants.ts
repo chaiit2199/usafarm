@@ -76,7 +76,7 @@ export const ORDER_STATUSES = [
   { id: 5, semantic: "PROCESSING", label: "Đang đóng gói", color: "#7C3AED" },
   { id: 12, semantic: "APPROVED_WAITING_GOODS_ISSUE", label: "Chờ xuất kho", color: "#0D9488" },
   { id: 11, semantic: "APPROVED_WAITING_SHIPMENT", label: "Chờ giao hàng", color: "#0284C7" },
-  { id: 13, semantic: "APPROVED_WAITING_HANDOVER", label: "Đã giao hàng", color: "#2563EB" },
+  { id: 13, semantic: "APPROVED_WAITING_HANDOVER", label: "Đang vận chuyển", color: "#2563EB" },
   { id: 7, semantic: "COMPLETED", label: "Hoàn thành", color: "#16A34A" },
   // { id: 3, semantic: "REJECTED", label: "Từ chối", color: "#B91C1C" },
   // { id: 6, semantic: "CANCELLING", label: "Đang xử lý hủy", color: "#F97316" },
