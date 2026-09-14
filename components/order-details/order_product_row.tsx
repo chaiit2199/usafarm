@@ -71,7 +71,7 @@ function ProductCapacityPanel({ capacity , line }: { capacity?: OrderFulfillment
                 </tr>
 
                 <tr>
-                    <td className="font-semibold">Ruột thô / Cốt</td>
+                    <td className="font-semibold">Nguyên liệu thô</td>
                     <td className="font-semibold">{line.requested_core_material_id}</td>
                     <td>Công ty</td>
                     <td className="overview-table__muted">
@@ -100,7 +100,7 @@ function ProductCapacityPanel({ capacity , line }: { capacity?: OrderFulfillment
                       {capacity.is_finished_goods_available ? (
                         <span className="status status--active">Đi hàng tồn kho</span>
                       ) : capacity.finished_goods_available <= 0 ? (
-                        <span className="status status--active">Không đủ hàng</span>
+                        <span className="status status--rejected">Không đủ hàng</span>
                       ) : (
                         <span className="status status--rejected">Cần đóng mới</span>
                       )}
