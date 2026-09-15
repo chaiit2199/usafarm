@@ -35,6 +35,70 @@ function formatMoney(value: number) {
   return new Intl.NumberFormat("en-US").format(value);
 }
 
+function LoadingSpinner() {
+  return (
+    <span
+      className="inline-block size-5 shrink-0 animate-spin rounded-full border-2 border-theme-primary/20 border-t-theme-primary"
+      style={{ animationDuration: "0.45s" }}
+      aria-hidden
+    />
+  );
+}
+
+function OrdersTableHeader() {
+  return (
+    <>
+      <colgroup>
+        <col style={{ width: "4%" }} />
+        <col style={{ width: "18%" }} />
+        <col style={{ width: "10%" }} />
+        <col style={{ width: "14%" }} />
+        <col style={{ width: "10%" }} />
+        <col style={{ width: "10%" }} />
+        <col style={{ width: "10%" }} />
+        <col style={{ width: "10%" }} />
+        <col style={{ width: "10%" }} />
+        <col style={{ width: "4%" }} />
+      </colgroup>
+      <thead>
+        <tr>
+          <TableHead icon="hero-hashtag"></TableHead>
+          <TableHead icon="hero-clipboard-document-list">Mã đơn hàng</TableHead>
+          <TableHead icon="hero-tag">Trạng thái</TableHead>
+          <TableHead icon="hero-building-storefront">Đại lý</TableHead>
+          <TableHead icon="hero-calendar-days">Ngày tạo</TableHead>
+          <TableHead icon="hero-banknotes">Tổng tiền</TableHead>
+          <TableHead icon="hero-banknotes">Công nợ đã thu</TableHead>
+          <TableHead icon="hero-banknotes">Công nợ còn lại</TableHead>
+          <TableHead icon="hero-calendar-days">Thời gian cập nhật</TableHead>
+          <th className="actions" />
+        </tr>
+      </thead>
+    </>
+  );
+}
+
+function TableLoadingOverlay() {
+  return (
+    <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+      <LoadingSpinner />
+    </div>
+  );
+}
+
+export function OrdersTableLoading() {
+  return (
+    <section className="section" id="admin-orders-section">
+      <div className="section-container section-table style-2 mb-6">
+        <Tab tabs={ORDER_STATUS_TABS} activeTab="all" isScroll />
+        <div className="relative min-h-60" aria-busy="true" aria-live="polite">
+          <TableLoadingOverlay />
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function parentRowNumber(orders: Order[], index: number) {
   return orders.slice(0, index).reduce((sum, item) => sum + 1 + item.children.length, 0) + 1;
 }
@@ -131,41 +195,18 @@ export function OrdersTableComponent({
               }}
             />
 
-            {isLoading ? null : orders.length === 0 ? (
-              <EmptyData
+            <div className="relative" aria-busy={isLoading} aria-live="polite">
+              {isLoading ? <TableLoadingOverlay /> : null}
+              {orders.length === 0 ? (
+                <EmptyData
                 title="Không có đơn hàng"
                 description="Thử đổi bộ lọc hoặc từ khóa tìm kiếm."
               />
-            ) : (
+              ) : (
               <div className="overview-table-wrap style-2">
                 <div className="overview-table-inner">
                   <table className="overview-table min-w-[2000px]" id="orders-table">
-                    <colgroup>
-                      <col style={{ width: "4%" }} />
-                      <col style={{ width: "18%" }} />
-                      <col style={{ width: "10%" }} />
-                      <col style={{ width: "14%" }} />
-                      <col style={{ width: "10%" }} />
-                      <col style={{ width: "10%" }} />
-                      <col style={{ width: "10%" }} />
-                      <col style={{ width: "10%" }} />
-                      <col style={{ width: "10%" }} />
-                      <col style={{ width: "4%" }} />
-                    </colgroup>
-                    <thead>
-                      <tr>
-                        <TableHead icon="hero-hashtag"></TableHead>
-                        <TableHead icon="hero-clipboard-document-list">Mã đơn hàng</TableHead>
-                        <TableHead icon="hero-tag">Trạng thái</TableHead>
-                        <TableHead icon="hero-building-storefront">Đại lý</TableHead>
-                        <TableHead icon="hero-calendar-days">Ngày tạo</TableHead>
-                        <TableHead icon="hero-banknotes">Tổng tiền</TableHead>
-                        <TableHead icon="hero-banknotes">Công nợ đã thu</TableHead>
-                        <TableHead icon="hero-banknotes">Công nợ còn lại</TableHead>
-                        <TableHead icon="hero-calendar-days">Thời gian cập nhật</TableHead>
-                        <th className="actions" />
-                      </tr>
-                    </thead>
+                    <OrdersTableHeader />
                     <tbody>
                       {orders.map((order, index) => (
                         <Fragment key={order.code}>
@@ -272,20 +313,21 @@ export function OrdersTableComponent({
                   </table>
                 </div>
               </div>
-            )}
+              )}
 
-            {isLoading ? null : (
-            <Pagination
-              currentPage={page}
-              totalPages={totalPages}
-              pageSize={pageSize}
-              onPageChange={setPage}
-              onPageSizeChange={(size) => {
-                setPageSize(size);
-                setPage(DEFAULT_PAGE);
-              }}
-            />
-            )}
+              {orders.length === 0 && isLoading ? null : (
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  pageSize={pageSize}
+                  onPageChange={setPage}
+                  onPageSizeChange={(size) => {
+                    setPageSize(size);
+                    setPage(DEFAULT_PAGE);
+                  }}
+                />
+              )}
+            </div>
           </>
         )}
       </div>
