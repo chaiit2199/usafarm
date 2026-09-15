@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Modal, Pagination, TableHead } from "@/components/core_component";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/lib/constants";
+import { Status } from "@/components/status";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 import { IngredientsSummaryComponent } from "@/components/warehouse/ingredients/ingredients_summary_component";
 import { Icon } from "@/components/icon";
@@ -105,7 +106,7 @@ function formatKg(value: number) {
 }
 
 function WarehouseCodeBadge({ code }: { code: string }) {
-  return <span className="status status--active">{code}</span>;
+  return <Status kind="active">{code}</Status>;
 }
 
 function IngredientDetailModal({
@@ -201,9 +202,9 @@ export function IngredientsComponent() {
                       <td>
                         <p className="mb-0 font-medium text-slate-900">{formatKg(item.stockKg)}</p>
                         {item.reservedKg > 0 && (
-                          <span className="status status--paused mt-1">
+                          <Status kind="paused" className="mt-1">
                             Giữ {formatKg(item.reservedKg)}
-                          </span>
+                          </Status>
                         )}
                       </td>
                       <td className="overview-table__muted">

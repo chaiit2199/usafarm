@@ -141,24 +141,24 @@ export async function uploadGoodsIssueImages(formData: FormData) {
     },
     "Không thể tải ảnh chứng từ",
     async ({ id, files }) => {
-      const images: Array<{ id: number; url: string }> = [];
+      const uploadFiles: Array<{ id: number; url: string }> = [];
 
       for (const file of files) {
         const body = new FormData();
         body.append("file", file);
         const response = await client.post<{ data: { id: number; url: string } }>(
-          `/api/v1/warehouse/goods-issues/${id}/images`,
+          `/api/v1/warehouse/goods-issues/${id}/attachments`,
           body,
           { timeout: 60_000 },
         );
-        images.push({ id: response.data.id, url: response.data.url });
+        uploadFiles.push({ id: response.data.id, url: response.data.url });
       }
 
       revalidatePath("/production/handover");
       return {
         ok: true as const,
-        imagesId: images.map((image) => image.id),
-        images,
+        imagesId: uploadFiles.map((image) => image.id),
+        uploadFiles,
       };
     },
   );

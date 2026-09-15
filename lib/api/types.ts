@@ -469,8 +469,6 @@ export type GoodsIssue = {
   driver_name: string;
   driver_identity_or_phone?: string;
   vehicle_plate: string;
-  warehouse_id: number;
-  warehouse_name: string;
   order_id?: number;
   order_code?: string;
   order_status?: number;
@@ -482,6 +480,11 @@ export type GoodsIssue = {
   handover_images?: unknown[];
   handover_note?: string | null;
   lines?: GoodsIssueLine[];
+  warehouses?: {
+    warehouse_id: number;
+    warehouse_name: string;
+    warehouse_keeper: WarehouseOrderWarehouseKeeper;
+  }[];
 };
 
 export type WarehouseOrder = {
@@ -489,9 +492,7 @@ export type WarehouseOrder = {
   code: string;
   parent_order_id: number;
   parent_order_code: string;
-  status: number;
-  warehouse_id: number;
-  warehouse_name: string;
+  status: number; 
   agency_id: number;
   agency_name: string;
   total_items: number;
@@ -507,7 +508,19 @@ export type WarehouseOrder = {
   updated_at?: string;
   lines: WarehouseOrderLine[];
   goods_issues: GoodsIssue[];
+  warehouses: {
+    warehouse_id: number;
+    warehouse_name: string;
+    warehouse_keeper: WarehouseOrderWarehouseKeeper;
+  }[];
 };
+
+export type WarehouseOrderWarehouseKeeper = {
+  id: number;
+  code: string;
+  name: string;
+};
+
 
 export type WarehouseOrdersResponse = {
   data: WarehouseOrder[];

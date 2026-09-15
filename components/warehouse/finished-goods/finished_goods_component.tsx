@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Pagination, TableHead } from "@/components/core_component";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/lib/constants";
+import { Status } from "@/components/status";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 
 type FinishedGood = {
@@ -74,7 +75,7 @@ const MOCK_FINISHED_GOODS: FinishedGood[] = [
 ];
 
 function OwnershipBadge({ label }: { label: string }) {
-  return <span className="status status--active">{label}</span>;
+  return <Status kind="active">{label}</Status>;
 }
 
 export function FinishedGoodsComponent() {

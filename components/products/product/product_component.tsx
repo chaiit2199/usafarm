@@ -20,9 +20,10 @@ import {
   type BomLine,
   type CatalogProduct,
 } from "@/lib/mock/products";
+import { Status } from "@/components/status";
 
 function OwnershipBadge({ product }: { product: CatalogProduct }) {
-  return <span className="status status--active">{ownershipShort(product.ownership)}</span>;
+  return <Status kind="active">{ownershipShort(product.ownership)}</Status>;
 }
 
 function AppSaleToggle({
@@ -215,9 +216,9 @@ function BomConfigModal({
                         </td>
                         <td className="overview-table__muted">{line.unit}</td>
                         <td>
-                          <span className="status status--active">
+                          <Status kind="active">
                             {line.chargeable ? "Có tính" : "Không tính"}
-                          </span>
+                          </Status>
                         </td>
                       </tr>
                     ))}

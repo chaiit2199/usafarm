@@ -15,6 +15,7 @@ import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 import { MOCK_PRODUCT_GROUPS } from "@/lib/mock/product-groups";
 import { MOCK_PRODUCT_TYPES } from "@/lib/mock/product-types";
 import { Icon } from "@/components/icon";
+import { Status } from "@/components/status";
 
 type CreateProductTypePayload = {
   groupCode: string;
@@ -224,7 +225,7 @@ export function ProductTypesComponent() {
                         {(page - 1) * pageSize + index + 1}
                       </td>
                       <td>
-                        <span className="status status--active">{item.groupCode}</span>
+                        <Status kind="active">{item.groupCode}</Status>
                       </td>
                       <td className="font-medium text-slate-900">{item.name}</td>
                       <td className="overview-table__muted">{item.typeId || "—"}</td>

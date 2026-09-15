@@ -155,13 +155,16 @@ function OrderDetailActions({
           </button>
         )} 
 
-        <button type="button" className="core_button core_button--danger">
-          Huỷ đơn
-        </button>
+
+        {statusId != orderStatus.completed && (
+          <button type="button" className="core_button core_button--danger">
+            Huỷ đơn
+          </button>
+        )}
 
         {statusId === orderStatus.approvedWaitingHandover && (
           <button type="button" className="core_button core_button--primary">
-            Hoàn thành
+            Hoàn tất đơn hàng
           </button>
         )}
 
@@ -499,16 +502,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
           <div className="rounded-xl border border-theme-primary-border p-4">
             <div className="flex items-center justify-between gap-2 mb-2">
               <span className="font-medium text-theme-muted">Đơn 2</span>
-              <span
-                className="status"
-                style={{
-                  color: "#B45309",
-                  borderColor: "#F59E0B55",
-                  backgroundColor: "#F59E0B1A",
-                }}
-              >
-                Chờ bổ sung
-              </span>
+              <Status color="#B45309">Chờ bổ sung</Status>
             </div>
             <p className="text-2xl font-semibold text-slate-900 text-sm">
               {warehouseAvailable.allocation_proposal.waiting_quantity} bao

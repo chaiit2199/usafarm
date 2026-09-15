@@ -4,6 +4,7 @@ import { Fragment } from "react";
 
 import { TableHead } from "@/components/core_component";
 import { Icon } from "@/components/icon";
+import { Status } from "@/components/status";
 import type { OrderFulfillmentWarehouse, OrderLine } from "@/lib/api/types";
 import { orderAmount } from "@/lib/api/types";
 
@@ -13,12 +14,12 @@ function formatMoney(value: number) {
 
 function LineFulfillmentStatus({ waiting }: { waiting: number | undefined }) {
   if (waiting == null) {
-    return <span className="status">—</span>;
+    return <Status kind="new">—</Status>;
   }
   if (waiting <= 0) {
-    return <span className="status status--active">Đủ hàng</span>;
+    return <Status kind="active">Đủ hàng</Status>;
   }
-  return <span className="status status--rejected">Thiếu {waiting} bao</span>;
+  return <Status kind="rejected">Thiếu {waiting} bao</Status>;
 }
 
 function ProductCapacityPanel({ capacity , line }: { capacity?: OrderFulfillmentWarehouse, line: OrderLine }) {
@@ -63,9 +64,9 @@ function ProductCapacityPanel({ capacity , line }: { capacity?: OrderFulfillment
                     <td>{capacity.packaging_available} cái</td>
                     <td>
                       {capacity.is_packaging_available ? (
-                        <span className="status status--active">Đủ hàng</span>
+                        <Status kind="active">Đủ hàng</Status>
                       ) : (
-                        <span className="status status--rejected">Thiếu</span>
+                        <Status kind="rejected">Thiếu</Status>
                       )}
                     </td>
                 </tr>
@@ -82,9 +83,9 @@ function ProductCapacityPanel({ capacity , line }: { capacity?: OrderFulfillment
                     </td>
                     <td>
                       {capacity.is_core_available ? (
-                        <span className="status status--active">Đủ hàng</span>
+                        <Status kind="active">Đủ hàng</Status>
                       ) : (
-                        <span className="status status--rejected">Thiếu</span>
+                        <Status kind="rejected">Thiếu</Status>
                       )}
                     </td>
                 </tr>  
@@ -98,11 +99,11 @@ function ProductCapacityPanel({ capacity , line }: { capacity?: OrderFulfillment
                     <td>{capacity.finished_goods_available} bao</td>
                     <td>
                       {capacity.is_finished_goods_available ? (
-                        <span className="status status--active">Đi hàng tồn kho</span>
+                        <Status kind="active">Đi hàng tồn kho</Status>
                       ) : capacity.finished_goods_available <= 0 ? (
-                        <span className="status status--rejected">Không đủ hàng</span>
+                        <Status kind="rejected">Không đủ hàng</Status>
                       ) : (
-                        <span className="status status--rejected">Cần đóng mới</span>
+                        <Status kind="rejected">Cần đóng mới</Status>
                       )}
                     </td>
                 </tr>

@@ -85,7 +85,7 @@ export function HandoverTemplate({ issue }: { issue: GoodsIssue }) {
             <td>Số CMND/CCCD: {issue.driver_identity_or_phone ?? ""}</td>
           </tr>
           <tr>
-            <td>Xuất tại kho : {issue.warehouse_name}</td>
+            <td>Xuất tại kho : {issue.warehouses?.[0].warehouse_name ?? ""}</td>
             <td>Lái xe: {issue.driver_name}</td>
           </tr>
           <tr>
@@ -161,14 +161,14 @@ export function HandoverTemplate({ issue }: { issue: GoodsIssue }) {
         </tfoot>
       </table>
 
-      <SlipSignatures />
+      <SlipSignatures warehouseKeeper={issue.warehouses?.[0].warehouse_keeper.name ?? ""} />
     </div>
   );
 }
 
-function SlipSignatures() {
+function SlipSignatures({ warehouseKeeper }: { warehouseKeeper?: string   }) {
   const roles: Array<{ title: string; name?: string }> = [
-    { title: "Người lập phiếu", name: "Nguyễn Tấn Đạt" },
+    { title: "Người lập phiếu", name: warehouseKeeper ?? "" },
     { title: "Người nhận hàng" },
     { title: "Thủ kho" },
     { title: "Bảo vệ" },

@@ -397,11 +397,11 @@
 }
 
 .overview-table-wrap { 
-  @apply overflow-y-auto overflow-x-hidden rounded-xl; 
+  @apply overflow-y-auto overflow-x-hidden; 
 }
 
 .overview-table-inner {
-  @apply overflow-x-auto pb-4 rounded-lg;
+  @apply overflow-x-auto pb-4;
   &:not(.min-h-auto) {
     @apply min-h-80;
   }
@@ -438,7 +438,14 @@
     @apply text-sm font-medium text-theme-muted bg-theme-primary-border; 
     @apply py-2 px-2;
     text-align: left; 
-    
+
+    &:first-child {
+      border-top-left-radius: 0.5rem;
+    }
+
+    &:last-child {
+      border-top-right-radius: 0.5rem;
+    }
 
     &.is-center {
       text-align: center;
@@ -476,6 +483,7 @@
   tbody tr {
     position: transition-all;
 
+    th:first-child, 
     td:first-child  {
       @apply pl-4;
     } 
