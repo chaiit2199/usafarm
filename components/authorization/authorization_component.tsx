@@ -10,7 +10,7 @@ import { filterUsers } from "@/lib/api/users";
 import type { Role, User } from "@/lib/api/types";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import { RecordStatusBadge } from "@/components/status";
-import { UserStatus } from "@/lib/constants";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, UserStatus } from "@/lib/constants";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 import { formatDateVi } from "@/lib/format/date";
 import { AssignRoleFormComponent } from "./assign_role_form_component";
@@ -19,8 +19,8 @@ const ACTIVE_STATUS_TABS = [{ value: UserStatus.Active, label: "Đang hoạt đ�
 
 export function AuthorizationComponent({ roles }: { roles: Role[] }) {
   const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [totalPages, setTotalPages] = useState(1);
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -42,7 +42,7 @@ export function AuthorizationComponent({ roles }: { roles: Role[] }) {
       if (detail.action === "authorization") openForm(null);
       if (detail.action === "search") {
         setSearch(detail.query ?? "");
-        setPage(1);
+        setPage(DEFAULT_PAGE);
       }
     });
   }, []);
@@ -154,7 +154,7 @@ export function AuthorizationComponent({ roles }: { roles: Role[] }) {
             onPageChange={setPage}
             onPageSizeChange={(size) => {
               setPageSize(size);
-              setPage(1);
+              setPage(DEFAULT_PAGE);
             }}
           />
           )}

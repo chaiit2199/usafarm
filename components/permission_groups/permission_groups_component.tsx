@@ -11,7 +11,7 @@ import { Tab } from "@/components/tab";
 import { fetchRolePermissions, filterRoles, updateRole, approveRole, rejectRole, resubmitRole, type UpdateRoleInput } from "@/lib/api/roles";
 import type { Permission, Role, ScopeType } from "@/lib/api/types";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
-import { USER_STATUS_TABS, UserStatus, type UserStatusTabValue } from "@/lib/constants";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, USER_STATUS_TABS, UserStatus, type UserStatusTabValue } from "@/lib/constants";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 import { putFlash } from "@/lib/flash/flash";
 import { formatDateVi } from "@/lib/format/date";
@@ -48,8 +48,8 @@ export function PermissionGroupsComponent({
 }) {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<UserStatusTabValue>("all");
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [totalPages, setTotalPages] = useState(initialTotalPages);
   const [roles, setRoles] = useState<Role[]>(initialRoles);
   const [reloadAt, setReloadAt] = useState(0);
@@ -72,7 +72,7 @@ export function PermissionGroupsComponent({
       if (detail.action === "create") setIsCreateOpen(true);
       if (detail.action === "search") {
         setSearch(detail.query ?? "");
-        setPage(1);
+        setPage(DEFAULT_PAGE);
       }
     });
   }, []);
@@ -194,7 +194,7 @@ export function PermissionGroupsComponent({
             activeTab={activeTab}
             onTabClick={(tab) => {
               setActiveTab(tab.value);
-              setPage(1);
+              setPage(DEFAULT_PAGE);
             }}
           />
 
@@ -257,7 +257,7 @@ export function PermissionGroupsComponent({
             onPageChange={setPage}
             onPageSizeChange={(size) => {
               setPageSize(size);
-              setPage(1);
+              setPage(DEFAULT_PAGE);
             }}
           />
           )}

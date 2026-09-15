@@ -11,6 +11,7 @@ import { OrderStatusBadge } from "@/components/status";
 import { getWarehouseOrders, uploadGoodsIssueImages, confirmGoodsIssueHandover } from "@/lib/api/production";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import type { GoodsIssue, WarehouseOrder } from "@/lib/api/types";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/lib/constants";
 import { putFlash } from "@/lib/flash/flash";
 import { exportHandoverPdf } from "../handover_template";
 
@@ -293,8 +294,8 @@ function HandoverConfirmModal({
 }
 
 export function OrdersHandoverComponent() {
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [totalPages, setTotalPages] = useState(1);
   const [search] = useState("");
   const [orders, setOrders] = useState<WarehouseOrder[]>([]);
@@ -403,7 +404,7 @@ export function OrdersHandoverComponent() {
               onPageChange={setPage}
               onPageSizeChange={(size) => {
                 setPageSize(size);
-                setPage(1);
+                setPage(DEFAULT_PAGE);
               }}
             />
           </>

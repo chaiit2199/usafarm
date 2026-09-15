@@ -11,6 +11,8 @@ import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel } from "@/components/form-fields";
 import { RecordStatusBadge } from "@/components/status";
 import {
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
   USER_STATUS_TABS,
   UserStatus,
   type UserStatusTabValue,
@@ -76,8 +78,8 @@ export function EditDepartmentComponent({
   const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
   const [reloadAt, setReloadAt] = useState(0);
   const [activeTab, setActiveTab] = useState<UserStatusTabValue>("all");
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [totalPages, setTotalPages] = useState(initialTotalPages);
   const [departments, setDepartments] = useState<Department[]>(initialDepartments);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -88,7 +90,7 @@ export function EditDepartmentComponent({
   const isRejected = selectedDepartment?.status === UserStatus.Rejected;
 
   useEffect(() => {
-    setPage(1);
+    setPage(DEFAULT_PAGE);
   }, [search]);
 
   useEffect(() => {
@@ -201,7 +203,7 @@ export function EditDepartmentComponent({
                 activeTab={activeTab}
                 onTabClick={(tab) => {
                   setActiveTab(tab.value);
-                  setPage(1);
+                  setPage(DEFAULT_PAGE);
                 }}
               />
 
@@ -269,7 +271,7 @@ export function EditDepartmentComponent({
                 onPageChange={setPage}
                 onPageSizeChange={(size) => {
                   setPageSize(size);
-                  setPage(1);
+                  setPage(DEFAULT_PAGE);
                 }}
               />
               )}

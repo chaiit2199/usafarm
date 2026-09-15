@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { Modal, Pagination, TableHead } from "@/components/core_component";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/lib/constants";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 import { IngredientsSummaryComponent } from "@/components/warehouse/ingredients/ingredients_summary_component";
 import { Icon } from "@/components/icon";
@@ -136,15 +137,15 @@ function IngredientDetailModal({
 
 export function IngredientsComponent() {
   const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [selected, setSelected] = useState<Ingredient | null>(null);
 
   useEffect(() => {
     return subscribeHeaderAction("/warehouse/ingredients", (detail) => {
       if (detail.action === "search") {
         setSearch(detail.query ?? "");
-        setPage(1);
+        setPage(DEFAULT_PAGE);
       }
     });
   }, []);
@@ -231,7 +232,7 @@ export function IngredientsComponent() {
             onPageChange={setPage}
             onPageSizeChange={(size) => {
               setPageSize(size);
-              setPage(1);
+              setPage(DEFAULT_PAGE);
             }}
           />
         </div>

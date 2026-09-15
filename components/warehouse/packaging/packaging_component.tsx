@@ -11,7 +11,7 @@ import { Tab } from "@/components/tab";
 import { getWarehouseOrders, startWarehouseOrder, completeWarehouseOrderPacking } from "@/lib/api/production";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import type { WarehouseOrder, WarehouseOrderLine } from "@/lib/api/types";
-import { orderStatus } from "@/lib/constants";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, orderStatus } from "@/lib/constants";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 import { putFlash } from "@/lib/flash/flash";
 import { formatDateTimeVi } from "@/lib/format/date";
@@ -230,8 +230,8 @@ function PackagingOrderLines({ lines }: { lines: WarehouseOrderLine[] }) {
 export function PackagingComponent() {
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<StatusTabId>(ORDER_STATUS_TABS[0].id);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [totalPages, setTotalPages] = useState(1);
   const [orders, setOrders] = useState<WarehouseOrder[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -249,7 +249,7 @@ export function PackagingComponent() {
   }, []);
 
   useEffect(() => {
-    setPage(1);
+    setPage(DEFAULT_PAGE);
   }, [search, activeTab]);
 
   useEffect(() => {
@@ -364,7 +364,7 @@ export function PackagingComponent() {
               isScroll
               onTabClick={(tab) => {
                 setActiveTab(tab.value as StatusTabId);
-                setPage(1);
+                setPage(DEFAULT_PAGE);
               }}
             />
 
@@ -477,7 +477,7 @@ export function PackagingComponent() {
               onPageChange={setPage}
               onPageSizeChange={(size) => {
                 setPageSize(size);
-                setPage(1);
+                setPage(DEFAULT_PAGE);
               }}
             />
             )}

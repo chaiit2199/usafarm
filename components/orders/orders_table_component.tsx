@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 
 import {
   EmptyData,
@@ -20,7 +20,7 @@ import {
   orderTotal,
   type Order,
 } from "@/lib/api/types";
-import { ORDER_STATUSES } from "@/lib/constants";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, ORDER_STATUSES } from "@/lib/constants";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 import { formatDateTimeVi } from "@/lib/format/date";
 
@@ -39,17 +39,26 @@ function parentRowNumber(orders: Order[], index: number) {
   return orders.slice(0, index).reduce((sum, item) => sum + 1 + item.children.length, 0) + 1;
 }
 
-export function OrdersTableComponent() {
+export function OrdersTableComponent({
+  initialOrders,
+  initialTotalPages = 1,
+  initialLoadError = null,
+}: {
+  initialOrders: Order[];
+  initialTotalPages?: number;
+  initialLoadError?: string | null;
+}) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<StatusTabValue>("all");
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
-  const [totalPages, setTotalPages] = useState(1);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [totalPages, setTotalPages] = useState(initialTotalPages);
+  const [orders, setOrders] = useState<Order[]>(initialOrders);
+  const [loadError, setLoadError] = useState<string | null>(initialLoadError);
+  const [isLoading, setIsLoading] = useState(false);
   const [reloadAt, setReloadAt] = useState(0);
+  const hasLeftInitialQuery = useRef(false);
 
   useEffect(() => {
     return subscribeHeaderAction("/orders", (detail) => {
@@ -58,10 +67,20 @@ export function OrdersTableComponent() {
   }, []);
 
   useEffect(() => {
-    setPage(1);
+    setPage(DEFAULT_PAGE);
   }, [search, activeTab]);
 
   useEffect(() => {
+    const isInitialQuery =
+      !search.trim() &&
+      activeTab === "all" &&
+      page === DEFAULT_PAGE &&
+      pageSize === DEFAULT_PAGE_SIZE &&
+      reloadAt === 0;
+
+    if (!isInitialQuery) hasLeftInitialQuery.current = true;
+    if (isInitialQuery && !hasLeftInitialQuery.current) return;
+
     let cancelled = false;
     setIsLoading(true);
     setLoadError(null);
@@ -108,7 +127,7 @@ export function OrdersTableComponent() {
               isScroll
               onTabClick={(tab) => {
                 setActiveTab(tab.value as StatusTabValue);
-                setPage(1);
+                setPage(DEFAULT_PAGE);
               }}
             />
 
@@ -263,7 +282,7 @@ export function OrdersTableComponent() {
               onPageChange={setPage}
               onPageSizeChange={(size) => {
                 setPageSize(size);
-                setPage(1);
+                setPage(DEFAULT_PAGE);
               }}
             />
             )}

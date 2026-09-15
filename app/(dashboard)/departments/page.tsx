@@ -4,6 +4,7 @@ import { PageLoadError } from "@/components/load_error";
 import { DepartmentsComponent } from "@/components/departments/departments_component";
 import { filterDepartments } from "@/lib/api/departments";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/lib/constants";
 import { pageMetadata } from "@/lib/dashboard/navbar";
 
 export const metadata: Metadata = pageMetadata("/departments");
@@ -17,7 +18,7 @@ export default function DepartmentsPage() {
 }
 
 async function DepartmentsData() {
-  const result = await filterDepartments({ page: 1, page_size: 20, status: "ALL" });
+  const result = await filterDepartments({ page: DEFAULT_PAGE, page_size: DEFAULT_PAGE_SIZE, status: "ALL" });
   if (!result.ok) {
     return <PageLoadError message={result.message} />;
   }

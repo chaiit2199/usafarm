@@ -6,9 +6,19 @@ import { useEffect, useState } from "react";
 import { CreateOrderComponent } from "@/components/orders/create_order_component";
 import { OrdersTableComponent } from "@/components/orders/orders_table_component";
 import { OrdersSummaryComponent } from "@/components/orders/orders_summary_component";
-import type { OrderSummary } from "@/lib/api/types";
+import type { OrderSummary, Order } from "@/lib/api/types";
 
-export function OrdersComponent({ summary }: { summary: OrderSummary | null }) {
+export function OrdersComponent({
+  summary,
+  initialOrders,
+  initialTotalPages = 1,
+  initialLoadError = null,
+}: {
+  summary: OrderSummary | null;
+  initialOrders: Order[];
+  initialTotalPages?: number;
+  initialLoadError?: string | null;
+}) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   useEffect(() => {
@@ -20,7 +30,11 @@ export function OrdersComponent({ summary }: { summary: OrderSummary | null }) {
   return (
     <>
       <OrdersSummaryComponent summary={summary} />
-      <OrdersTableComponent />
+      <OrdersTableComponent
+        initialOrders={initialOrders}
+        initialTotalPages={initialTotalPages}
+        initialLoadError={initialLoadError}
+      />
       {isCreateOpen && <CreateOrderComponent />}
     </>
   );

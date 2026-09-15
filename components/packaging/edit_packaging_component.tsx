@@ -11,6 +11,8 @@ import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel, SelectField } from "@/components/form-fields";
 import { RecordStatusBadge } from "@/components/status";
 import {
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
   PACKAGING_UNITS,
   USER_STATUS_TABS,
   UserStatus,
@@ -91,8 +93,8 @@ export function EditPackagingComponent({
   const [payload, setPayload] = useState<UpdatePackagingInput | null>(null);
   const [reloadAt, setReloadAt] = useState(0);
   const [activeTab, setActiveTab] = useState<UserStatusTabValue>("all");
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [totalPages, setTotalPages] = useState(initialTotalPages);
   const [packagings, setPackagings] = useState<Packaging[]>(initialPackagings);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -101,7 +103,7 @@ export function EditPackagingComponent({
   const canEdit = selectedPackaging?.status === UserStatus.Active;
 
   useEffect(() => {
-    setPage(1);
+    setPage(DEFAULT_PAGE);
   }, [search]);
 
   useEffect(() => {
@@ -210,7 +212,7 @@ export function EditPackagingComponent({
                 activeTab={activeTab}
                 onTabClick={(tab) => {
                   setActiveTab(tab.value);
-                  setPage(1);
+                  setPage(DEFAULT_PAGE);
                 }}
               />
 
@@ -298,7 +300,7 @@ export function EditPackagingComponent({
                 onPageChange={setPage}
                 onPageSizeChange={(size) => {
                   setPageSize(size);
-                  setPage(1);
+                  setPage(DEFAULT_PAGE);
                 }}
               />
               )}

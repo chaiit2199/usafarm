@@ -18,6 +18,7 @@ import { OrderStatusBadge } from "@/components/status";
 import { getWarehouseOrders, createWarehouseOrderGoodsIssue } from "@/lib/api/production";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import type { WarehouseOrder } from "@/lib/api/types";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/lib/constants";
 import { putFlash } from "@/lib/flash/flash";
 import { formatDateTimeVi } from "@/lib/format/date";
 
@@ -313,8 +314,8 @@ export function OrdersExportComponent() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [reloadAt, setReloadAt] = useState(0);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
@@ -425,7 +426,7 @@ export function OrdersExportComponent() {
               onPageChange={setPage}
               onPageSizeChange={(size) => {
                 setPageSize(size);
-                setPage(1);
+                setPage(DEFAULT_PAGE);
               }}
             />
             )}

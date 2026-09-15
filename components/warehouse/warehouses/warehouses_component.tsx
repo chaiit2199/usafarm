@@ -10,6 +10,7 @@ import {
 } from "@/components/core_component";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel } from "@/components/form-fields";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/lib/constants";
 import { subscribeHeaderAction } from "@/lib/dashboard/header-actions";
 
 type Warehouse = {
@@ -200,8 +201,8 @@ function CreateWarehouseModal({ onClose }: { onClose: () => void }) {
 
 export function WarehousesComponent() {
   const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   useEffect(() => {
@@ -209,7 +210,7 @@ export function WarehousesComponent() {
       if (detail.action === "create") setIsCreateOpen(true);
       if (detail.action === "search") {
         setSearch(detail.query ?? "");
-        setPage(1);
+        setPage(DEFAULT_PAGE);
       }
     });
   }, []);
@@ -271,7 +272,7 @@ export function WarehousesComponent() {
           onPageChange={setPage}
           onPageSizeChange={(size) => {
             setPageSize(size);
-            setPage(1);
+            setPage(DEFAULT_PAGE);
           }}
         />
       </div>

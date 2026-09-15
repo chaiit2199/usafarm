@@ -3,6 +3,7 @@ import { Dashboard } from "@/components/dashboard";
 import { getDepartments } from "@/lib/api/me";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import { filterUsers } from "@/lib/api/users";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/lib/constants";
 import { catchPageLoadError } from "@/lib/catch-page-load";
 import { pageMetadata } from "@/lib/dashboard/navbar";
 import { StaffUsers } from "./staff-users";
@@ -21,7 +22,7 @@ async function StaffData() {
   try {
     const [departments, usersResult] = await Promise.all([
       getDepartments(),
-      filterUsers({ page: 1, page_size: 20 }),
+      filterUsers({ page: DEFAULT_PAGE, page_size: DEFAULT_PAGE_SIZE }),
     ]);
 
     return (

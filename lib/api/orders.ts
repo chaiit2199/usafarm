@@ -37,15 +37,6 @@ export async function filterOrders(params: FilterOrdersParams = {}) {
   }
 }
 
-export async function getOrders() {
-  try {
-    const response = await client.get<OrdersResponse>(`/api/v1/orders`);
-    return { ok: true as const, data: response.data ?? [] };
-  } catch (error) {
-    return { ok: false as const, message: error instanceof HttpError ? error.message : "Không thể tải đơn hàng" };
-  }
-}
-
 export async function getOrderSummary() {
   try {
     const response = await client.get<OrderSummaryResponse>("/api/v1/orders/summary");

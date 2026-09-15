@@ -7,7 +7,7 @@ import type { Department, User } from "@/lib/api/me";
 import { UserAvatar } from "@/components/user-components";
 import { Icon } from "@/components/icon";
 import { RecordStatusBadge } from "@/components/status";
-import { USER_STATUS_TABS, UserStatus, type UserStatusTabValue, readFormStatus } from "@/lib/constants";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, USER_STATUS_TABS, UserStatus, type UserStatusTabValue, readFormStatus } from "@/lib/constants";
 import { FormSubmitButton } from "@/components/form-submit-button";
 import { RequiredLabel, SelectField } from "@/components/form-fields";
 import { Input, Modal, EmptyData, Pagination, TableHead } from "@/components/core_component";
@@ -80,8 +80,8 @@ export function UsersComponent({
     const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
     const [reloadAt, setReloadAt] = useState(0);
     const [activeTab, setActiveTab] = useState<UserStatusTabValue>("all");
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(20);
+    const [page, setPage] = useState(DEFAULT_PAGE);
+    const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
     const [totalPages, setTotalPages] = useState(initialTotalPages);
     const [users, setUsers] = useState<User[]>(initialUsers);
     const [isLoading, setIsLoading] = useState(false);
@@ -91,7 +91,7 @@ export function UsersComponent({
     const isRejected = selectedUser?.status === UserStatus.Rejected;
 
     useEffect(() => {
-        setPage(1);
+        setPage(DEFAULT_PAGE);
     }, [search]);
 
     useEffect(() => {
@@ -189,7 +189,7 @@ export function UsersComponent({
                     activeTab={activeTab}
                     onTabClick={(tab) => {
                         setActiveTab(tab.value);
-                        setPage(1);
+                        setPage(DEFAULT_PAGE);
                     }}
                 />
 
@@ -270,7 +270,7 @@ export function UsersComponent({
                     onPageChange={setPage}
                     onPageSizeChange={(size) => {
                         setPageSize(size);
-                        setPage(1);
+                        setPage(DEFAULT_PAGE);
                     }}
                 />
                 )}

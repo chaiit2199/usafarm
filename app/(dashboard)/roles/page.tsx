@@ -3,6 +3,7 @@ import { Dashboard } from "@/components/dashboard";
 import { getPermissions, getScopeTypes } from "@/lib/api/me";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import { filterRoles } from "@/lib/api/roles";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/lib/constants";
 import { catchPageLoadError } from "@/lib/catch-page-load";
 import { PermissionGroupsComponent } from "@/components/permission_groups/permission_groups_component";
 import { pageMetadata } from "@/lib/dashboard/navbar";
@@ -22,7 +23,7 @@ async function RolesData() {
     const [scopeTypes, permissions, rolesResult] = await Promise.all([
       getScopeTypes(),
       getPermissions(),
-      filterRoles({ page: 1, page_size: 20 }),
+      filterRoles({ page: DEFAULT_PAGE, page_size: DEFAULT_PAGE_SIZE }),
     ]);
 
     return (

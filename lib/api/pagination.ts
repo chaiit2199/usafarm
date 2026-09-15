@@ -1,10 +1,11 @@
 import type { ApiListMeta } from "@/lib/api/types";
+import { DEFAULT_PAGE_SIZE } from "@/lib/constants";
 
 /** Số trang từ meta API (hỗ trợ cả `total_page` và `total`/`total_records`). */
 export function totalPagesFromMeta(
   meta: ApiListMeta | undefined,
   itemCount: number,
-  fallbackPageSize = 20,
+  fallbackPageSize = DEFAULT_PAGE_SIZE,
 ): number {
   if (meta?.total_page != null && meta.total_page > 0) {
     return meta.total_page;
