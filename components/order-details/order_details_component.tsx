@@ -9,7 +9,13 @@ import { Icon } from "@/components/icon";
 import { SelectField, RequiredLabel } from "@/components/form-fields";
 import { OrderProductRow } from "@/components/order-details/order_product_row";
 import { OrderStatusBadge, Status } from "@/components/status";
-import { approveOrder, assignOrderWarehouse, rejectOrder, cancelOrder } from "@/lib/api/orders";
+import {
+  approveOrder,
+  assignOrderWarehouse,
+  cancelOrder,
+  completeOrder,
+  rejectOrder,
+} from "@/lib/api/orders";
 import type {
   Order,
   OrderFulfillmentCapacity,
@@ -71,13 +77,16 @@ function OrderDetailActions({
   onBack: () => void;
 }) {
   const router = useRouter();
-  const [confirmAction, setConfirmAction] = useState<OrderStatusId | "reject" | "cancelOrder" | "">("");
+  const [confirmAction, setConfirmAction] = useState<
+    OrderStatusId | "reject" | "cancelOrder" | "completeOrder" | ""
+  >("");
   const canPreparePackaging = warehouseId != null;
   const canShowPreparePackaging = statusId === orderStatus.draft;
   const isRejectConfirm = confirmAction === "reject";
   const isApproveConfirm = confirmAction === orderStatus.waitingForApproval;
   const isCancelOrderConfirm = confirmAction === "cancelOrder";
   const isPackagingCancel = isCancelOrderConfirm && statusId === orderStatus.packaging;
+  const isCompleteOrderConfirm = confirmAction === "completeOrder";
   function closeConfirm() {
     setConfirmAction("");
   }
@@ -95,6 +104,11 @@ function OrderDetailActions({
 
     if (isCancelOrderConfirm) {
       await handleCancelOrder(String(formData.get("reason") ?? ""));
+      return;
+    }
+
+    if (isCompleteOrderConfirm) {
+      await handleCompleteOrder();
       return;
     }
 
@@ -141,6 +155,18 @@ function OrderDetailActions({
     router.refresh();
   }
 
+  async function handleCompleteOrder() {
+    const result = await completeOrder({ id: orderId });
+    if (!result.ok) {
+      putFlash("error", result.message, 1500);
+      return;
+    }
+
+    closeConfirm();
+    putFlash("success", "Đã hoàn tất đơn hàng", 1500);
+    router.refresh();
+  }
+
   async function confirmPreparePackaging() {
     if (statusId == null || warehouseId == null) return;
 
@@ -182,8 +208,8 @@ function OrderDetailActions({
           </button>
         )}
 
-        {statusId === orderStatus.shipping && (
-          <button type="button" className="core_button core_button--primary">
+        {statusId === orderStatus.shipped && (
+          <button type="button" className="core_button core_button--primary" onClick={() => setConfirmAction("completeOrder")}>
             Hoàn tất đơn hàng
           </button>
         )}
@@ -219,7 +245,9 @@ function OrderDetailActions({
               ? "Xác nhận duyệt đơn hàng"
               : isCancelOrderConfirm
                 ? "Xác nhận huỷ đơn hàng"
-                : "Xác nhận chuẩn bị đóng gói"
+                : isCompleteOrderConfirm
+                  ? "Xác nhận hoàn tất đơn hàng"
+                  : "Xác nhận chuẩn bị đóng gói"
         }
         width="md"
         className="core_modal--stacked"
@@ -243,6 +271,10 @@ function OrderDetailActions({
             </div>
           ) : isApproveConfirm ? (
             <p className="text-sm text-theme-muted">Bạn có chắc muốn duyệt đơn hàng này?</p>
+          ) : isCompleteOrderConfirm ? (
+            <p className="text-sm text-theme-muted">
+              Bạn có chắc muốn hoàn tất đơn hàng <strong>{orderCode}</strong>?
+            </p>
           ) : (
             <p className="text-sm text-theme-muted">
               Bạn có chắc muốn chuẩn bị đóng gói cho đơn hàng này?
@@ -269,7 +301,13 @@ function OrderDetailActions({
               Hủy
             </button>
             <FormSubmitButton>
-              {isRejectConfirm ? "Từ chối" : isCancelOrderConfirm ? "Huỷ đơn" : "Xác nhận"}
+              {isRejectConfirm
+                ? "Từ chối"
+                : isCancelOrderConfirm
+                  ? "Huỷ đơn"
+                  : isCompleteOrderConfirm
+                    ? "Hoàn tất"
+                    : "Xác nhận"}
             </FormSubmitButton>
           </div>
         </form>

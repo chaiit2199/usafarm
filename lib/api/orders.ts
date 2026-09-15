@@ -131,6 +131,18 @@ export async function approveOrder(payload: { id: number }) {
   });
 }
 
+export async function completeOrder(payload: { id: number }) {
+  return runServerAction(orderIdSchema, payload, "Không thể hoàn tất đơn hàng", async ({ id }) => {
+    await client.post(`/api/v1/orders/${id}/complete`, undefined, {
+      headers: {
+        "Idempotency-Key": crypto.randomUUID(),
+      },
+    });
+    revalidatePath("/orders");
+    return { ok: true as const };
+  });
+}
+
 export async function cancelOrder(payload: { id: number; reason: string }) {
   return runServerAction(cancelOrderSchema, payload, "Không thể huỷ đơn hàng", async ({ id, reason }) => {
     await client.post(`/api/v1/orders/${id}/cancellations`, { reason }, {
