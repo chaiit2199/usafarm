@@ -11,6 +11,11 @@ export const rejectOrderSchema = z.object({
   reason: trimmed.min(1, "Vui lòng nhập lý do từ chối").max(1000),
 });
 
+export const cancelOrderSchema = z.object({
+  id: positiveInt,
+  reason: trimmed.min(1, "Vui lòng nhập lý do huỷ đơn").max(1000),
+});
+
 export const assignWarehouseSchema = z.object({
   warehouse_id: positiveInt,
 });
@@ -49,6 +54,7 @@ export const confirmGoodsIssueHandoverSchema = z.object({
 
 export type OrderIdInput = z.infer<typeof orderIdSchema>;
 export type RejectOrderInput = z.infer<typeof rejectOrderSchema>;
+export type CancelOrderInput = z.infer<typeof cancelOrderSchema>;
 export type AssignWarehouseInput = z.infer<typeof assignWarehouseSchema>;
 export type CompleteWarehousePackingInput = z.infer<typeof completeWarehousePackingSchema>;
 export type CreateGoodsIssueInput = z.infer<typeof createGoodsIssueSchema>;

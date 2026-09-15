@@ -89,7 +89,7 @@ function OrderDetailActions({
     }
 
     if (isCancelOrderConfirm) {
-      await handleCancelOrder();
+      await handleCancelOrder(String(formData.get("reason") ?? ""));
       return;
     }
 
@@ -125,8 +125,8 @@ function OrderDetailActions({
     router.refresh();
   }
 
-  async function handleCancelOrder() {
-    const result = await cancelOrder({ id: orderId });
+  async function handleCancelOrder(reason: string) {
+    const result = await cancelOrder({ id: orderId, reason });
     if (!result.ok) {
       putFlash("error", result.message, 1500);
       return;
@@ -221,24 +221,22 @@ function OrderDetailActions({
         onClose={closeConfirm}
       >
         <form className="core_modal__form" action={handleSubmit}>
-          {isRejectConfirm ? (
+          {isRejectConfirm || isCancelOrderConfirm ? (
             <div className="core_field">
-              <label htmlFor="reject-order-reason" className="core_label">
-                <RequiredLabel>Lý do từ chối</RequiredLabel>
+              <label htmlFor="order-action-reason" className="core_label">
+                <RequiredLabel>{isRejectConfirm ? "Lý do từ chối" : "Lý do huỷ đơn"}</RequiredLabel>
               </label>
               <textarea
-                id="reject-order-reason"
+                id="order-action-reason"
                 name="reason"
                 rows={3}
                 required
-                placeholder="Nhập lý do từ chối"
+                placeholder={isRejectConfirm ? "Nhập lý do từ chối" : "Nhập lý do huỷ đơn"}
                 className="core_input core_input--textarea w-full"
               />
             </div>
           ) : isApproveConfirm ? (
             <p className="text-sm text-theme-muted">Bạn có chắc muốn duyệt đơn hàng này?</p>
-          ) : isCancelOrderConfirm ? (
-            <p className="text-sm text-theme-muted">Bạn có chắc muốn huỷ đơn hàng này?</p>
           ) : (
             <p className="text-sm text-theme-muted">
               Bạn có chắc muốn chuẩn bị đóng gói cho đơn hàng này?
@@ -253,7 +251,9 @@ function OrderDetailActions({
             >
               Hủy
             </button>
-            <FormSubmitButton>{isRejectConfirm ? "Từ chối" : "Xác nhận"}</FormSubmitButton>
+            <FormSubmitButton>
+              {isRejectConfirm ? "Từ chối" : isCancelOrderConfirm ? "Huỷ đơn" : "Xác nhận"}
+            </FormSubmitButton>
           </div>
         </form>
       </Modal>

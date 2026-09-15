@@ -1,8 +1,25 @@
+// A4 portrait
+$slip-page-width: 210mm;
+$slip-page-height: 297mm;
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+.goods-issue-print-host {
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  width: $slip-page-width;
+}
+
 .goods-issue-slip {
   box-sizing: border-box;
-  width: 1200px;
-  min-height: 800px;
-  padding: 16px 20px 16px;
+  width: $slip-page-width;
+  min-height: $slip-page-height;
+  margin: 0 auto;
+  padding: 4mm 10mm;
   color: #000;
   background: #fff;
   font-family: "Inter", sans-serif;
@@ -18,7 +35,7 @@
 
 .goods-issue-slip__header {
   display: grid;
-  grid-template-columns: 290px 1fr 290px;
+  grid-template-columns: 1fr auto 1fr;
   align-items: start;
   gap: 8px;
 }
@@ -38,9 +55,8 @@
 .goods-issue-slip__company {
   margin: 0;
   text-align: center;
-  font-size: 20px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.08em;
   text-transform: uppercase;
   line-height: 1.25;
 }
@@ -48,13 +64,13 @@
 .goods-issue-slip__form-meta {
   padding: 8px 0 20px;
   text-align: center;
-  font-size: 12px;
+  font-size: 10px;
   line-height: 1.25;
 }
 
 .goods-issue-slip__form-meta strong {
   display: block;
-  font-size: 12px;
+  font-size: 10px;
 }
 
 .goods-issue-slip__form-meta em {
@@ -112,7 +128,7 @@
   border-bottom: 1px solid #000;
   border-top: 0;
   border-left: 0;
-  padding: 4px 8px 16px;
+  padding: 6px;
   vertical-align: top;
   line-height: 1;
 }
@@ -167,4 +183,33 @@
   display: block;
   margin-top: 50px;
   font-weight: 700;
+}
+
+@media print {
+  html,
+  body {
+    height: auto !important;
+    overflow: visible !important;
+    background: initial;
+  }
+
+  body > *:not(.goods-issue-print-host) {
+    display: none !important;
+  }
+
+  .goods-issue-print-host {
+    position: static;
+    width: auto;
+  }
+
+  .goods-issue-slip {
+    width: initial;
+    min-height: initial;
+    margin: 0;
+    border: initial;
+    border-radius: initial;
+    box-shadow: initial;
+    background: initial;
+    page-break-after: always;
+  }
 }

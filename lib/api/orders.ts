@@ -12,6 +12,7 @@ import type {
 import { runServerAction } from "@/lib/server-actions";
 import {
   assignWarehouseSchema,
+  cancelOrderSchema,
   orderIdSchema,
   rejectOrderSchema,
   type AssignWarehouseInput,
@@ -130,9 +131,9 @@ export async function approveOrder(payload: { id: number }) {
   });
 }
 
-export async function cancelOrder(payload: { id: number }) {
-  return runServerAction(orderIdSchema, payload, "Không thể huỷ đơn hàng", async ({ id }) => {
-    await client.post(`/api/v1/orders/${id}/cancellations`, undefined, {
+export async function cancelOrder(payload: { id: number; reason: string }) {
+  return runServerAction(cancelOrderSchema, payload, "Không thể huỷ đơn hàng", async ({ id, reason }) => {
+    await client.post(`/api/v1/orders/${id}/cancellations`, { reason }, {
       headers: {
         "Idempotency-Key": crypto.randomUUID(),
       },

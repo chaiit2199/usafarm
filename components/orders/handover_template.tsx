@@ -192,66 +192,42 @@ function SlipSignatures({ warehouseKeeper }: { warehouseKeeper?: string   }) {
   );
 }
 
-const SLIP_PAGE_WIDTH = 1200;
-const SLIP_PAGE_HEIGHT = 800;
-const SLIP_CAPTURE_SCALE = 2;
+const PRINT_TIMEOUT = 60_000;
 
-function prepareCloneForCapture(doc: Document) {
-  doc.documentElement.style.setProperty("line-height", "1", "important");
-  doc.body.style.setProperty("line-height", "1", "important");
-  doc.body.style.setProperty("font-size", "12px", "important");
-  doc.body.style.setProperty("font-family", '"Times New Roman", Times, serif', "important");
-}
-
-function keepBlockOnOnePage(slip: HTMLElement, selector: string, pageHeight: number, forceNextPage = false) {
-  const block = slip.querySelector(selector);
-  if (!(block instanceof HTMLElement)) return;
-  const offsetInPage = block.offsetTop % pageHeight;
-  if (offsetInPage === 0) return;
-  const wouldSplit = offsetInPage + block.offsetHeight > pageHeight;
-  if (!forceNextPage && !wouldSplit) return;
-  const spacer = document.createElement("div");
-  spacer.style.height = `${pageHeight - offsetInPage}px`;
-  block.parentElement?.insertBefore(spacer, block);
-}
-
-function sliceCanvasPages(source: HTMLCanvasElement, pageHeightPx: number) {
-  const pages: HTMLCanvasElement[] = [];
-  let y = 0;
-  while (y < source.height) {
-    const remaining = source.height - y;
-    if (remaining <= 4) break;
-    const sliceHeight = Math.min(pageHeightPx, remaining);
-    const page = document.createElement("canvas");
-    page.width = source.width;
-    page.height = pageHeightPx;
-    const ctx = page.getContext("2d");
-    if (!ctx) break;
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, page.width, page.height);
-    ctx.drawImage(source, 0, y, source.width, sliceHeight, 0, 0, source.width, sliceHeight);
-    pages.push(page);
-    y += pageHeightPx;
+async function waitForSlipAssets(slip: HTMLElement) {
+  await Promise.all(
+    Array.from(slip.querySelectorAll("img")).map((img) =>
+      img.complete
+        ? Promise.resolve()
+        : new Promise<void>((resolve) => {
+            img.addEventListener("load", () => resolve(), { once: true });
+            img.addEventListener("error", () => resolve(), { once: true });
+          }),
+    ),
+  );
+  if (document.fonts?.ready) {
+    await document.fonts.ready;
   }
-  return pages;
+}
+
+function printAndWait() {
+  return new Promise<void>((resolve) => {
+    const timer = window.setTimeout(resolve, PRINT_TIMEOUT);
+    window.addEventListener(
+      "afterprint",
+      () => {
+        window.clearTimeout(timer);
+        resolve();
+      },
+      { once: true },
+    );
+    window.print();
+  });
 }
 
 export async function exportHandoverPdf(issue: GoodsIssue) {
-  const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-    import("html2canvas"),
-    import("jspdf"),
-  ]);
-
   const host = document.createElement("div");
-  Object.assign(host.style, {
-    position: "fixed", 
-    left: "0",
-    top: "0",
-    width: `${SLIP_PAGE_WIDTH}px`,
-    background: "#ffffff",
-    color: "#111111",
-    zIndex: "-1",
-  });
+  host.className = "goods-issue-print-host";
   document.body.appendChild(host);
 
   const root = createRoot(host);
@@ -261,66 +237,12 @@ export async function exportHandoverPdf(issue: GoodsIssue) {
     });
 
     const slip = host.querySelector(".goods-issue-slip");
-    if (!(slip instanceof HTMLElement) || slip.offsetWidth === 0 || slip.offsetHeight === 0) {
-      throw new Error("Không capture được phiếu xuất kho");
+    if (!(slip instanceof HTMLElement)) {
+      throw new Error("Không tạo được phiếu xuất kho");
     }
 
-    await Promise.all(
-      Array.from(slip.querySelectorAll("img")).map((img) =>
-        img.complete
-          ? Promise.resolve()
-          : new Promise<void>((resolve) => {
-              img.addEventListener("load", () => resolve(), { once: true });
-              img.addEventListener("error", () => resolve(), { once: true });
-            }),
-      ),
-    );
-    if (document.fonts?.ready) {
-      await document.fonts.ready;
-    }
-    keepBlockOnOnePage(
-      slip,
-      ".goods-issue-slip__signs",
-      SLIP_PAGE_HEIGHT,
-      (issue.lines?.length ?? 0) > 5,
-    );
-    await new Promise((resolve) => setTimeout(resolve, 50));
-
-    const canvas = await html2canvas(slip, {
-      scale: SLIP_CAPTURE_SCALE,
-      backgroundColor: "#ffffff",
-      useCORS: true,
-      width: SLIP_PAGE_WIDTH,
-      windowWidth: SLIP_PAGE_WIDTH,
-      scrollX: -window.scrollX,
-      scrollY: -window.scrollY,
-      onclone: prepareCloneForCapture,
-    });
-
-    if (!canvas.width || !canvas.height) {
-      throw new Error("Không capture được phiếu xuất kho");
-    }
-
-    const pages = sliceCanvasPages(canvas, SLIP_PAGE_HEIGHT * SLIP_CAPTURE_SCALE);
-    if (pages.length === 0) {
-      throw new Error("Không capture được phiếu xuất kho");
-    }
-
-    const pdf = new jsPDF({
-      unit: "px",
-      format: [SLIP_PAGE_WIDTH, SLIP_PAGE_HEIGHT],
-      orientation: "landscape",
-      hotfixes: ["px_scaling"],
-    });
-
-    pages.forEach((page, index) => {
-      if (index > 0) {
-        pdf.addPage([SLIP_PAGE_WIDTH, SLIP_PAGE_HEIGHT], "landscape");
-      }
-      pdf.addImage(page.toDataURL("image/jpeg", 0.98), "JPEG", 0, 0, SLIP_PAGE_WIDTH, SLIP_PAGE_HEIGHT);
-    });
-
-    pdf.save(`${issue.code}.pdf`);
+    await waitForSlipAssets(slip);
+    await printAndWait();
   } finally {
     root.unmount();
     host.remove();
