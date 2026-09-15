@@ -55,13 +55,17 @@ function getWarehouse(
 
 function OrderDetailActions({
   orderId,
+  orderCode,
   warehouseId,
+  warehouseName,
   statusId,
   canFulfillRemaining,
   onBack,
 }: {
   orderId: number;
+  orderCode: string;
   warehouseId: number | null;
+  warehouseName?: string;
   statusId?: OrderStatusId;
   canFulfillRemaining: boolean;
   onBack: () => void;
@@ -73,6 +77,7 @@ function OrderDetailActions({
   const isRejectConfirm = confirmAction === "reject";
   const isApproveConfirm = confirmAction === orderStatus.waitingForApproval;
   const isCancelOrderConfirm = confirmAction === "cancelOrder";
+  const isPackagingCancel = isCancelOrderConfirm && statusId === orderStatus.packaging;
   function closeConfirm() {
     setConfirmAction("");
   }
@@ -245,9 +250,13 @@ function OrderDetailActions({
           )} 
 
 
-          {isCancelOrderConfirm && (
+          {isPackagingCancel && (
             <p className="text-sm text-theme-muted mb-8">
-              <i>Lưu ý hiện đơn hàng vẫn đang đóng gói, hãy liên hệ kho để thông báo ngưng đóng gói và lưu số lượng đã đóng vào kho</i>
+              <i>
+                Lưu ý đơn hàng <strong>{orderCode}</strong> vẫn đang đóng gói
+                {warehouseName ? ` tại ${warehouseName}` : ""}, hãy liên hệ kho để thông báo ngưng
+                đóng gói và lưu số lượng đã đóng vào kho.
+              </i>
             </p>
           )}
 
@@ -327,8 +336,6 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
       current.includes(id) ? current.filter((itemId) => itemId !== id) : [...current, id],
     );
   }
-
-  console.log(order);
 
   return (
     <>
@@ -541,10 +548,15 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
         </div>
       </div>
       )} 
+      
 
       <OrderDetailActions
         orderId={order.id}
+        orderCode={order.code}
         warehouseId={warehouseId}
+        warehouseName={
+          warehouses.find((warehouse) => warehouse.warehouse_id === warehouseId)?.warehouse_name
+        }
         statusId={statusId}
         canFulfillRemaining={warehouseAvailable.can_fulfill_remaining}
         onBack={() => router.push("/orders")}
