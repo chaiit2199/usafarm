@@ -35,22 +35,14 @@ function lineRemaining(line: WarehouseOrderLine) {
   return Math.max(0, line.quantity - line.packed_quantity);
 }
 
-function clampQty(raw: number, max: number) {
+function clampQty(raw: number, remaining: number) {
   if (!Number.isFinite(raw) || raw < 0) return 0;
-  return Math.min(Math.floor(raw), max);
-}
-
-function addedQty(line: WarehouseOrderLine, raw: number) {
-  return clampQty(raw, lineRemaining(line));
-}
-
-function actualPackedQuantity(line: WarehouseOrderLine, added: number) {
-  return clampQty(line.packed_quantity + added, line.quantity);
+  return Math.min(Math.floor(raw), remaining);
 }
 
 type CompletePackLinePayload = {
   order_line_id: number;
-  actual_packed_quantity: number;
+  packed_quantity: number;
 };
 
 type CompletePackPayload = {
@@ -66,33 +58,14 @@ function PackingDetailsModalForm({
   onClose: () => void;
   onRequestComplete: (payload: CompletePackPayload) => void;
 }) {
-  const [qtys, setQtys] = useState<Record<number, number>>(() =>
-    Object.fromEntries(order.lines.map((line) => [line.id, lineRemaining(line)])),
-  );
-
-  function setLineQty(line: WarehouseOrderLine, raw: number) {
-    setQtys((current) => ({
-      ...current,
-      [line.id]: addedQty(line, raw),
-    }));
-  }
-
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    const lines: CompletePackLinePayload[] = [];
-    for (const line of order.lines) {
-      const added = addedQty(line, qtys[line.id] ?? 0);
-      if (added <= 0) continue;
-
-      lines.push({
-        order_line_id: line.id,
-        actual_packed_quantity: actualPackedQuantity(line, added),
-      });
-    }
-
-    if (lines.length === 0) return;
-
+    const form = new FormData(event.currentTarget);
+    const lines = order.lines.map((line) => {
+      const remaining = lineRemaining(line);
+      const value = remaining <= 0 ? 0 : clampQty(Number(form.get(`qty-${line.id}`)), remaining);
+      return { order_line_id: line.id, packed_quantity: value };
+    });
     onRequestComplete({ lines });
   }
 
@@ -146,15 +119,19 @@ function PackingDetailsModalForm({
                       ) : (
                         <input
                           id={`complete-pack-qty-${order.id}-${line.id}`}
+                          name={`qty-${line.id}`}
                           type="number"
                           min={0}
                           max={remaining}
-                          disabled={remaining <= 0}
-                          value={qtys[line.id] ?? 0}
+                          defaultValue={remaining}
                           className="core_input w-full text-right"
-                          onChange={(event) => setLineQty(line, Number(event.target.value))}
+                          onChange={(event) => {
+                            event.target.value = String(
+                              clampQty(Number(event.target.value), remaining),
+                            );
+                          }}
                         />
-                      )} 
+                      )}
                     </td>
                   </tr>
                 );
@@ -168,11 +145,7 @@ function PackingDetailsModalForm({
         <button type="button" className="core_button core_button--secondary" onClick={onClose}>
           Đóng
         </button>
-        <button
-          type="submit"
-          className="core_button core_button--primary"
-          disabled={order.lines.every((line) => lineRemaining(line) <= 0)}
-        >
+        <button type="submit" className="core_button core_button--primary">
           Đóng gói
         </button>
       </div>
@@ -199,7 +172,7 @@ function PackagingOrderLines({ lines }: { lines: WarehouseOrderLine[] }) {
           </colgroup>
           <thead>
             <tr>
-              <TableHead>ID đơn hàng</TableHead>
+              <TableHead></TableHead>
               <TableHead>SKU</TableHead>
               <TableHead icon="hero-cube">Tên sản phẩm</TableHead>
               <TableHead>Số lượng cần</TableHead>
@@ -314,12 +287,9 @@ export function PackagingComponent() {
   async function confirmCompletePackaging() {
     if (!detailsOrder || !completePayload) return;
 
-    const lines = completePayload.lines.filter((line) => line.actual_packed_quantity > 0);
-    if (lines.length === 0) return;
-
     const result = await completeWarehouseOrderPacking({
       id: detailsOrder.id,
-      lines,
+      lines: completePayload.lines,
     });
     if (!result.ok) {
       putFlash("error", result.message, 1500);

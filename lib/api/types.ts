@@ -272,6 +272,7 @@ export type OrderCreator = {
   id: number;
   code: string;
   name: string;
+  phone?: string | null;
 };
 
 export type OrderDeliveryAddress = {

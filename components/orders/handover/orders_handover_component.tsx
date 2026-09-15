@@ -348,17 +348,17 @@ export function OrdersHandoverComponent() {
               <div className="overview-table-inner">
                 <table className="overview-table min-w-full" id="handover-orders-table">
                   <colgroup>
-                    <col style={{ width: "10%" }} />
+                    <col style={{ width: "8%" }} />
                     <col style={{ width: "24%" }} />
                     <col style={{ width: "14%" }} />
                     <col style={{ width: "14%" }} />
                     <col style={{ width: "16%" }} />
-                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "14%" }} />
                     <col style={{ width: "10%" }} />
                   </colgroup>
                   <thead>
                     <tr>
-                      <TableHead>ID đơn hàng</TableHead>
+                      <TableHead></TableHead>
                       <TableHead>Mã đơn hàng</TableHead>
                       <TableHead>Số phiếu xuất</TableHead> 
                       <TableHead icon="hero-truck">Xe nhận hàng</TableHead>

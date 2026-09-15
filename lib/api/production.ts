@@ -76,7 +76,7 @@ export async function startWarehouseOrder(payload: { id: number }) {
 
 export async function completeWarehouseOrderPacking(payload: {
   id: number;
-  lines: Array<{ order_line_id: number; actual_packed_quantity: number }>;
+  lines: Array<{ order_line_id: number; packed_quantity: number }>;
 }) {
   return runServerAction(
     completeWarehousePackingSchema,

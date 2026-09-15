@@ -21,7 +21,7 @@ export const completeWarehousePackingSchema = z.object({
     .array(
       z.object({
         order_line_id: positiveInt,
-        actual_packed_quantity: z.coerce.number().int().nonnegative(),
+        packed_quantity: z.coerce.number().int().nonnegative(),
       }),
     )
     .min(1, "Vui lòng nhập số lượng đóng gói"),

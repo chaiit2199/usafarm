@@ -65,13 +65,10 @@ export function recordStatusMeta(status?: number) {
   return UNKNOWN_STATUS;
 }
 
-/** @deprecated Dùng recordStatusMeta — giữ alias cho component user. */
 export const userStatusMeta = recordStatusMeta;
 
-/** Role dùng cùng 0/1/2/3 với user & department. */
 export const roleStatusMeta = recordStatusMeta;
 
-/** API order.status 0–13. Thứ tự tab giữ như cũ. */
 export const ORDER_STATUSES = [
   { id: 0, semantic: "DRAFT", label: "Đơn mới", color: "#16A34A" },
   { id: 4, semantic: "PACKAGING", label: "Đang đóng gói", color: "#7C3AED" },

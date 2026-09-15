@@ -21,13 +21,7 @@ import type { WarehouseOrder } from "@/lib/api/types";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, orderStatus } from "@/lib/constants";
 import { putFlash } from "@/lib/flash/flash";
 import { formatDateTimeVi } from "@/lib/format/date";
-
-const MOCK_CARRIERS = [
-  { id: 1, name: "Công ty vận tải A" },
-  { id: 2, name: "Công ty vận tải B" },
-  { id: 3, name: "Nhà xe C" },
-] as const;
-
+ 
 function formatWeightKg(bags: number, packSpecKg: number) {
   return new Intl.NumberFormat("en-US").format(bags * packSpecKg);
 }  
@@ -69,6 +63,8 @@ function ExportSlipModal({
       warehouse_id: order.warehouses?.[0].warehouse_id ?? 0,
       ...slip,
     });
+
+    console.log(result);
 
     if (!result.ok) {
       putFlash("error", result.message, 1500);
@@ -181,22 +177,13 @@ function ExportSlipModal({
                 Thông tin điều độ phương tiện vận tải
               </h6>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <SelectField
+                <Input
                   id="export-carrier"
                   name="carrier_name"
-                  label={<RequiredLabel>Đơn vị / nhà vận chuyển</RequiredLabel>}
-                  defaultValue=""
+                  label={<RequiredLabel>Nhà vận chuyển</RequiredLabel>}
+                  placeholder="Nhập nhà vận chuyển"
                   required
-                >
-                  <option value="" disabled>
-                    Chọn nhà vận chuyển
-                  </option>
-                  {MOCK_CARRIERS.map((carrier) => (
-                    <option key={carrier.id} value={carrier.name}>
-                      {carrier.name}
-                    </option>
-                  ))}
-                </SelectField>
+                />
 
                 <Input
                   id="export-vehicle-plate"
@@ -324,7 +311,7 @@ export function OrdersExportComponent() {
 
     getWarehouseOrders({
       search: search.trim().replace("script", "") || "",
-      status: orderStatus.packaged,
+      status: 5,
       page,
       page_size: pageSize,
     }).then((result) => {
@@ -364,7 +351,8 @@ export function OrdersExportComponent() {
                 <div className="overview-table-inner">
                   <table className="overview-table min-w-[1400px]" id="export-orders-table">
                     <colgroup>
-                      <col style={{ width: "26%" }} />
+                      <col style={{ width: "4%" }} />
+                      <col style={{ width: "22%" }} />
                       <col style={{ width: "10%" }} />
                       <col style={{ width: "10%" }} />
                       <col style={{ width: "14%" }} />
@@ -374,6 +362,7 @@ export function OrdersExportComponent() {
                     </colgroup>
                     <thead>
                       <tr>
+                        <TableHead></TableHead>
                         <TableHead icon="hero-clipboard-document-list">Mã đơn</TableHead>
                         <TableHead>Số lượng</TableHead>
                         <TableHead icon="hero-tag">Trạng thái</TableHead>
@@ -384,10 +373,11 @@ export function OrdersExportComponent() {
                       </tr>
                     </thead>
                     <tbody>
-                      {orders.map((order) => {
+                      {orders.map((order, index) => {
                         return (
                           <Fragment key={order.id}>
                             <tr id={`export-order-row-${order.id}`} onClick={() => setSelectedOrder(order)}>
+                              <td>{index + 1}</td>
                               <td className="overview-table__code">{order.code}</td>
                               <td className="overview-table__muted">{order.packed_quantity}</td> 
                               <td>

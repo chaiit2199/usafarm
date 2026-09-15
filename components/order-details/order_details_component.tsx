@@ -300,6 +300,8 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
     );
   }
 
+  console.log(order);
+
   return (
     <>
       <div className="grid grid-cols-3 gap-6">
@@ -316,7 +318,7 @@ export function OrderDetailsComponent({ order, fulfillmentCapacity }: OrderDetai
             </div>
             <div>
               <p className="text-theme-muted text-xs mb-0.5">Số điện thoại</p>
-              <p className="font-semibold text-slate-900 text-sm">-</p>
+              <p className="font-semibold text-slate-900 text-sm">{order.created_by.phone ?? "-"}</p>
             </div>
            
             
