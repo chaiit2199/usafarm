@@ -9,7 +9,7 @@ import { Icon } from "@/components/icon";
 import { SelectField, RequiredLabel } from "@/components/form-fields";
 import { OrderProductRow } from "@/components/order-details/order_product_row";
 import { OrderStatusBadge, Status } from "@/components/status";
-import { approveOrder, assignOrderWarehouse, rejectOrder } from "@/lib/api/orders";
+import { approveOrder, assignOrderWarehouse, rejectOrder, cancelOrder } from "@/lib/api/orders";
 import type {
   Order,
   OrderFulfillmentCapacity,
@@ -67,12 +67,12 @@ function OrderDetailActions({
   onBack: () => void;
 }) {
   const router = useRouter();
-  const [confirmAction, setConfirmAction] = useState<OrderStatusId | "reject" | "">("");
+  const [confirmAction, setConfirmAction] = useState<OrderStatusId | "reject" | "cancelOrder" | "">("");
   const canPreparePackaging = warehouseId != null;
   const canShowPreparePackaging = statusId === orderStatus.draft;
   const isRejectConfirm = confirmAction === "reject";
   const isApproveConfirm = confirmAction === orderStatus.waitingForApproval;
-
+  const isCancelOrderConfirm = confirmAction === "cancelOrder";
   function closeConfirm() {
     setConfirmAction("");
   }
@@ -85,6 +85,11 @@ function OrderDetailActions({
 
     if (isApproveConfirm) {
       await handleApproveOrder();
+      return;
+    }
+
+    if (isCancelOrderConfirm) {
+      await handleCancelOrder();
       return;
     }
 
@@ -117,6 +122,17 @@ function OrderDetailActions({
 
     closeConfirm();
     putFlash("success", "Đã duyệt đơn hàng", 1500);
+    router.refresh();
+  }
+
+  async function handleCancelOrder() {
+    const result = await cancelOrder({ id: orderId });
+    if (!result.ok) {
+      putFlash("error", result.message, 1500);
+      return;
+    }
+    closeConfirm();
+    putFlash("success", "Đã huỷ đơn hàng", 1500);
     router.refresh();
   }
 
@@ -156,7 +172,7 @@ function OrderDetailActions({
 
 
         {statusId != orderStatus.completed && statusId != orderStatus.waitingForApproval && (
-          <button type="button" className="core_button core_button--danger">
+          <button type="button" className="core_button core_button--danger" onClick={() => setConfirmAction("cancelOrder")}>
             Huỷ đơn
           </button>
         )}
@@ -196,7 +212,9 @@ function OrderDetailActions({
             ? "Xác nhận từ chối đơn hàng"
             : isApproveConfirm
               ? "Xác nhận duyệt đơn hàng"
-              : "Xác nhận chuẩn bị đóng gói"
+              : isCancelOrderConfirm
+                ? "Xác nhận huỷ đơn hàng"
+                : "Xác nhận chuẩn bị đóng gói"
         }
         width="md"
         className="core_modal--stacked"
@@ -219,6 +237,8 @@ function OrderDetailActions({
             </div>
           ) : isApproveConfirm ? (
             <p className="text-sm text-theme-muted">Bạn có chắc muốn duyệt đơn hàng này?</p>
+          ) : isCancelOrderConfirm ? (
+            <p className="text-sm text-theme-muted">Bạn có chắc muốn huỷ đơn hàng này?</p>
           ) : (
             <p className="text-sm text-theme-muted">
               Bạn có chắc muốn chuẩn bị đóng gói cho đơn hàng này?
