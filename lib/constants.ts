@@ -71,22 +71,21 @@ export const userStatusMeta = recordStatusMeta;
 /** Role dùng cùng 0/1/2/3 với user & department. */
 export const roleStatusMeta = recordStatusMeta;
 
-/** API order.status 0–10. */
+/** API order.status 0–13. Thứ tự tab giữ như cũ. */
 export const ORDER_STATUSES = [
   { id: 0, semantic: "DRAFT", label: "Đơn mới", color: "#16A34A" },
-  { id: 4, semantic: "WAITING_WAREHOUSE_ACCEPTANCE", label: "Chờ đóng gói", color: "#CA8A04" },
-  { id: 5, semantic: "PROCESSING", label: "Đang đóng gói", color: "#7C3AED" },
-  { id: 12, semantic: "APPROVED_WAITING_GOODS_ISSUE", label: "Chờ xuất kho", color: "#0D9488" },
-  { id: 11, semantic: "APPROVED_WAITING_SHIPMENT", label: "Chờ giao hàng", color: "#0284C7" },
-  { id: 13, semantic: "APPROVED_WAITING_HANDOVER", label: "Đang vận chuyển", color: "#2563EB" },
-  { id: 7, semantic: "COMPLETED", label: "Hoàn thành", color: "#16A34A" },
-  // { id: 3, semantic: "REJECTED", label: "Từ chối", color: "#B91C1C" },
-  // { id: 6, semantic: "CANCELLING", label: "Đang xử lý hủy", color: "#F97316" },
-  // { id: 8, semantic: "COMPLETED_PARTIAL_CANCEL", label: "Hoàn thành, có hủy một phần", color: "#65A30D" },
+  { id: 4, semantic: "PACKAGING", label: "Đang đóng gói", color: "#7C3AED" },
+  { id: 5, semantic: "PACKAGED", label: "Đã đóng gói", color: "#0284C7" },
+  { id: 12, semantic: "WAREHOUSE_RECEIVED", label: "Đã nhập kho", color: "#0D9488" },
+  { id: 11, semantic: "CANCELLED_AND_RESTOCKED", label: "Hủy&Nhập kho", color: "#EA580C" },
+  { id: 13, semantic: "COMPLETED", label: "Hoàn tất", color: "#16A34A" },
+  { id: 7, semantic: "SHIPPING", label: "Đang vận chuyển", color: "#2563EB" },
+  { id: 3, semantic: "WAITING_FOR_PACKAGING", label: "Chờ đóng gói", color: "#CA8A04" },
+  { id: 6, semantic: "WAITING_FOR_SHIPMENT", label: "Chờ vận chuyển", color: "#F97316" },
+  { id: 8, semantic: "SHIPPED", label: "Vận chuyển thành công", color: "#65A30D" },
   { id: 9, semantic: "CANCELLED", label: "Đã hủy", color: "#DC2626" },
   { id: 10, semantic: "SPLIT_ORDER", label: "Tách đơn", color: "#78716C" },
   { id: 1, semantic: "WAITING_FOR_APPROVAL", label: "Chờ duyệt", color: "#D97706" },
-  { id: 2, semantic: "APPROVED_WAITING_ALLOCATION", label: "Chờ phân kho", color: "#EA580C" },
 ] as const;
 
 export type OrderStatusId = (typeof ORDER_STATUSES)[number]["id"];
@@ -96,18 +95,17 @@ export type OrderStatusSemantic = (typeof ORDER_STATUSES)[number]["semantic"];
 export const orderStatus = {
   draft: 0,
   waitingForApproval: 1,
-  approvedWaitingAllocation: 2,
-  // rejected: 3,
-  waitingWarehouseAcceptance: 4,
-  processing: 5,
-  // cancelling: 6,
-  completed: 7,
-  // completedPartialCancel: 8,
+  waitingForPackaging: 3,
+  packaging: 4,
+  packaged: 5,
+  waitingForShipment: 6,
+  shipping: 7,
+  shipped: 8,
   cancelled: 9,
   splitOrder: 10,
-  approvedWaitingShipment: 11,
-  approvedWaitingGoodsIssue: 12,
-  approvedWaitingHandover: 13,
+  cancelledAndRestocked: 11,
+  warehouseReceived: 12,
+  completed: 13,
 } as const satisfies Record<string, OrderStatusId>;
 
 export type OrderStatusInput = number | { code: number; semantic?: string; label?: string };
@@ -140,7 +138,7 @@ export function getOrderStatusMeta(status: OrderStatusInput) {
 /** Fake series for overview pie chart — status key = id string. */
 export const ORDER_SERIES = ORDER_STATUSES.map((status, index) => ({
   status: String(status.id),
-  value: [18, 42, 28, 12, 22, 35, 8, 61, 14, 19][index] ?? 10,
+  value: [18, 42, 28, 12, 22, 35, 8, 61, 14, 19, 11, 16, 9, 24][index] ?? 10,
 })).map((item) => ({
   ...item,
   label: getOrderStatusLabel(Number(item.status)),

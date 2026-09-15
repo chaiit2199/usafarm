@@ -18,7 +18,7 @@ import { OrderStatusBadge } from "@/components/status";
 import { getWarehouseOrders, createWarehouseOrderGoodsIssue } from "@/lib/api/production";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import type { WarehouseOrder } from "@/lib/api/types";
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/lib/constants";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, orderStatus } from "@/lib/constants";
 import { putFlash } from "@/lib/flash/flash";
 import { formatDateTimeVi } from "@/lib/format/date";
 
@@ -324,7 +324,7 @@ export function OrdersExportComponent() {
 
     getWarehouseOrders({
       search: search.trim().replace("script", "") || "",
-      status: 11,
+      status: orderStatus.packaged,
       page,
       page_size: pageSize,
     }).then((result) => {

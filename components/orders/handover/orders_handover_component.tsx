@@ -11,7 +11,7 @@ import { OrderStatusBadge } from "@/components/status";
 import { getWarehouseOrders, uploadGoodsIssueImages, confirmGoodsIssueHandover } from "@/lib/api/production";
 import { totalPagesFromMeta } from "@/lib/api/pagination";
 import type { GoodsIssue, WarehouseOrder } from "@/lib/api/types";
-import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "@/lib/constants";
+import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, orderStatus } from "@/lib/constants";
 import { putFlash } from "@/lib/flash/flash";
 import { exportHandoverPdf } from "../handover_template";
 
@@ -310,7 +310,7 @@ export function OrdersHandoverComponent() {
 
     getWarehouseOrders({
       search: search.trim() || "",
-      status: 12,
+      status: orderStatus.shipping,
       page,
       page_size: pageSize,
     }).then((result) => {

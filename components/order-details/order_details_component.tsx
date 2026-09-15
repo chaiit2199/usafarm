@@ -69,7 +69,7 @@ function OrderDetailActions({
   const router = useRouter();
   const [confirmAction, setConfirmAction] = useState<OrderStatusId | "reject" | "">("");
   const canPreparePackaging = warehouseId != null;
-  const canShowPreparePackaging = statusId === orderStatus.draft || statusId === orderStatus.approvedWaitingAllocation;
+  const canShowPreparePackaging = statusId === orderStatus.draft;
   const isRejectConfirm = confirmAction === "reject";
   const isApproveConfirm = confirmAction === orderStatus.waitingForApproval;
 
@@ -90,8 +90,7 @@ function OrderDetailActions({
 
     if (
       confirmAction === orderStatus.draft ||
-      confirmAction === orderStatus.splitOrder ||
-      confirmAction === orderStatus.approvedWaitingAllocation
+      confirmAction === orderStatus.splitOrder
     ) {
       await confirmPreparePackaging();
     }
@@ -156,13 +155,13 @@ function OrderDetailActions({
         )} 
 
 
-        {statusId != orderStatus.completed && (
+        {statusId != orderStatus.completed && statusId != orderStatus.waitingForApproval && (
           <button type="button" className="core_button core_button--danger">
             Huỷ đơn
           </button>
         )}
 
-        {statusId === orderStatus.approvedWaitingHandover && (
+        {statusId === orderStatus.shipping && (
           <button type="button" className="core_button core_button--primary">
             Hoàn tất đơn hàng
           </button>

@@ -18,14 +18,14 @@ import { formatDateTimeVi } from "@/lib/format/date";
 
 const ORDER_STATUS_TABS = [
   {
-    id: orderStatus.waitingWarehouseAcceptance,
+    id: orderStatus.waitingForPackaging,
     label: "Chờ đóng gói",
-    color: "#7C3AED",
+    color: "#CA8A04",
   },
   {
-    id: orderStatus.processing,
+    id: orderStatus.packaging,
     label: "Đang đóng gói",
-    color: "#3B82F6",
+    color: "#7C3AED",
   },
 ] as const;
 
@@ -300,7 +300,7 @@ export function PackagingComponent() {
   }
 
   function openOrderAction(order: WarehouseOrder) {
-    if (order.status === orderStatus.waitingWarehouseAcceptance) {
+    if (order.status === orderStatus.waitingForPackaging) {
       setConfirmOrder(order);
       return;
     }
@@ -445,7 +445,7 @@ export function PackagingComponent() {
                                   type="button"
                                   className="admin-actions__btn"
                                   aria-label={
-                                    order.status === orderStatus.waitingWarehouseAcceptance
+                                    order.status === orderStatus.waitingForPackaging
                                       ? "Bắt đầu đóng gói"
                                       : "Hoàn thành đóng gói"
                                   }
