@@ -152,7 +152,6 @@ function ExportSlipModal({
     // };
 
     try {
-      
       setIsConfirmOpen(false);
       putFlash("success", "Đã lập phiếu xuất kho", 1500);
       onSaved();

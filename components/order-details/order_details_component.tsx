@@ -171,7 +171,7 @@ function OrderDetailActions({
         )} 
 
 
-        {statusId != orderStatus.completed && statusId != orderStatus.waitingForApproval && (
+        {statusId != orderStatus.completed && statusId != orderStatus.waitingForApproval && statusId != orderStatus.cancelledAndRestocked && (
           <button type="button" className="core_button core_button--danger" onClick={() => setConfirmAction("cancelOrder")}>
             Huỷ đơn
           </button>
@@ -220,6 +220,7 @@ function OrderDetailActions({
         className="core_modal--stacked"
         onClose={closeConfirm}
       >
+       
         <form className="core_modal__form" action={handleSubmit}>
           {isRejectConfirm || isCancelOrderConfirm ? (
             <div className="core_field">
@@ -240,6 +241,13 @@ function OrderDetailActions({
           ) : (
             <p className="text-sm text-theme-muted">
               Bạn có chắc muốn chuẩn bị đóng gói cho đơn hàng này?
+            </p>
+          )} 
+
+
+          {isCancelOrderConfirm && (
+            <p className="text-sm text-theme-muted mb-8">
+              <i>Lưu ý hiện đơn hàng vẫn đang đóng gói, hãy liên hệ kho để thông báo ngưng đóng gói và lưu số lượng đã đóng vào kho</i>
             </p>
           )}
 

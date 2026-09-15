@@ -112,13 +112,13 @@ export class Client {
       debug(response.status);
 
       // disable because spam log console
-      // logHttp({
-      //   method: String(method ?? "GET").toUpperCase(),
-      //   url: `${url}${isRetry ? " (retry)" : ""}`,
-      //   status: response.status,
-      //   payload: isFormData ? "[FormData]" : data,
-      //   data: response.data,
-      // });
+      logHttp({
+        method: String(method ?? "GET").toUpperCase(),
+        url: `${url}${isRetry ? " (retry)" : ""}`,
+        status: response.status,
+        payload: isFormData ? "[FormData]" : data,
+        data: response.data,
+      });
       return response.data;
     } catch (error) {
       const httpError = toHttpError(error);
