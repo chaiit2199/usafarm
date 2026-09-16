@@ -202,7 +202,8 @@ function OrderDetailActions({
         )} 
 
 
-        {statusId != orderStatus.completed && statusId != orderStatus.waitingForApproval && statusId != orderStatus.cancelledAndRestocked && (
+        {statusId != orderStatus.completed && statusId != orderStatus.waitingForApproval 
+        && statusId != orderStatus.cancelledAndRestocked && statusId != orderStatus.cancelled && (
           <button type="button" className="core_button core_button--danger" onClick={() => setConfirmAction("cancelOrder")}>
             Huỷ đơn
           </button>
